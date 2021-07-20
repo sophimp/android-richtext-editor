@@ -5,11 +5,14 @@ import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatEditText
 
 /**
- * @des: 富文本编辑器
- * @since: 2021/7/20
- * @version:
+ * rich text editor
  * @author: sfx
+ * @since: 2021/7/20
  */
 class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(context, attr) {
+    var isChange: Boolean = false
 
+    init {
+
+    }
 }
