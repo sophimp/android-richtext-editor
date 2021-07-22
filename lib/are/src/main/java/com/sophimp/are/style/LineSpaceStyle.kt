@@ -15,7 +15,7 @@ import kotlin.math.abs
  * @author: sfx
  * @since: 2021/6/15
  */
-class LineSpaceStyle(editText: RichEditText, private var isLarge: Boolean) :
+class LineSpaceStyle(editText: RichEditText, var isLarge: Boolean) :
     BaseStyle(editText) {
     private val EPSILON = 1e-5
 

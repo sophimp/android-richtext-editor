@@ -5,6 +5,6 @@ import com.sophimp.are.style.BoldStyle
 
 class BoldToolItem(style: BoldStyle) : AbstractItem(style) {
     override val srcResId: Int
-        get() = R.mipmap.icon_toolitem_align_right
+        get() = R.mipmap.icon_toolitem_bold_unchecked
 
 }

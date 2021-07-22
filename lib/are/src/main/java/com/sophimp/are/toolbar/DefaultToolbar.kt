@@ -1,6 +1,7 @@
 package com.sophimp.are.toolbar
 
 import android.content.Context
+import android.text.Layout
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
@@ -45,8 +46,37 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
         addToolbarItem(ListNumberToolItem(ListNumberStyle(editText)))
         addToolbarItem(ListBulletToolItem(ListBulletStyle(editText)))
         addToolbarItem(TodoToolItem(TodoStyle(editText)))
-        addToolbarItem(LineSpaceToolItem(LineSpaceStyle(editText, true), true))
-        addToolbarItem(LineSpaceToolItem(LineSpaceStyle(editText, false), true))
+
+        addToolbarItem(
+            AlignmentLeftToolItem(
+                AlignmentStyle(
+                    editText,
+                    Layout.Alignment.ALIGN_NORMAL
+                )
+            )
+        )
+        addToolbarItem(
+            AlignmentCenterToolItem(
+                AlignmentStyle(
+                    editText,
+                    Layout.Alignment.ALIGN_CENTER
+                )
+            )
+        )
+        addToolbarItem(
+            AlignmentRightToolItem(
+                AlignmentStyle(
+                    editText,
+                    Layout.Alignment.ALIGN_OPPOSITE
+                )
+            )
+        )
+
+        addToolbarItem(IndentLeftToolItem(IndentLeftStyle(editText)))
+        addToolbarItem(IndentRightToolItem(IndentRightStyle(editText)))
+
+        addToolbarItem(LineSpaceToolItem(LineSpaceStyle(editText, true)))
+        addToolbarItem(LineSpaceToolItem(LineSpaceStyle(editText, false)))
         addToolbarItem(HrToolItem(HrStyle(editText)))
         addToolbarItem(LinkToolItem(LinkStyle(editText)))
     }

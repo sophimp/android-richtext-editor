@@ -19,7 +19,7 @@ abstract class AbstractItem(protected var style: IStyle) : IToolbarItem {
     init {
         imageView = ImageView(context)
         val size = getPixelByDp(context, 40)
-        val padding = getPixelByDp(context, 8)
+        val padding = getPixelByDp(context, 6)
         val params = LinearLayout.LayoutParams(size, size)
         imageView.layoutParams = params
         imageView.scaleType = ImageView.ScaleType.FIT_CENTER
