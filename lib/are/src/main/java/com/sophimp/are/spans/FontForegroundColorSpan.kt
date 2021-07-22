@@ -9,7 +9,8 @@ import androidx.annotation.ColorInt
  * @since: 2021/7/20
  */
 class FontForegroundColorSpan(@ColorInt color: Int) : ForegroundColorSpan(color), IDynamicSpan {
-    override var dynamicFeature: Int
-        get() = foregroundColor
-        set(dynamicFeature) {}
+    private var mColor = color
+    override val dynamicFeature: Int
+        get() = mColor
+
 }

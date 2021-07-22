@@ -25,7 +25,7 @@ class AudioSpan(
         LOCAL, SERVER, UNKNOWN
     }
 
-    override val html: String?
+    override val html: String
         get() {
             val htmlBuffer = StringBuilder("<attachment data-url=\"")
             htmlBuffer.append(audioUrl)

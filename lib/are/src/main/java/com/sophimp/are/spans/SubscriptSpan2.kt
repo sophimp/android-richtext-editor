@@ -7,4 +7,5 @@ import android.text.style.SubscriptSpan
  * @author: sfx
  * @since: 2021/7/20
  */
-class SubscriptSpan2 : SubscriptSpan()
+class SubscriptSpan2 : SubscriptSpan(), ISpan {
+}

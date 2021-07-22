@@ -7,4 +7,5 @@ import android.text.style.UnderlineSpan
  * @author: sfx
  * @since: 2021/7/20
  */
-class UnderlineSpan2 : UnderlineSpan()
+class UnderlineSpan2 : UnderlineSpan(), ISpan {
+}

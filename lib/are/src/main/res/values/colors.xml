@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--<color name="colorPrimaryX">#3F51B5</color>-->
+    <!--<color name="colorPrimaryDarkX">#303F9F</color>-->
+    <!--<color name="colorAccentX">#FF4081</color>-->
+    <array name="colorPickerColors">
+        <item>#232323</item>
+        <item>#9D9DA1</item>
+        <item>#F9C35B</item>
+        <item>#39CA90</item>
+        <item>#3BBEC3</item>
+        <item>#4BA2F3</item>
+        <item>#FB6260</item>
+        <item>#FF985E</item>
+        <item>#ffaa00</item>
+        <item>#60bf70</item>
+        <item>#00ccbb</item>
+        <item>#00acf1</item>
+        <item>#4ad453</item>
+        <item>#90b44b</item>
+        <item>#86c166</item>
+        <item>#5ba89b</item>
+        <item>#ffa6c3</item>
+        <item>#f2b5c3</item>
+        <item>#f596aa</item>
+        <item>#e16b8c</item>
+        <item>#ff66a6</item>
+        <item>#9e7a7a</item>
+        <item>#b19693</item>
+        <item>#876633</item>
+        <item>#646a58</item>
+        <item>#5dac81</item>
+        <item>#1ebacc</item>
+        <item>#49baf2</item>
+        <item>#58b2dc</item>
+        <item>#2ea9df</item>
+        <item>#239beb</item>
+        <item>#0089a7</item>
+        <item>#b28fce</item>
+        <item>#797979</item>
+        <item>#817076</item>
+        <item>#9898d9</item>
+        <item>#d9bea3</item>
+        <item>#a0cc47</item>
+        <item>#c285ff</item>
+        <item>#779eed</item>
+        <item>#8695b2</item>
+        <item>#bf9999</item>
+        <item>#ff7373</item>
+        <item>#8F3700</item>
+        <item>#004F7D</item>
+        <item>#C88E00</item>
+        <item>#c1c1c1</item>
+        <item>#ffffff</item>
+    </array>
+
+    <color name="black_overlay">#66000000</color>
+
+    <array name="colors">
+        <item>#000000</item>
+        <item>#0000FF</item>
+    </array>
+    <color name="table_view_default_separator_color">#E7E7E7</color>
+    <color name="table_view_default_unselected_background_color">#ffffff</color>
+    <color name="table_view_default_selected_background_color">#fada65</color>
+    <color name="table_view_default_shadow_background_color">#f2f2f2</color>
+</resources>

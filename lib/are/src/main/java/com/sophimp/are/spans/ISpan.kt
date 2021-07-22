@@ -5,5 +5,6 @@ package com.sophimp.are.spans
  * @since: 2021/7/20
  */
 interface ISpan {
-    val html: String?
+    val html: String
+        get() = ""
 }

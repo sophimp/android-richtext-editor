@@ -7,11 +7,6 @@ import android.graphics.Paint.FontMetricsInt
 import android.text.style.ReplacementSpan
 import com.sophimp.are.models.AtItem
 
-/**
- *
- * @author: sfx
- * @since: 2021/7/20
- */
 class AtSpan : ReplacementSpan, ISpan, IClickableSpan {
     /**
      * Will be used when generating HTML code for @
@@ -52,7 +47,7 @@ class AtSpan : ReplacementSpan, ISpan, IClickableSpan {
         canvas.drawText(text, start, end, x, y.toFloat(), paint)
     }
 
-    override val html: String?
+    override val html: String
         get() {
             val html = StringBuffer()
             html.append("<a")
@@ -65,15 +60,6 @@ class AtSpan : ReplacementSpan, ISpan, IClickableSpan {
             html.append("</a>")
             return html.toString()
         }
-
-    /**
-     * 上层要实现监听事件，重写此方法
-     * @param key id 或链接
-     * @param name 名称
-     */
-    fun onClick(key: String?, name: String?) {
-        // 交由上层去实现
-    }
 
     companion object {
         private const val KEY_ATTR = "key"

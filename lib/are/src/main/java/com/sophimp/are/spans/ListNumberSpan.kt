@@ -40,8 +40,8 @@ class ListNumberSpan(var number: Int = 1) : IListSpan {
                     text.getSpans(start, end, IndentSpan::class.java)
                 numberStr = if (leadingMarginSpans != null && leadingMarginSpans.size > 0) {
                     when (leadingMarginSpans[0].mLevel % 3) {
-                        1 -> Util.toAbcOrder(number).toString() + "."
-                        2 -> Util.toRomanOrder(number).toString() + "."
+                        1 -> Util.toAbcOrder(number) + "."
+                        2 -> Util.toRomanOrder(number) + "."
                         else -> "$number."
                     }
                 } else {

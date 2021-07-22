@@ -47,7 +47,7 @@ class HrSpan(ctx: Context) : ReplacementSpan(), ISpan {
         //        canvas.drawLine(x + (int) (mScreenWidth * (1 - p) / 2), lineY, x + (int) (mScreenWidth * p), lineY, paint);
     }
 
-    override val html: String?
+    override val html: String
         get() {
             return "<hr/>"
         }

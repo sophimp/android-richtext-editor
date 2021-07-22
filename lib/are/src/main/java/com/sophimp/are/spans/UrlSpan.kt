@@ -7,4 +7,5 @@ import android.text.style.URLSpan
  * @author: sfx
  * @since: 2021/7/20
  */
-class UrlSpan(url: String?) : URLSpan(url), IClickableSpan
+class UrlSpan(url: String?) : URLSpan(url), IClickableSpan, ISpan {
+}

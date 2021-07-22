@@ -18,7 +18,6 @@ import android.text.TextUtils
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
-import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Toast
@@ -339,11 +338,6 @@ object Util {
      * @return
      */
     fun getPixelByDp(context: Context, dp: Int): Int {
-//        int pixels = dp;
-//        DisplayMetrics displayMetrics = new DisplayMetrics();
-//        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-//        pixels = (int) (displayMetrics.density * dp + 0.5);
-//        return pixels;
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             dp.toFloat(),
@@ -358,13 +352,10 @@ object Util {
      * @return
      */
     fun getScreenWidthAndHeight(context: Context): IntArray {
-        val outSize = Point()
-        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        val display = windowManager.defaultDisplay
-        display.getSize(outSize)
+        val displayMetrics = context.resources.displayMetrics
         val widthAndHeight = IntArray(2)
-        widthAndHeight[0] = outSize.x
-        widthAndHeight[1] = outSize.y
+        widthAndHeight[0] = displayMetrics.widthPixels
+        widthAndHeight[1] = displayMetrics.heightPixels
         return widthAndHeight
     }
 
@@ -482,10 +473,8 @@ object Util {
         maxWidth: Int,
         maxHeight: Int
     ): Bitmap {
-        //create the new blank bitmap
         val videoCompose = Bitmap.createBitmap(maxWidth, maxHeight, Bitmap.Config.ARGB_8888)
         val cv = Canvas(videoCompose)
-        // 背景画中心一部分
         var bgLeft = 0
         var bgTop = 0
         if (background.width > maxWidth) {
@@ -503,13 +492,8 @@ object Util {
         val fgLeft = (maxWidth - foreground.width) / 2
         val fgTop = (maxHeight - foreground.height) / 2
 
-//        LogUtils.d("sfx bgwdith: " + bgWidth + " bgheight: " + bgHeight + " fgwidth: " + foreground.getWidth() + " fgheight: " + foreground.getHeight());
-        //draw fg into
-//            Rect src = new Rect(fgLeft, fgTop, fgLeft + foreground.getWidth(), fgTop + foreground.getHeight());
         cv.drawBitmap(foreground, fgLeft.toFloat(), fgTop.toFloat(), null)
-        //save all clip
         cv.save()
-        //store
         cv.restore()
         return videoCompose
     }

@@ -8,4 +8,6 @@ import android.text.style.StyleSpan
  * @author: sfx
  * @since: 2021/7/20
  */
-class BoldSpan : StyleSpan(Typeface.BOLD)
+class BoldSpan : StyleSpan(Typeface.BOLD), ISpan {
+
+}

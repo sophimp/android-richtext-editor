@@ -28,7 +28,7 @@ class AttachmentSpan(
     private var mUploadTime: String? = null
     val spanId: String
 
-    override val html: String?
+    override val html: String
         get() {
             val htmlBuffer = StringBuilder("<attachment data-url=\"")
             if (TextUtils.isEmpty(attachmentUrl)) {

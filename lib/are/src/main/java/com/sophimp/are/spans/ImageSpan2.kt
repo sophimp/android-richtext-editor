@@ -122,7 +122,7 @@ class ImageSpan2 : ImageSpan, IClickableSpan, IUploadSpan, ISpan {
         return fileSize.toString()
     }
 
-    override val html: String?
+    override val html: String
         get() {
 //            val density = mContext.resources.displayMetrics.density
             val htmlBuffer = StringBuilder("<img src=\"")

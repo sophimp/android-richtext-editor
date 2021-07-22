@@ -12,7 +12,7 @@ import com.sophimp.are.Util.log
  * @author: sfx
  * @since: 2021/7/20
  */
-class IndentSpan constructor(level: Int = 0) : LeadingMarginSpan {
+class IndentSpan constructor(level: Int = 0) : LeadingMarginSpan, ISpan {
     var mLevel: Int
     private var mLeadingMargin: Int
 
@@ -94,4 +94,5 @@ class IndentSpan constructor(level: Int = 0) : LeadingMarginSpan {
         mLevel = Math.min(level, MAX_LEVEL)
         mLeadingMargin = LEADING_MARGIN * mLevel
     }
+
 }

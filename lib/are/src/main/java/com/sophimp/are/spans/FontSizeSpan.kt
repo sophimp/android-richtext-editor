@@ -4,14 +4,13 @@ import android.text.style.AbsoluteSizeSpan
 
 /**
  *
+ * wrap in future, now just to know there is a FontSizeSpan
  * @author: sfx
  * @since: 2021/7/20
  */
 class FontSizeSpan(size: Int) : AbsoluteSizeSpan(size, true), IDynamicSpan {
-    override var dynamicFeature: Int
-        get() = this.size
-        set(dynamicFeature) {
-            this.dynamicFeature = dynamicFeature
-        }
+    private var mFontSize = size
+    override val dynamicFeature: Int
+        get() = mFontSize
 
 }

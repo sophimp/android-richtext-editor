@@ -8,4 +8,5 @@ import android.text.style.StyleSpan
  * @author: sfx
  * @since: 2021/7/20
  */
-class ItalicSpan : StyleSpan(Typeface.ITALIC)
+class ItalicSpan : StyleSpan(Typeface.ITALIC), ISpan {
+}

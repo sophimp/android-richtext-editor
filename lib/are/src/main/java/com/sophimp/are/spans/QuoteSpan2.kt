@@ -11,7 +11,7 @@ import com.sophimp.are.Constants
  * @author: sfx
  * @since: 2021/7/20
  */
-class QuoteSpan2 : QuoteSpan() {
+class QuoteSpan2 : QuoteSpan(), ISpan {
     override fun getLeadingMargin(first: Boolean): Int {
         return 45 // hard-coded..
     }
@@ -47,4 +47,5 @@ class QuoteSpan2 : QuoteSpan() {
         p.color = color
         c.translate(-INDENT.toFloat(), 0f)
     }
+
 }

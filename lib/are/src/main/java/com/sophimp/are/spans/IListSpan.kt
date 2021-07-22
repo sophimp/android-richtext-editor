@@ -2,7 +2,7 @@ package com.sophimp.are.spans
 
 import android.text.style.LeadingMarginSpan
 
-interface IListSpan : LeadingMarginSpan {
+interface IListSpan : LeadingMarginSpan, ISpan {
     companion object {
         /**
          * 符号绘制区域
