@@ -1,6 +1,7 @@
 package com.sophimp.are.style
 
 import com.sophimp.are.RichEditText
+import com.sophimp.are.spans.ISpan
 import com.sophimp.are.spans.SubscriptSpan2
 
 class SubscriptStyle(
@@ -23,7 +24,7 @@ class SubscriptStyle(
         return SubscriptSpan2()
     }
 
-    override fun insertSpan(span: SubscriptSpan2, start: Int, end: Int) {
+    override fun insertSpan(span: ISpan, start: Int, end: Int) {
 
     }
 

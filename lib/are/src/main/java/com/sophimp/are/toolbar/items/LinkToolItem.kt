@@ -11,7 +11,7 @@ import com.sophimp.are.style.LinkStyle
  * @author: sfx
  * @since: 2021/7/22
  */
-class LinkToolItem(style: IStyle<UrlSpan>) : AbstractItem<UrlSpan>(style) {
+class LinkToolItem(style: IStyle) : AbstractItem(style) {
 
     override val srcResId: Int
         get() = R.mipmap.icon_toolitem_link

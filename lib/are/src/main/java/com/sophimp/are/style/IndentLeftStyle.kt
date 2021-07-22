@@ -9,7 +9,7 @@ import com.sophimp.are.RichEditText
 import com.sophimp.are.Util
 import com.sophimp.are.spans.IndentSpan
 
-class IndentLeftStyle(editText: RichEditText) : BaseStyle<IndentSpan>(editText) {
+class IndentLeftStyle(editText: RichEditText) : BaseStyle(editText) {
     fun bindListenerForToolbarItemView(imageView: ImageView?) {
         imageView!!.setOnClickListener { update() }
     }
@@ -72,6 +72,4 @@ class IndentLeftStyle(editText: RichEditText) : BaseStyle<IndentSpan>(editText) 
     ) {
     }
 
-    override fun insertSpan(span: IndentSpan, start: Int, end: Int) {
-    }
 }

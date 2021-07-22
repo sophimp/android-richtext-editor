@@ -7,9 +7,9 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
-import com.sophimp.are.spans.ImageSpan2
+import com.sophimp.are.spans.ISpan
 
-class ImageStyle(editText: RichEditText) : BaseStyle<ImageSpan2>(editText) {
+class ImageStyle(editText: RichEditText) : BaseStyle(editText) {
 
     companion object {
         const val REQUEST_CODE = 1001
@@ -25,7 +25,7 @@ class ImageStyle(editText: RichEditText) : BaseStyle<ImageSpan2>(editText) {
         sHeight = displayMetrics.heightPixels
     }
 
-    override fun insertSpan(span: ImageSpan2, start: Int, end: Int) {
+    override fun insertSpan(span: ISpan, start: Int, end: Int) {
         // generateSpan
 //        val options = BitmapFactory.Options()
 //        val bitmap: Bitmap = ImageUtils.getBitmapWithScreeWidth(

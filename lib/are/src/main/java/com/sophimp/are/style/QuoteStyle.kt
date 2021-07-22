@@ -8,7 +8,7 @@ import com.sophimp.are.RichEditText
 import com.sophimp.are.Util
 import com.sophimp.are.spans.QuoteSpan2
 
-class QuoteStyle(editText: RichEditText) : BaseStyle<QuoteSpan2>(editText) {
+class QuoteStyle(editText: RichEditText) : BaseStyle(editText) {
     private var mRemovedNewLine = false
     override fun toolItemIconClick() {
         super.toolItemIconClick()
@@ -156,6 +156,4 @@ class QuoteStyle(editText: RichEditText) : BaseStyle<QuoteSpan2>(editText) {
     ) {
     }
 
-    override fun insertSpan(span: QuoteSpan2, start: Int, end: Int) {
-    }
 }

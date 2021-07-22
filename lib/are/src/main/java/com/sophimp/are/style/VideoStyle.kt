@@ -2,9 +2,8 @@ package com.sophimp.are.style
 
 import android.text.Editable
 import com.sophimp.are.RichEditText
-import com.sophimp.are.spans.VideoSpan
 
-class VideoStyle(editText: RichEditText) : BaseStyle<VideoSpan>(editText) {
+class VideoStyle(editText: RichEditText) : BaseStyle(editText) {
     override fun applyStyle(
         editable: Editable,
         event: IStyle.TextEvent?,
@@ -13,9 +12,6 @@ class VideoStyle(editText: RichEditText) : BaseStyle<VideoSpan>(editText) {
         start: Int,
         end: Int
     ) {
-    }
-
-    override fun insertSpan(span: VideoSpan, start: Int, end: Int) {
     }
 
 }

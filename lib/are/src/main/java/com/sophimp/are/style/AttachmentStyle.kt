@@ -6,9 +6,8 @@ import android.text.style.ImageSpan
 import com.sophimp.are.AttachmentType
 import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
-import com.sophimp.are.spans.AttachmentSpan
 
-class AttachmentStyle(editText: RichEditText) : BaseStyle<AttachmentSpan>(editText) {
+class AttachmentStyle(editText: RichEditText) : BaseStyle(editText) {
     fun insertAttachment(
         attachmentPath: String?,
         attachmentUrl: String?,
@@ -62,8 +61,5 @@ class AttachmentStyle(editText: RichEditText) : BaseStyle<AttachmentSpan>(editTe
     }
 
     override fun bindEditText(editText: RichEditText) {}
-
-    override fun insertSpan(span: AttachmentSpan, start: Int, end: Int) {
-    }
 
 }

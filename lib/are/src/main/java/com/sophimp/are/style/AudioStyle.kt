@@ -5,9 +5,9 @@ import android.text.style.AlignmentSpan
 import android.text.style.ImageSpan
 import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
-import com.sophimp.are.spans.AudioSpan
+import com.sophimp.are.spans.ISpan
 
-class AudioStyle(editText: RichEditText) : BaseStyle<AudioSpan>(editText) {
+class AudioStyle(editText: RichEditText) : BaseStyle(editText) {
     //	public static final int REQUEST_CODE = 1001;
     fun insertAudio(
         audioPath: String?,
@@ -66,7 +66,7 @@ class AudioStyle(editText: RichEditText) : BaseStyle<AudioSpan>(editText) {
     ) {
     }
 
-    override fun insertSpan(span: AudioSpan, start: Int, end: Int) {
+    override fun insertSpan(span: ISpan, start: Int, end: Int) {
 
     }
 }

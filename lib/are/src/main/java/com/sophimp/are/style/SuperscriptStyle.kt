@@ -1,6 +1,7 @@
 package com.sophimp.are.style
 
 import com.sophimp.are.RichEditText
+import com.sophimp.are.spans.ISpan
 import com.sophimp.are.spans.SuperscriptSpan2
 
 /**
@@ -27,7 +28,7 @@ class SuperscriptStyle(editText: RichEditText) :
         return SuperscriptSpan2()
     }
 
-    override fun insertSpan(span: SuperscriptSpan2, start: Int, end: Int) {
+    override fun insertSpan(span: ISpan, start: Int, end: Int) {
 
     }
 }

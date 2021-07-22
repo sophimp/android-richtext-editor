@@ -35,6 +35,4 @@ class ItalicStyle(editText: RichEditText) :
         return ItalicSpan()
     }
 
-    override fun insertSpan(span: ItalicSpan, start: Int, end: Int) {
-    }
 }

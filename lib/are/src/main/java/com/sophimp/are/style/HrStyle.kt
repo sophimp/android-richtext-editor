@@ -12,7 +12,7 @@ import com.sophimp.are.spans.HrSpan
 import com.sophimp.are.spans.IListSpan
 import com.sophimp.are.spans.IndentSpan
 
-class HrStyle(mEditText: RichEditText) : BaseStyle<HrSpan>(mEditText) {
+class HrStyle(mEditText: RichEditText) : BaseStyle(mEditText) {
     override fun applyStyle(
         editable: Editable,
         event: IStyle.TextEvent?,
@@ -64,6 +64,4 @@ class HrStyle(mEditText: RichEditText) : BaseStyle<HrSpan>(mEditText) {
         }
         mEditText.startMonitor()
     }
-
-    override fun insertSpan(span: HrSpan, start: Int, end: Int) {}
 }

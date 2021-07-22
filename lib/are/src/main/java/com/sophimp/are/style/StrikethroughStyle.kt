@@ -1,6 +1,7 @@
 package com.sophimp.are.style
 
 import com.sophimp.are.RichEditText
+import com.sophimp.are.spans.ISpan
 import com.sophimp.are.spans.StrikeThroughSpan2
 
 class StrikethroughStyle(editText: RichEditText) :
@@ -23,6 +24,6 @@ class StrikethroughStyle(editText: RichEditText) :
         return StrikeThroughSpan2()
     }
 
-    override fun insertSpan(span: StrikeThroughSpan2, start: Int, end: Int) {
+    override fun insertSpan(span: ISpan, start: Int, end: Int) {
     }
 }

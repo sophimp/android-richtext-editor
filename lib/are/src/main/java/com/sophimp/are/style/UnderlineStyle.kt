@@ -1,6 +1,7 @@
 package com.sophimp.are.style
 
 import com.sophimp.are.RichEditText
+import com.sophimp.are.spans.ISpan
 import com.sophimp.are.spans.UnderlineSpan2
 
 class UnderlineStyle(editText: RichEditText) :
@@ -23,7 +24,7 @@ class UnderlineStyle(editText: RichEditText) :
         return UnderlineSpan2()
     }
 
-    override fun insertSpan(span: UnderlineSpan2, start: Int, end: Int) {
+    override fun insertSpan(span: ISpan, start: Int, end: Int) {
 
     }
 }

@@ -1,7 +1,6 @@
 package com.sophimp.are.toolbar.items
 
 import android.widget.ImageView
-import com.sophimp.are.spans.ISpan
 import com.sophimp.are.style.IStyle
 
 /**
@@ -9,7 +8,7 @@ import com.sophimp.are.style.IStyle
  * @author: sfx
  * @since: 2021/7/20
  */
-interface IToolbarItem<T : ISpan> {
+interface IToolbarItem {
 
     /**
      * item icon ImageView
@@ -24,7 +23,7 @@ interface IToolbarItem<T : ISpan> {
     /**
      * item style handle
      */
-    val mStyle: IStyle<T>
+    val mStyle: IStyle
 
     /**
      * icon click handle, some style should handle both in toolbar item and style

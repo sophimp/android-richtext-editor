@@ -9,7 +9,7 @@ import com.sophimp.are.spans.ISpan
  * @author: sfx
  * @since: 2021/7/21
  */
-abstract class BaseStyle<T : ISpan>(protected var curEditText: RichEditText) : IStyle<T> {
+abstract class BaseStyle(protected var curEditText: RichEditText) : IStyle {
     protected var context = curEditText.context
     protected var checkState: Boolean = false
 

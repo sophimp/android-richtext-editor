@@ -9,7 +9,7 @@ import com.sophimp.are.spans.ISpan
  * @author: sfx
  * @since: 2021/7/20
  */
-interface IStyle<T : ISpan> {
+interface IStyle {
     enum class TextEvent {
         IDLE,
 
@@ -61,7 +61,7 @@ interface IStyle<T : ISpan> {
     /**
      * insertSpan
      */
-    fun insertSpan(span: T, start: Int, end: Int)
+    fun insertSpan(span: ISpan, start: Int, end: Int) {}
 
     /**
      * toolbar item click handle

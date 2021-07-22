@@ -22,7 +22,7 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
     protected var basicClass: Class<B>,
     protected var targetClass1: Class<T>,
     protected var targetClass2: Class<TT>
-) : BaseStyle<B>(editText) {
+) : BaseStyle(editText) {
 
     /**
      * 每次插入一个span, 可能会多插入一个字符，使用off记录
@@ -529,6 +529,4 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
         Util.log(tag + " : " + "总长度: " + editable.length)
     }
 
-    override fun insertSpan(span: B, start: Int, end: Int) {
-    }
 }

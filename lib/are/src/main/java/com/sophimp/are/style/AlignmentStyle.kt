@@ -13,10 +13,10 @@ import com.sophimp.are.Util.getThisLineEnd
 import com.sophimp.are.Util.getThisLineStart
 import com.sophimp.are.spans.AlignmentSpan2
 
-class AlignmentStyle<T : AlignmentSpan2>(
+class AlignmentStyle(
     editText: RichEditText,
     alignment: Layout.Alignment
-) : BaseStyle<T>(editText) {
+) : BaseStyle(editText) {
 
     private val mAlignment: Layout.Alignment = alignment
 
@@ -141,9 +141,6 @@ class AlignmentStyle<T : AlignmentSpan2>(
                 }
             }
         }
-    }
-
-    override fun insertSpan(span: T, start: Int, end: Int) {
     }
 
 }

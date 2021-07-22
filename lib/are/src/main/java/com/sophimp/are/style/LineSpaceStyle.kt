@@ -11,13 +11,12 @@ import java.util.*
 import kotlin.math.abs
 
 /**
- * @des: 行距控制
- * @since: 2021/6/15
- * @version: 0.1f
+ * paragraph line space
  * @author: sfx
+ * @since: 2021/6/15
  */
-class LineSpaceStyle(editText: RichEditText, protected var isLarge: Boolean) :
-    BaseStyle<LineSpaceSpan>(editText) {
+class LineSpaceStyle(editText: RichEditText, private var isLarge: Boolean) :
+    BaseStyle(editText) {
     private val EPSILON = 1e-5
 
     override fun toolItemIconClick() {
@@ -217,7 +216,4 @@ class LineSpaceStyle(editText: RichEditText, protected var isLarge: Boolean) :
         }
     }
 
-    override fun insertSpan(span: LineSpaceSpan, start: Int, end: Int) {
-
-    }
 }

@@ -5,14 +5,13 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import com.sophimp.are.Util.getPixelByDp
 import com.sophimp.are.Util.log
-import com.sophimp.are.spans.ISpan
 import com.sophimp.are.style.IStyle
 
 /**
  * @author: sfx
  * @since: 2021/7/21
  */
-abstract class AbstractItem<T : ISpan>(protected var style: IStyle<T>) : IToolbarItem<T> {
+abstract class AbstractItem(protected var style: IStyle) : IToolbarItem {
     val context: Context = style.mEditText.context.applicationContext
     val imageView: ImageView
     val mEditText = style.mEditText
@@ -20,11 +19,12 @@ abstract class AbstractItem<T : ISpan>(protected var style: IStyle<T>) : IToolba
     init {
         imageView = ImageView(context)
         val size = getPixelByDp(context, 40)
-        val pading = getPixelByDp(context, 8)
+        val padding = getPixelByDp(context, 8)
         val params = LinearLayout.LayoutParams(size, size)
         imageView.layoutParams = params
         imageView.scaleType = ImageView.ScaleType.FIT_CENTER
-        imageView.setPadding(pading, pading, pading, pading)
+        imageView.setImageResource(srcResId)
+        imageView.setPadding(padding, padding, padding, padding)
         imageView.bringToFront()
         imageView.setOnClickListener { iconClickHandle() }
     }
@@ -42,7 +42,7 @@ abstract class AbstractItem<T : ISpan>(protected var style: IStyle<T>) : IToolba
     override val iconView: ImageView
         get() = imageView
 
-    override val mStyle: IStyle<T>
+    override val mStyle: IStyle
         get() = style
 
 }

@@ -48,6 +48,4 @@ class FontColorStyle(editText: RichEditText?) :
         }
     }
 
-    override fun insertSpan(span: FontForegroundColorSpan, start: Int, end: Int) {
-    }
 }

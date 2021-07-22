@@ -10,7 +10,7 @@ import com.sophimp.are.spans.ISpan
 import java.util.*
 
 abstract class ABSStyle<E : ISpan>(editText: RichEditText, clazzE: Class<E>) :
-    BaseStyle<E>(editText) {
+    BaseStyle(editText) {
 
     protected var clazzE: Class<E> = clazzE
 

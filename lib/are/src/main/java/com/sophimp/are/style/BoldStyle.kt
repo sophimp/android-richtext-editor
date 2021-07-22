@@ -29,7 +29,4 @@ class BoldStyle(editText: RichEditText) :
         return BoldSpan()
     }
 
-    override fun insertSpan(span: BoldSpan, start: Int, end: Int) {
-
-    }
 }

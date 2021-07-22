@@ -84,6 +84,4 @@ class FontSizeStyle(editText: RichEditText) :
         return FontSizeSpan(size)
     }
 
-    override fun insertSpan(span: FontSizeSpan, start: Int, end: Int) {
-    }
 }

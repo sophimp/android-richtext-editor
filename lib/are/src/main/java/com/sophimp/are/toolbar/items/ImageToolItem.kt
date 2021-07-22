@@ -1,14 +1,13 @@
 package com.sophimp.are.toolbar.items
 
 import com.sophimp.are.R
-import com.sophimp.are.spans.ImageSpan2
 import com.sophimp.are.style.IStyle
 
 /**
  * @author: sfx
  * @since: 2021/7/21
  */
-class ImageToolItem(style: IStyle<ImageSpan2>) : AbstractItem<ImageSpan2>(style) {
+class ImageToolItem(style: IStyle) : AbstractItem(style) {
     override val srcResId: Int
         get() = R.mipmap.icon_toolitem_image_choose
 

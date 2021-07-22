@@ -12,7 +12,7 @@ import com.sophimp.are.spans.IListSpan
 import com.sophimp.are.spans.IndentSpan
 import java.util.*
 
-class IndentRightStyle(editText: RichEditText) : BaseStyle<IndentSpan>(editText) {
+class IndentRightStyle(editText: RichEditText) : BaseStyle(editText) {
 
     override fun toolItemIconClick() {
         super.toolItemIconClick()
@@ -125,6 +125,4 @@ class IndentRightStyle(editText: RichEditText) : BaseStyle<IndentSpan>(editText)
     ) {
     }
 
-    override fun insertSpan(span: IndentSpan, start: Int, end: Int) {
-    }
 }
