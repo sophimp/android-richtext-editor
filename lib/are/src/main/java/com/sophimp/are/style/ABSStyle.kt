@@ -21,14 +21,7 @@ abstract class ABSStyle<E : ISpan>(editText: RichEditText, clazzE: Class<E>) :
     override fun toolItemIconClick() {
         checkState = !checkState
         mEditText.isChange = true
-        applyStyle(
-            mEditText.editableText,
-            IStyle.TextEvent.IDLE,
-            "",
-            mEditText.selectionStart,
-            mEditText.selectionStart,
-            mEditText.selectionEnd
-        )
+        handleAbsButtonClickStyle()
     }
 
     override fun applyStyle(

@@ -86,9 +86,9 @@ abstract class ABSDynamicStyle<E : IDynamicSpan>(
 
     override fun handleAbsButtonClickStyle() {
 //        super.handleAbsButtonClickStyle();
-        val editable = mEditText!!.editableText
-        val sStart = mEditText!!.selectionStart
-        val sEnd = mEditText!!.selectionEnd
+        val editable = mEditText.editableText
+        val sStart = mEditText.selectionStart
+        val sEnd = mEditText.selectionEnd
         if (sStart < sEnd) {
             val targetSpans = editable.getSpans(sStart, sEnd, clazzE)
             if (targetSpans.isNotEmpty()) {
