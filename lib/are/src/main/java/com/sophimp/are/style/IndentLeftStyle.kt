@@ -4,19 +4,21 @@ import android.text.Editable
 import android.text.Layout
 import android.text.Spannable
 import android.text.style.AlignmentSpan
-import android.widget.ImageView
 import com.sophimp.are.RichEditText
 import com.sophimp.are.Util
 import com.sophimp.are.spans.IndentSpan
 
 class IndentLeftStyle(editText: RichEditText) : BaseStyle(editText) {
-    fun bindListenerForToolbarItemView(imageView: ImageView?) {
-        imageView!!.setOnClickListener { update() }
+
+    override fun itemClickOnNonEmptyParagraph(curPStart: Int, curPEnd: Int): Int {
+        update()
+        return 0
     }
 
     override fun toolItemIconClick() {
         super.toolItemIconClick()
-        update()
+        Util.renumberAllListItemSpans(mEditText.editableText)
+        mEditText.refresh(0)
     }
 
     fun update() {
@@ -58,8 +60,6 @@ class IndentLeftStyle(editText: RichEditText) : BaseStyle(editText) {
             }
         }
 
-        Util.renumberAllListItemSpans(editable)
-        mEditText.refresh(0)
     }
 
     override fun applyStyle(

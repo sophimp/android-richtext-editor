@@ -18,6 +18,19 @@ abstract class ABSStyle<E : ISpan>(editText: RichEditText, clazzE: Class<E>) :
 //        clazzE = (this.javaClass.genericSuperclass as ParameterizedType).actualTypeArguments[0] as Class<E>
 //    }
 
+    override fun toolItemIconClick() {
+        checkState = !checkState
+        mEditText.isChange = true
+        applyStyle(
+            mEditText.editableText,
+            IStyle.TextEvent.IDLE,
+            "",
+            mEditText.selectionStart,
+            mEditText.selectionStart,
+            mEditText.selectionEnd
+        )
+    }
+
     override fun applyStyle(
         editable: Editable,
         event: IStyle.TextEvent?,
@@ -45,12 +58,7 @@ abstract class ABSStyle<E : ISpan>(editText: RichEditText, clazzE: Class<E>) :
             val targetSpans = editable.getSpans(beforeSelectionStart, sEnd, clazzE)
             if (isChecked) {
                 if (targetSpans.isEmpty()) {
-                    editable.setSpan(
-                        newSpan(),
-                        beforeSelectionStart,
-                        sEnd,
-                        Spanned.SPAN_EXCLUSIVE_INCLUSIVE
-                    )
+                    setSpan(newSpan() as ISpan, beforeSelectionStart, sEnd)
                 } // else include特性即可
             } else {
                 if (targetSpans.isNotEmpty()) {
@@ -58,12 +66,7 @@ abstract class ABSStyle<E : ISpan>(editText: RichEditText, clazzE: Class<E>) :
                     val curStart = editable.getSpanStart(curSpan)
                     if (curStart < beforeSelectionStart) {
                         editable.removeSpan(curSpan)
-                        editable.setSpan(
-                            curSpan,
-                            curStart,
-                            beforeSelectionStart,
-                            Spanned.SPAN_EXCLUSIVE_INCLUSIVE
-                        )
+                        setSpan(curSpan, curStart, beforeSelectionStart)
                     }
                 }
             }
@@ -89,12 +92,7 @@ abstract class ABSStyle<E : ISpan>(editText: RichEditText, clazzE: Class<E>) :
                         editable.removeSpan(span)
                     }
                     if (earlyStart < lastEnd) {
-                        editable.setSpan(
-                            targetSpans[0],
-                            earlyStart,
-                            lastEnd,
-                            Spanned.SPAN_EXCLUSIVE_INCLUSIVE
-                        )
+                        setSpan(targetSpans[0], earlyStart, lastEnd)
                     }
                 } else {
                     // 将选中区域的targetSpan移除， 原有的span 拆分首尾
@@ -102,20 +100,10 @@ abstract class ABSStyle<E : ISpan>(editText: RichEditText, clazzE: Class<E>) :
                         val curStart = editable.getSpanStart(span)
                         val curEnd = editable.getSpanEnd(span)
                         if (curStart < sStart) {
-                            editable.setSpan(
-                                newSpan(),
-                                curStart,
-                                sStart,
-                                Spanned.SPAN_EXCLUSIVE_INCLUSIVE
-                            )
+                            setSpan(newSpan() as ISpan, curStart, sStart)
                         }
                         if (sEnd < curEnd) {
-                            editable.setSpan(
-                                newSpan(),
-                                sEnd,
-                                curEnd,
-                                Spanned.SPAN_EXCLUSIVE_INCLUSIVE
-                            )
+                            setSpan(newSpan() as ISpan, sEnd, curEnd)
                         }
                         editable.removeSpan(span)
                     }
@@ -123,7 +111,7 @@ abstract class ABSStyle<E : ISpan>(editText: RichEditText, clazzE: Class<E>) :
             } else {
                 // 没有样式
                 if (isChecked) {
-                    editable.setSpan(newSpan(), sStart, sEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                    setSpan(newSpan() as ISpan, sStart, sEnd)
                 }
             }
         }
@@ -165,4 +153,7 @@ abstract class ABSStyle<E : ISpan>(editText: RichEditText, clazzE: Class<E>) :
 
     abstract fun newSpan(): E?
 
+    override fun setSpan(span: ISpan, start: Int, end: Int) {
+        mEditText.editableText.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+    }
 }

@@ -12,17 +12,23 @@ import com.sophimp.are.Util.getCurrentCursorLine
 import com.sophimp.are.Util.getThisLineEnd
 import com.sophimp.are.Util.getThisLineStart
 import com.sophimp.are.spans.AlignmentSpan2
+import com.sophimp.are.spans.ISpan
 
 class AlignmentStyle(
     editText: RichEditText,
-    alignment: Layout.Alignment
+    private var mAlignment: Layout.Alignment
 ) : BaseStyle(editText) {
 
-    private val mAlignment: Layout.Alignment = alignment
+    private var off = 0
 
-    override fun toolItemIconClick() {
-        super.toolItemIconClick()
-        update()
+    override fun itemClickOnEmptyParagraph(curPStart: Int, curPEnd: Int): Int {
+
+        return off
+    }
+
+    override fun itemClickOnNonEmptyParagraph(curPStart: Int, curPEnd: Int): Int {
+
+        return off
     }
 
     fun update() {
@@ -143,4 +149,7 @@ class AlignmentStyle(
         }
     }
 
+    override fun setSpan(span: ISpan, start: Int, end: Int) {
+        mEditText.editableText.setSpan(span, start, end, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+    }
 }

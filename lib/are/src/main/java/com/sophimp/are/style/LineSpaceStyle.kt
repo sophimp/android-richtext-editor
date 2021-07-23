@@ -20,8 +20,7 @@ class LineSpaceStyle(editText: RichEditText, var isLarge: Boolean) :
     BaseStyle(editText) {
     private val EPSILON = 1e-5
 
-    override fun toolItemIconClick() {
-        super.toolItemIconClick()
+    override fun itemClickOnNonEmptyParagraph(curPStart: Int, curPEnd: Int): Int {
         val editText = mEditText
         val selectionStart = editText.selectionStart
         val selectionEnd = editText.selectionEnd
@@ -37,7 +36,7 @@ class LineSpaceStyle(editText: RichEditText, var isLarge: Boolean) :
         val editable = editText.editableText
 
         Util.log("sgx line start-end: " + start + "-" + end + " extra: " + editText.lineSpacingExtra)
-        if (start > end) return
+        if (start > end) return 0
         var index = start
         while (index < end) {
             val curPEnd: Int = Util.getParagraphEnd(editable, index)
@@ -49,6 +48,7 @@ class LineSpaceStyle(editText: RichEditText, var isLarge: Boolean) :
             }
         }
         mEditText.isChange = true
+        return 0
     }
 
     private fun logLineSpaceSpanItems(editable: Editable) {

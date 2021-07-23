@@ -32,97 +32,129 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
     private var off = 0
     private var isEmptyLine = false
 
-    override fun toolItemIconClick() {
-        mEditText.isChange = true
-        mEditText.stopMonitor()
-        val editText = mEditText
-        val editable = editText.editableText
+    override fun itemClickOnEmptyParagraph(curPStart: Int, curPEnd: Int): Int {
+        isEmptyLine = true
+        handleClickCase2(curPStart, curPEnd + 1)
+        return off
+    }
 
-        // 先查出选中的段落的始末
-        val spStart: Int = Util.getParagraphStart(mEditText, editText.selectionStart)
-        var spEnd: Int = Util.getParagraphEnd(editable, editText.selectionEnd)
-        Util.log("sgx cake  当前选中始末: " + editText.selectionStart + " - " + editText.selectionEnd + " 段落始末: " + spStart + " - " + spEnd)
-
-        // 按段落单独处理
+    override fun itemClickOnNonEmptyParagraph(curPStart: Int, curPEnd: Int): Int {
         // 每一种case 的变化只针对ListBulletSpan, 保留 DRLeadingSpan, Alignment
         /*
-                    case 1: ListBulletSpan 有->无
-                    . aa            . aa
-                    . bb   ->       bb
-                    . cc            . cc
-                 */
+            case 1: ListBulletSpan 有->无
+            . aa            . aa
+            . bb   ->       bb
+            . cc            . cc
+         */
         /*
-                    case 2: ListBulletSpan 无->有
-                    aa            . aa
-                    bb   ->       . bb
-                    cc            . cc
-                    特例： 空行 -> 有
-                 */
+            case 2: ListBulletSpan 无->有
+            aa            . aa
+            bb   ->       . bb
+            cc            . cc
+            特例： 空行 -> 有
+         */
         /*
-                    case 3: ListNumberSpan -> ListBulletSpan
-                    1. aa            1. aa
-                    2. bb   ->       .bb
-                    3. cc            1. cc
-                    替换逻辑同case 2, 选中的下一段如果是 ListNumberSpan 需要重新排序
-                 */
+            case 3: ListNumberSpan -> ListBulletSpan
+            1. aa            1. aa
+            2. bb   ->       .bb
+            3. cc            1. cc
+            替换逻辑同case 2, 选中的下一段如果是 ListNumberSpan 需要重新排序
+         */
         /*
-                    case 4: DRTodoSpan -> ListBulletSpan
-                    O aa            O aa
-                    O bb   ->       .bb
-                    O cc            O cc
-                    替换逻辑同case 2
-                 */
-        var index = Math.max(0, spStart)
-        while (index <= spEnd) {
-            off = 0
-            val curPStart = index
-            var curPEnd: Int = Util.getParagraphEnd(editable, index)
-            if (curPEnd == editable.length - 1) {
-                // 最后一段换行符读不到
-                curPEnd = editable.length
-            }
-            Util.log("sgx cake currentStart - end:$curPStart-$curPEnd")
-            if (curPStart > curPEnd) {
-                index += 1
-                continue
-            } else if (curPStart == curPEnd) {
-                // case 2: 空行情况
-                isEmptyLine = true
-                handleClickCase2(curPStart, curPEnd + 1)
-                spEnd += off
-                index = curPEnd + off + 1
-                continue
-            }
-            val basicSpans =
-                editable.getSpans(curPStart, curPEnd, basicClass)
-            val targetSpans1 =
-                editable.getSpans(curPStart, curPEnd, targetClass1)
-            val targetSpans2 =
-                editable.getSpans(curPStart, curPEnd, targetClass2)
-            if (basicSpans != null && basicSpans.size > 0) {
-                // case 1: 有 -> 无
-                handleClickCase1(basicSpans)
+            case 4: DRTodoSpan -> ListBulletSpan
+            O aa            O aa
+            O bb   ->       .bb
+            O cc            O cc
+            替换逻辑同case 2
+         */
+        val editable = mEditText.editableText
+        val basicSpans =
+            editable.getSpans(curPStart, curPEnd, basicClass)
+        val targetSpans1 =
+            editable.getSpans(curPStart, curPEnd, targetClass1)
+        val targetSpans2 =
+            editable.getSpans(curPStart, curPEnd, targetClass2)
+        if (basicSpans != null && basicSpans.isNotEmpty()) {
+            // case 1: 有 -> 无
+            handleClickCase1(basicSpans)
+        } else {
+            if (targetSpans1 != null && targetSpans1.isNotEmpty()) {
+                // case 3: TargetSpan1 -> BasicSpan, 每一行的转换
+                handleClickCase3(targetSpans1)
+            } else if (targetSpans2 != null && targetSpans2.isNotEmpty()) {
+                // case 4: TargetSpan2 -> BasicSpan, 每一行的转换
+                handleClickCase4(targetSpans2)
             } else {
-                if (targetSpans1 != null && targetSpans1.size > 0) {
-                    // case 3: TargetSpan1 -> BasicSpan, 每一行的转换
-                    handleClickCase3(targetSpans1)
-                } else if (targetSpans2 != null && targetSpans2.size > 0) {
-                    // case 4: TargetSpan2 -> BasicSpan, 每一行的转换
-                    handleClickCase4(targetSpans2)
-                } else {
-                    // case 2: 无 -> 有
-                    handleClickCase2(curPStart, curPEnd)
-                }
+                // case 2: 无 -> 有
+                handleClickCase2(curPStart, curPEnd)
             }
-            spEnd += off
-            index = curPEnd + off + 1
-            //                    index = curPEnd + 1;
         }
+        return off
+    }
+
+    override fun toolItemIconClick() {
+//        mEditText.isChange = true
+//        mEditText.stopMonitor()
+//        val editText = mEditText
+//        val editable = editText.editableText
+//
+//        // 先查出选中的段落的始末
+//        val spStart: Int = Util.getParagraphStart(mEditText, editText.selectionStart)
+//        var spEnd: Int = Util.getParagraphEnd(editable, editText.selectionEnd)
+//        Util.log("sgx cake  当前选中始末: " + editText.selectionStart + " - " + editText.selectionEnd + " 段落始末: " + spStart + " - " + spEnd)
+//
+//        var index = max(0, spStart)
+//        while (index <= spEnd) {
+//            off = 0
+//            val curPStart = index
+//            var curPEnd: Int = Util.getParagraphEnd(editable, index)
+//            if (curPEnd == editable.length - 1) {
+//                // 最后一段换行符读不到
+//                curPEnd = editable.length
+//            }
+//            Util.log("sgx cake currentStart - end:$curPStart-$curPEnd")
+//            if (curPStart > curPEnd) {
+//                index += 1
+//                continue
+//            } else if (curPStart == curPEnd) {
+//                // case 2: 空行情况
+//                isEmptyLine = true
+//                handleClickCase2(curPStart, curPEnd + 1)
+//                spEnd += off
+//                index = curPEnd + off + 1
+//                continue
+//            }
+//            val basicSpans =
+//                editable.getSpans(curPStart, curPEnd, basicClass)
+//            val targetSpans1 =
+//                editable.getSpans(curPStart, curPEnd, targetClass1)
+//            val targetSpans2 =
+//                editable.getSpans(curPStart, curPEnd, targetClass2)
+//            if (basicSpans != null && basicSpans.isNotEmpty()) {
+//                // case 1: 有 -> 无
+//                handleClickCase1(basicSpans)
+//            } else {
+//                if (targetSpans1 != null && targetSpans1.isNotEmpty()) {
+//                    // case 3: TargetSpan1 -> BasicSpan, 每一行的转换
+//                    handleClickCase3(targetSpans1)
+//                } else if (targetSpans2 != null && targetSpans2.isNotEmpty()) {
+//                    // case 4: TargetSpan2 -> BasicSpan, 每一行的转换
+//                    handleClickCase4(targetSpans2)
+//                } else {
+//                    // case 2: 无 -> 有
+//                    handleClickCase2(curPStart, curPEnd)
+//                }
+//            }
+//            spEnd += off
+//            index = curPEnd + off + 1
+//            //                    index = curPEnd + 1;
+//        }
+        super.toolItemIconClick()
         // 重排上一段落及后面所有的 ListNumberSpan, 因为数据量并不会大， 所在重排的性能损失可以忽略，但是实现方法简单得多
         mEditText.postDelayUIRun(Runnable {
-            Util.renumberAllListItemSpans(editable)
-            mEditText.refresh(spStart)
-            logAllSpans(editable, "style 处理后", 0, editable.length)
+            Util.renumberAllListItemSpans(mEditText.editableText)
+            mEditText.refresh(0)
+            logAllSpans(mEditText.editableText, "style 处理后", 0, mEditText.editableText.length)
             mEditText.beginBatchEdit()
             mEditText.endBatchEdit()
         }, 30)

@@ -16,12 +16,18 @@ class IndentRightStyle(editText: RichEditText) : BaseStyle(editText) {
 
     override fun toolItemIconClick() {
         super.toolItemIconClick()
+
+        Util.renumberAllListItemSpans(mEditText.editableText)
+        mEditText.setSelection(mEditText.selectionStart, mEditText.selectionEnd)
+        mEditText.refresh(0)
+    }
+
+    override fun itemClickOnNonEmptyParagraph(curPStart: Int, curPEnd: Int): Int {
         update()
+        return 0
     }
 
     fun update() {
-        val selectionStart = mEditText.selectionStart
-        val selectionEnd = mEditText.selectionEnd
         val editable = mEditText.editableText
         val currentSelectionLines: List<AbstractMap.SimpleEntry<Int, Int>> =
             Util.getAllSelectionLines(mEditText)
@@ -70,9 +76,6 @@ class IndentRightStyle(editText: RichEditText) : BaseStyle(editText) {
             }
         }
 
-        Util.renumberAllListItemSpans(editable)
-        mEditText.setSelection(selectionStart, selectionEnd)
-        mEditText.refresh(0)
     }
 
     fun applyStyle(editable: Editable, start: Int, end: Int) {

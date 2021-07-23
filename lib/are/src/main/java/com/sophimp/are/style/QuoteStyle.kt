@@ -10,13 +10,14 @@ import com.sophimp.are.spans.QuoteSpan2
 
 class QuoteStyle(editText: RichEditText) : BaseStyle(editText) {
     private var mRemovedNewLine = false
-    override fun toolItemIconClick() {
-        super.toolItemIconClick()
+
+    override fun itemClickOnNonEmptyParagraph(curPStart: Int, curPEnd: Int): Int {
         if (isChecked) {
             makeLineAsQuote()
         } else {
             removeQuote()
         }
+        return 0
     }
 
     /**
