@@ -5,19 +5,18 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.text.Layout
 import android.text.Spannable
 import android.text.Spanned
 import android.text.style.AlignmentSpan
-import androidx.annotation.RequiresApi
 import com.sophimp.are.R
 import com.sophimp.are.RichEditText
 import com.sophimp.are.spans.IndentSpan
+import kotlin.math.max
 
 class TodoSpan : IClickableSpan, IListSpan {
     var isCheck = false
-    private var drawable: Drawable? = null
+    var drawable: Drawable? = null
     var drawableRecf = RectF()
 
     /**
@@ -26,20 +25,13 @@ class TodoSpan : IClickableSpan, IListSpan {
     private val delta = 6
     private var drawableSize = 35
 
-    constructor(drawable: Drawable) {
-        this.drawable = drawable
-    }
-
-    constructor(ctx: Context) {
-        drawable = ctx.resources.getDrawable(R.mipmap.icon_checkbox_unchecked)
-    }
-
+    constructor()
     constructor(ctx: Context, isCheck: Boolean) {
         this.isCheck = isCheck
-        if (isCheck) {
-            drawable = ctx.resources.getDrawable(R.mipmap.icon_checkbox_checked)
+        drawable = if (isCheck) {
+            ctx.resources.getDrawable(R.mipmap.icon_checkbox_checked)
         } else {
-            drawable = ctx.resources.getDrawable(R.mipmap.icon_checkbox_unchecked)
+            ctx.resources.getDrawable(R.mipmap.icon_checkbox_unchecked)
         }
     }
 
@@ -47,16 +39,15 @@ class TodoSpan : IClickableSpan, IListSpan {
         return IListSpan.LEADING_MARGIN
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.P)
     override fun drawLeadingMargin(
         c: Canvas, p: Paint, x: Int, dir: Int, top: Int,
         baseline: Int, bottom: Int, text: CharSequence, start: Int, end: Int,
         first: Boolean, layout: Layout
     ) {
         if ((text as Spanned).getSpanStart(this) == start) {
-            val st = text.getSpanStart(this)
+//            val st = text.getSpanStart(this)
 
-            drawableSize = Math.max(baseline - top, drawable!!.intrinsicHeight)
+            drawableSize = max(baseline - top, drawable!!.intrinsicHeight)
             val dh = drawableSize
 
             var itop = top + delta

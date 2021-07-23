@@ -55,8 +55,8 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
         addToolbarItem(FontBackgroundColorToolItem(FontBackgroundStyle(editText)), true)
         addToolbarItem(FontSizeToolItem(FontSizeStyle(editText)), true)
 
-        addToolbarItem(IndentLeftToolItem(IndentLeftStyle(editText)), true)
         addToolbarItem(IndentRightToolItem(IndentRightStyle(editText)), true)
+        addToolbarItem(IndentLeftToolItem(IndentLeftStyle(editText)), true)
 
         addToolbarItem(
             AlignmentLeftToolItem(AlignmentStyle(editText, Layout.Alignment.ALIGN_NORMAL)), true
@@ -68,20 +68,28 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
             AlignmentRightToolItem(AlignmentStyle(editText, Layout.Alignment.ALIGN_OPPOSITE)), true
         )
 
+        addToolbarItem(QuoteToolItem(QuoteStyle(editText)), true)
 
+        // bottom
         addToolbarItem(BoldToolItem(BoldStyle(editText)), false)
-        addToolbarItem(StrikeThroughToolItem(StrikethroughStyle(editText)), false)
         addToolbarItem(UnderlineToolItem(UnderlineStyle(editText)), false)
         addToolbarItem(ItalicToolItem(ItalicStyle(editText)), false)
+        addToolbarItem(StrikeThroughToolItem(StrikethroughStyle(editText)), false)
         addToolbarItem(ListNumberToolItem(ListNumberStyle(editText)), false)
         addToolbarItem(ListBulletToolItem(ListBulletStyle(editText)), false)
         addToolbarItem(TodoToolItem(TodoStyle(editText)), false)
 
+        addToolbarItem(SubscriptToolItem(SubscriptStyle(editText)), false)
+        addToolbarItem(SuperscriptToolItem(SuperscriptStyle(editText)), false)
         addToolbarItem(LineSpaceToolItem(LineSpaceStyle(editText, true)), false)
         addToolbarItem(LineSpaceToolItem(LineSpaceStyle(editText, false)), false)
         addToolbarItem(HrToolItem(HrStyle(editText)), false)
         addToolbarItem(LinkToolItem(LinkStyle(editText)), false)
-        addToolbarItem(QuoteToolItem(QuoteStyle(editText)), false)
+
+        // add styles to richtext
+        for (item: IToolbarItem in mToolItems) {
+            editText.addStyle(item.mStyle)
+        }
     }
 
     fun addToolbarItem(toolbarItem: IToolbarItem, addTop: Boolean) {

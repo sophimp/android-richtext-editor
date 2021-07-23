@@ -25,7 +25,7 @@ class ImageStyle(editText: RichEditText) : BaseStyle(editText) {
         sHeight = displayMetrics.heightPixels
     }
 
-    override fun insertSpan(span: ISpan, start: Int, end: Int) {
+    override fun setSpan(span: ISpan, start: Int, end: Int) {
         // generateSpan
 //        val options = BitmapFactory.Options()
 //        val bitmap: Bitmap = ImageUtils.getBitmapWithScreeWidth(

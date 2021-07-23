@@ -61,7 +61,7 @@ interface IStyle {
     /**
      * insertSpan
      */
-    fun insertSpan(span: ISpan, start: Int, end: Int) {}
+    fun setSpan(span: ISpan, start: Int, end: Int) {}
 
     /**
      * toolbar item click handle

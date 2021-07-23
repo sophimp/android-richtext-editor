@@ -8,9 +8,11 @@ import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
 import com.sophimp.are.Util
 import com.sophimp.are.spans.IListSpan
+import com.sophimp.are.spans.ISpan
 import com.sophimp.are.spans.IndentSpan
 import java.util.*
 import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Abstract for ListBullet, ListTodo, ListNumber
@@ -126,9 +128,9 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
         }, 30)
     }
 
-    private fun handleClickCase2(currentStart: Int, currentEnd: Int) {
+    private fun handleClickCase2(start: Int, end: Int) {
 //        LogUtils.d("sgx cake setSpan start-end: " + currentStart + " - " + currentEnd);
-        var currentStart = currentStart
+        var currentStart = start
         val editable = mEditText.editableText
         if (editable != null) {
             if (editable.isEmpty()) {
@@ -140,7 +142,7 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
                 // 最后一行行尾
                 editable.append(Constants.ZERO_WIDTH_SPACE_STR)
                 off = 1
-            } else if (currentStart == currentEnd && editable[currentStart] == '\n') {
+            } else if (currentStart == end && editable[currentStart] == '\n') {
                 editable.insert(currentStart, Constants.ZERO_WIDTH_SPACE_STR)
                 off = 1
             } else {
@@ -156,12 +158,7 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
                 mEditText.postDelayUIRun(Runnable {
                     try {
                         isEmptyLine = false
-                        editable.setSpan(
-                            basicClass.newInstance(),
-                            finalCurrentStart,
-                            finalCurrentStart + 1,
-                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
+                        setSpan(basicClass.newInstance(), currentStart, currentStart + 1)
                         mEditText.refresh(0)
                     } catch (e: IllegalAccessException) {
                         e.printStackTrace()
@@ -171,12 +168,7 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
                 }, 0)
             } else {
                 try {
-                    editable.setSpan(
-                        basicClass.newInstance(),
-                        currentStart,
-                        currentEnd,
-                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
+                    setSpan(basicClass.newInstance(), currentStart, end)
                 } catch (e: IllegalAccessException) {
                     e.printStackTrace()
                 } catch (e: InstantiationException) {
@@ -246,12 +238,7 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
                     val base = editable.getSpans(pStart, pEnd, basicClass)
                     if (base.isNotEmpty()) {
                         removeSpans(editable, base)
-                        editable.setSpan(
-                            base[0],
-                            pStart,
-                            pEnd,
-                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
+                        setSpan(base[0], pStart, pEnd)
                         mEditText.refresh(beforeSelectionStart)
                     }
                 }
@@ -312,33 +299,18 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
         } else {
             // case 1: 有内容换行,
             // 前一行添加span
-            if (preListSpan.size > 0) {
-                editable.setSpan(
-                    preListSpan[0],
-                    lastPStart,
-                    lastPEnd,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
+            if (preListSpan.isNotEmpty()) {
+                setSpan(preListSpan[0], lastPStart, lastPEnd)
             }
-            if (preLeading.size > 0) {
-                editable.setSpan(
-                    preLeading[0],
-                    lastPStart,
-                    lastPEnd,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
+            if (preLeading.isNotEmpty()) {
+                setSpan(preLeading[0], lastPStart, lastPEnd)
             }
             // 当前行添加span
-            if (preListSpan.size > 0) {
+            if (preListSpan.isNotEmpty()) {
                 try {
-                    val curStart: Int = mEditText.getSelectionStart()
+                    val curStart: Int = mEditText.selectionStart
                     editable.insert(curStart, Constants.ZERO_WIDTH_SPACE_STR)
-                    editable.setSpan(
-                        basicClass.newInstance(),
-                        curStart,
-                        Math.min(curStart + 1, editable.length),
-                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
+                    setSpan(basicClass.newInstance(), curStart, min(curStart + 1, editable.length))
                 } catch (e: IllegalAccessException) {
                     e.printStackTrace()
                 } catch (e: InstantiationException) {
@@ -346,11 +318,10 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
                 }
             }
             if (preLeading.isNotEmpty()) {
-                editable.setSpan(
+                setSpan(
                     IndentSpan(preLeading[0].mLevel),
                     lastPEnd + 1,
-                    Math.min(lastPEnd + 2, editable.length),
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    min(lastPEnd + 2, editable.length)
                 )
             }
         }
@@ -413,12 +384,7 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
             if (index < pEnd) {
                 if (firstPListSpans.isNotEmpty()) {
                     try {
-                        editable.setSpan(
-                            basicClass.newInstance(),
-                            index,
-                            pEnd,
-                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
+                        setSpan(basicClass.newInstance(), index, pEnd)
                     } catch (e: IllegalAccessException) {
                         e.printStackTrace()
                     } catch (e: InstantiationException) {
@@ -426,12 +392,7 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
                     }
                 }
                 if (firstPLeadingSpans.isNotEmpty()) {
-                    editable.setSpan(
-                        IndentSpan(firstPLeadingSpans[0].mLevel),
-                        index,
-                        pEnd,
-                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
+                    setSpan(IndentSpan(firstPLeadingSpans[0].mLevel), index, pEnd)
                 }
             } // else { // 相等， 空行, 不处理
             index = pEnd + 1 + off
@@ -472,12 +433,7 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
         removeSpans(editable, curLeadingSpans)
         if (preDelListSpans.isNotEmpty()) {
             try {
-                editable.setSpan(
-                    basicClass.newInstance(),
-                    curPStart,
-                    curPEnd,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
+                setSpan(basicClass.newInstance(), curPStart, curPEnd)
             } catch (e: IllegalAccessException) {
                 e.printStackTrace()
             } catch (e: InstantiationException) {
@@ -485,12 +441,7 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
             }
         }
         if (preLeadSpans.isNotEmpty()) {
-            editable.setSpan(
-                IndentSpan(preLeadSpans[0].mLevel),
-                curPStart,
-                curPEnd,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
+            setSpan(IndentSpan(preLeadSpans[0].mLevel), curPStart, curPEnd)
         }
 
         // 重排所有的 ListNumberSpan, 因为数据量并不会大， 所在重排的性能损失可以忽略，但是实现方法简单得多
@@ -529,4 +480,7 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
         Util.log(tag + " : " + "总长度: " + editable.length)
     }
 
+    override fun setSpan(span: ISpan, start: Int, end: Int) {
+        mEditText.editableText.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+    }
 }

@@ -2,11 +2,9 @@ package com.sophimp.are.spans
 
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.os.Build
 import android.text.Layout
 import android.text.Spanned
 import android.text.style.AlignmentSpan
-import androidx.annotation.RequiresApi
 import com.sophimp.are.spans.IndentSpan
 
 /**
@@ -21,7 +19,6 @@ class ListBulletSpan : IListSpan {
         return IListSpan.LEADING_MARGIN
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.P)
     override fun drawLeadingMargin(
         c: Canvas, p: Paint, x: Int, dir: Int, top: Int,
         baseline: Int, bottom: Int, text: CharSequence, start: Int, end: Int,
@@ -39,7 +36,7 @@ class ListBulletSpan : IListSpan {
                         "\u2022"
                 }
             }
-            val textLength = (p.measureText(sign) + 0.5f).toInt()
+            val textLength = (p.measureText("1.") + 0.5f).toInt()
             val alignmentSpans = text.getSpans(start, end, AlignmentSpan::class.java)
             if (null != alignmentSpans) {
                 for (span in alignmentSpans) {

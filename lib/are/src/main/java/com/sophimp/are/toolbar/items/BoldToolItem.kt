@@ -7,4 +7,8 @@ class BoldToolItem(style: BoldStyle) : AbstractItem(style) {
     override val srcResId: Int
         get() = R.mipmap.icon_toolitem_bold_unchecked
 
+    override fun iconClickHandle() {
+        super.iconClickHandle()
+        iconView.setImageResource(if (style.isChecked) R.mipmap.icon_toolitem_bold_checked else R.mipmap.icon_toolitem_bold_unchecked)
+    }
 }

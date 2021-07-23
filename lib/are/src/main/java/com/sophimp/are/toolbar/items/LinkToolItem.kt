@@ -51,6 +51,6 @@ class LinkToolItem(style: IStyle) : AbstractItem(style) {
             editable.insert(start, insertStr)
             end = start + insertStr.length
         }
-        mStyle.insertSpan(UrlSpan(linkAddr), start, end)
+        mStyle.setSpan(UrlSpan(linkAddr), start, end)
     }
 }

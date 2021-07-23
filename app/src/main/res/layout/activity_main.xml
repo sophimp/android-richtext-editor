@@ -5,10 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp"
     tools:context=".MainActivity">
 
     <com.sophimp.are.RichEditText
         android:id="@+id/re_richtext"
+        android:layout_marginTop="12dp"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@null"

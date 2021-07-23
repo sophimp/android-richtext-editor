@@ -66,7 +66,7 @@ class AudioStyle(editText: RichEditText) : BaseStyle(editText) {
     ) {
     }
 
-    override fun insertSpan(span: ISpan, start: Int, end: Int) {
+    override fun setSpan(span: ISpan, start: Int, end: Int) {
 
     }
 }

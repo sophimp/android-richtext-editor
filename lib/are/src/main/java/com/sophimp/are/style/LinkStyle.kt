@@ -40,7 +40,7 @@ class LinkStyle(editText: RichEditText) : BaseStyle(editText) {
     ) {
     }
 
-    override fun insertSpan(span: ISpan, start: Int, end: Int) {
+    override fun setSpan(span: ISpan, start: Int, end: Int) {
         mEditText.editableText.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         mEditText.editableText.insert(end, Constants.ZERO_WIDTH_SPACE_STR)
     }

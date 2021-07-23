@@ -24,6 +24,6 @@ class StrikethroughStyle(editText: RichEditText) :
         return StrikeThroughSpan2()
     }
 
-    override fun insertSpan(span: ISpan, start: Int, end: Int) {
+    override fun setSpan(span: ISpan, start: Int, end: Int) {
     }
 }

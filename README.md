@@ -8,6 +8,13 @@
 
 初衷有二：
 1. Kotlin练手
-2. 原库给我了很大的帮助，此库用来感谢并致敬作者@chinalwb，同时回馈开源社区
+2. [chinalwb/Android-Rich-text-Editor]给我了很大的帮助，此库用来感谢并致敬作者@chinalwb，同时回馈开源社区
 
-### 特性
+### 已实现特性
+DefaultToolbar中的都已实现
+
+### 未实现特性
+1. 表格
+直接在EditText中编辑表格，以现有的框架我还没想到好的思路，
+
+2.
