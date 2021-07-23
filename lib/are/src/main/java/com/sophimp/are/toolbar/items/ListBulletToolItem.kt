@@ -6,6 +6,6 @@ import com.sophimp.are.style.ListBulletStyle
 class ListBulletToolItem(style: ListBulletStyle) :
     AbstractItem(style) {
     override val srcResId: Int
-        get() = R.mipmap.icon_toolitem_listbullet
+        get() = R.mipmap.icon_toolitem_list_bullet
 
 }

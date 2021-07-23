@@ -9,7 +9,7 @@ import com.sophimp.are.style.IStyle
  */
 class ImageToolItem(style: IStyle) : AbstractItem(style) {
     override val srcResId: Int
-        get() = R.mipmap.icon_toolitem_image_choose
+        get() = R.mipmap.default_image
 
     override fun iconClickHandle() {
         super.iconClickHandle()

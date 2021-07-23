@@ -3,11 +3,10 @@ package com.sophimp.are.toolbar
 import android.content.Context
 import android.text.Layout
 import android.util.AttributeSet
-import android.view.Gravity
-import android.view.View
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import com.sophimp.are.RichEditText
+import com.sophimp.are.Util
 import com.sophimp.are.style.*
 import com.sophimp.are.toolbar.items.*
 
@@ -19,73 +18,78 @@ import com.sophimp.are.toolbar.items.*
 class DefaultToolbar(context: Context, attrs: AttributeSet?) :
     HorizontalScrollView(context, attrs) {
 
-    private var mContainer: LinearLayout? = null
+    private var mTopContainer: LinearLayout? = null
+    private var mBottomContainer: LinearLayout? = null
 
     private val mToolItems: MutableList<IToolbarItem> = arrayListOf()
 
     init {
-        mContainer = LinearLayout(context)
+        val mRootContainer = LinearLayout(context)
         val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-        mContainer?.gravity = Gravity.CENTER_VERTICAL
-        mContainer?.layoutParams = params
-        this.addView(mContainer)
+//        mRootContainer.gravity = Gravity.CENTER_VERTICAL
+        mRootContainer.layoutParams = params
+        mRootContainer.orientation = LinearLayout.VERTICAL
+
+        val height: Int = (resources.displayMetrics.density * 44).toInt()
+        mTopContainer = LinearLayout(context)
+        val topParams = LayoutParams(LayoutParams.MATCH_PARENT, height)
+        mTopContainer?.layoutParams = topParams
+        mTopContainer?.orientation = LinearLayout.HORIZONTAL
+
+        mBottomContainer = LinearLayout(context)
+        val bottomParams = LayoutParams(LayoutParams.MATCH_PARENT, height)
+        mBottomContainer?.layoutParams = bottomParams
+        mBottomContainer?.orientation = LinearLayout.HORIZONTAL
+
+        mRootContainer.addView(mTopContainer)
+        mRootContainer.addView(mBottomContainer)
+
+        this.addView(mRootContainer)
     }
 
     fun initDefaultToolItem(editText: RichEditText) {
-        addToolbarItem(FontColorToolItem(FontColorStyle(editText)))
-        addToolbarItem(FontSizeToolItem(FontSizeStyle(editText)))
-        addToolbarItem(FontBackgroundColorToolItem(FontBackgroundStyle(editText)))
+        // top
+        addToolbarItem(ImageToolItem(ImageStyle(editText)), true)
+        addToolbarItem(VideoToolItem(VideoStyle(editText)), true)
+        addToolbarItem(FontColorToolItem(FontColorStyle(editText)), true)
+        addToolbarItem(FontBackgroundColorToolItem(FontBackgroundStyle(editText)), true)
+        addToolbarItem(FontSizeToolItem(FontSizeStyle(editText)), true)
 
-        addToolbarItem(ImageToolItem(ImageStyle(editText)))
-        addToolbarItem(VideoToolItem(VideoStyle(editText)))
-
-        addToolbarItem(BoldToolItem(BoldStyle(editText)))
-        addToolbarItem(StrikeThroughToolItem(StrikethroughStyle(editText)))
-        addToolbarItem(UnderlineToolItem(UnderlineStyle(editText)))
-        addToolbarItem(ItalicToolItem(ItalicStyle(editText)))
-        addToolbarItem(ListNumberToolItem(ListNumberStyle(editText)))
-        addToolbarItem(ListBulletToolItem(ListBulletStyle(editText)))
-        addToolbarItem(TodoToolItem(TodoStyle(editText)))
+        addToolbarItem(IndentLeftToolItem(IndentLeftStyle(editText)), true)
+        addToolbarItem(IndentRightToolItem(IndentRightStyle(editText)), true)
 
         addToolbarItem(
-            AlignmentLeftToolItem(
-                AlignmentStyle(
-                    editText,
-                    Layout.Alignment.ALIGN_NORMAL
-                )
-            )
+            AlignmentLeftToolItem(AlignmentStyle(editText, Layout.Alignment.ALIGN_NORMAL)), true
         )
         addToolbarItem(
-            AlignmentCenterToolItem(
-                AlignmentStyle(
-                    editText,
-                    Layout.Alignment.ALIGN_CENTER
-                )
-            )
+            AlignmentCenterToolItem(AlignmentStyle(editText, Layout.Alignment.ALIGN_CENTER)), true
         )
         addToolbarItem(
-            AlignmentRightToolItem(
-                AlignmentStyle(
-                    editText,
-                    Layout.Alignment.ALIGN_OPPOSITE
-                )
-            )
+            AlignmentRightToolItem(AlignmentStyle(editText, Layout.Alignment.ALIGN_OPPOSITE)), true
         )
 
-        addToolbarItem(IndentLeftToolItem(IndentLeftStyle(editText)))
-        addToolbarItem(IndentRightToolItem(IndentRightStyle(editText)))
 
-        addToolbarItem(LineSpaceToolItem(LineSpaceStyle(editText, true)))
-        addToolbarItem(LineSpaceToolItem(LineSpaceStyle(editText, false)))
-        addToolbarItem(HrToolItem(HrStyle(editText)))
-        addToolbarItem(LinkToolItem(LinkStyle(editText)))
+        addToolbarItem(BoldToolItem(BoldStyle(editText)), false)
+        addToolbarItem(StrikeThroughToolItem(StrikethroughStyle(editText)), false)
+        addToolbarItem(UnderlineToolItem(UnderlineStyle(editText)), false)
+        addToolbarItem(ItalicToolItem(ItalicStyle(editText)), false)
+        addToolbarItem(ListNumberToolItem(ListNumberStyle(editText)), false)
+        addToolbarItem(ListBulletToolItem(ListBulletStyle(editText)), false)
+        addToolbarItem(TodoToolItem(TodoStyle(editText)), false)
+
+        addToolbarItem(LineSpaceToolItem(LineSpaceStyle(editText, true)), false)
+        addToolbarItem(LineSpaceToolItem(LineSpaceStyle(editText, false)), false)
+        addToolbarItem(HrToolItem(HrStyle(editText)), false)
+        addToolbarItem(LinkToolItem(LinkStyle(editText)), false)
+        addToolbarItem(QuoteToolItem(QuoteStyle(editText)), false)
     }
 
-    open fun addToolbarItem(toolbarItem: IToolbarItem) {
-        val view: View? = toolbarItem.iconView
-        if (view != null) {
-            mContainer?.addView(view)
-        }
+    fun addToolbarItem(toolbarItem: IToolbarItem, addTop: Boolean) {
+        Util.log("addTop: $addTop")
+        if (addTop)
+            mTopContainer?.addView(toolbarItem.iconView)
+        else
+            mBottomContainer?.addView(toolbarItem.iconView)
         mToolItems.add(toolbarItem)
     }
 

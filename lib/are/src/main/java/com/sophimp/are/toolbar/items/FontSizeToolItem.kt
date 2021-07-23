@@ -6,6 +6,6 @@ import com.sophimp.are.style.FontSizeStyle
 class FontSizeToolItem(style: FontSizeStyle) :
     AbstractItem(style) {
     override val srcResId: Int
-        get() = R.mipmap.icon_toolitem_foregroundcolor
+        get() = R.mipmap.icon_toolitem_fontsize
 
 }
