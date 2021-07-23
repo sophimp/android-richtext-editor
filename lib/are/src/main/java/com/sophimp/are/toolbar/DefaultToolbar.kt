@@ -26,7 +26,6 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
     init {
         val mRootContainer = LinearLayout(context)
         val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-//        mRootContainer.gravity = Gravity.CENTER_VERTICAL
         mRootContainer.layoutParams = params
         mRootContainer.orientation = LinearLayout.VERTICAL
 

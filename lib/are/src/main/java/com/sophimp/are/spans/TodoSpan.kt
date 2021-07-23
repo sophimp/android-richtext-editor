@@ -11,18 +11,18 @@ import android.text.Spanned
 import android.text.style.AlignmentSpan
 import com.sophimp.are.R
 import com.sophimp.are.RichEditText
-import com.sophimp.are.spans.IndentSpan
 import kotlin.math.max
 
 class TodoSpan : IClickableSpan, IListSpan {
     var isCheck = false
     var drawable: Drawable? = null
-    var drawableRecf = RectF()
+    var drawableRectf = RectF()
 
     /**
-     * 图标上下误差调整
+     * delta to adjust for icon in center of line height
      */
     private val delta = 6
+
     private var drawableSize = 35
 
     constructor()
@@ -45,7 +45,6 @@ class TodoSpan : IClickableSpan, IListSpan {
         first: Boolean, layout: Layout
     ) {
         if ((text as Spanned).getSpanStart(this) == start) {
-//            val st = text.getSpanStart(this)
 
             drawableSize = max(baseline - top, drawable!!.intrinsicHeight)
             val dh = drawableSize
@@ -59,19 +58,19 @@ class TodoSpan : IClickableSpan, IListSpan {
                     if (span.alignment == Layout.Alignment.ALIGN_CENTER) {
                         val rx = (layout.width - v - dh - IListSpan.STANDARD_GAP_WIDTH).toInt() / 2
                         drawable!!.setBounds(rx, itop, rx + dh, itop + dh)
-                        drawableRecf.left = rx.toFloat()
-                        drawableRecf.top = itop.toFloat()
-                        drawableRecf.right = rx + dh.toFloat()
-                        drawableRecf.bottom = itop + dh.toFloat()
+                        drawableRectf.left = rx.toFloat()
+                        drawableRectf.top = itop.toFloat()
+                        drawableRectf.right = rx + dh.toFloat()
+                        drawableRectf.bottom = itop + dh.toFloat()
                         drawable!!.draw(c)
                         return
                     } else if (alignmentSpans[0].alignment == Layout.Alignment.ALIGN_OPPOSITE) {
                         val rx = (layout.width - v - dh - IListSpan.STANDARD_GAP_WIDTH).toInt()
                         drawable!!.setBounds(rx, itop, rx + dh, itop + dh)
-                        drawableRecf.left = rx.toFloat()
-                        drawableRecf.top = itop.toFloat()
-                        drawableRecf.right = rx + dh.toFloat()
-                        drawableRecf.bottom = itop + dh.toFloat()
+                        drawableRectf.left = rx.toFloat()
+                        drawableRectf.top = itop.toFloat()
+                        drawableRectf.right = rx + dh.toFloat()
+                        drawableRectf.bottom = itop + dh.toFloat()
                         drawable!!.draw(c)
                         return
                     }
@@ -89,17 +88,17 @@ class TodoSpan : IClickableSpan, IListSpan {
             val ix =
                 x + margin + IListSpan.LEADING_MARGIN - drawableSize - IListSpan.STANDARD_GAP_WIDTH
             drawable!!.setBounds(ix, itop, ix + dh, itop + dh)
-            drawableRecf.left = ix.toFloat()
-            drawableRecf.top = itop.toFloat()
-            drawableRecf.right = ix + dh.toFloat()
-            drawableRecf.bottom = itop + dh.toFloat()
+            drawableRectf.left = ix.toFloat()
+            drawableRectf.top = itop.toFloat()
+            drawableRectf.right = ix + dh.toFloat()
+            drawableRectf.bottom = itop + dh.toFloat()
             drawable!!.draw(c)
         }
     }
 
     fun onClick(editText: RichEditText?, clickX: Float): Boolean {
         if (editText == null) return false
-        if (clickX >= drawableRecf.left && clickX <= drawableRecf.right) {
+        if (clickX >= drawableRectf.left && clickX <= drawableRectf.right) {
             try {
                 isCheck = !isCheck
                 val spanStart = editText.editableText.getSpanStart(this)

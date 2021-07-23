@@ -6,6 +6,7 @@ import android.widget.EditText
 import com.sophimp.are.BuildConfig
 import com.sophimp.are.RichEditText
 import com.sophimp.are.Util
+import com.sophimp.are.spans.ISpan
 import com.sophimp.are.spans.LineSpaceSpan
 import java.util.*
 import kotlin.math.abs
@@ -72,14 +73,14 @@ class LineSpaceStyle(editText: RichEditText, var isLarge: Boolean) :
         }
         factor = if (isLarge) {
             if (factor >= 5.5) {
-                Util.toast(context, "无法增大了")
+                Util.toast(context, "reached the max line space")
                 return
             }
             // 增大行距
             getNextLargeFactor(factor)
         } else {
             if (factor <= 1.0) {
-                Util.toast(context, "无法缩小了")
+                Util.toast(context, "reached the min line space")
                 return
             }
             getNextSmallFactor(factor)
@@ -90,7 +91,7 @@ class LineSpaceStyle(editText: RichEditText, var isLarge: Boolean) :
             editable.removeSpan(lineSpaceSpan)
         }
         val spaceSpan = LineSpaceSpan(factor, text.lineHeight.toFloat())
-        editable.setSpan(spaceSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        setSpan(spaceSpan, start, end)
         logLineSpaceSpanItems(editable)
         mEditText.refresh(start)
     }
@@ -159,11 +160,37 @@ class LineSpaceStyle(editText: RichEditText, var isLarge: Boolean) :
     ) {
         when (event) {
             IStyle.TextEvent.DELETE -> handleDeleteLineSpace(editable, start)
+            IStyle.TextEvent.INPUT_SINGLE_PARAGRAPH -> handleSingleLineInput(
+                editable,
+                beforeSelectionStart,
+                end
+            )
             IStyle.TextEvent.INPUT_NEW_LINE -> handleLineSpacingNewLine(
                 editable,
                 beforeSelectionStart
             )
         }
+    }
+
+    private fun handleSingleLineInput(
+        editable: Editable,
+        beforeSelectionStart: Int,
+        end: Int
+    ) {
+        // if current line has no LineSpaceSpan, need to add one, for resolve the problem of the overlap when you apply this style on where two paragraphs separate with consecutive empty line
+        // also we should limit factor <= 1.0 LineSpaceSpan not to be converted to html rich text to avoid the html too long
+        val pStart = Util.getParagraphStart(mEditText, beforeSelectionStart)
+        val pEnd = Util.getParagraphEnd(editable, end)
+        if (pStart < pEnd) {
+            val lineSpaceSpans = editable.getSpans(
+                pStart, pEnd,
+                LineSpaceSpan::class.java
+            )
+            if (lineSpaceSpans.isEmpty()) {
+                setSpan(LineSpaceSpan(1.0f, (-1).toFloat()), pStart, pEnd)
+            }
+        }
+        logLineSpaceSpanItems(editable)
     }
 
     private fun handleDeleteLineSpace(editable: Editable, start: Int) {
@@ -178,7 +205,7 @@ class LineSpaceStyle(editText: RichEditText, var isLarge: Boolean) :
         }
         removeSpans(editable, lineSpaceSpans)
         if (pStart < pEnd && lineSpaceSpans.isNotEmpty()) {
-            editable.setSpan(lineSpaceSpans[0], pStart, pEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(lineSpaceSpans[0], pStart, pEnd)
         }
     }
 
@@ -186,7 +213,7 @@ class LineSpaceStyle(editText: RichEditText, var isLarge: Boolean) :
         editable: Editable,
         beforeSelectionStart: Int
     ) {
-        // 如果是从段中换行， 需要将LineSpaceSpan 拆分
+        // when cursor in middle of line before enter new line, need to split LineSpaceSpan
         val lineSpaceSpans = editable.getSpans(
             beforeSelectionStart,
             mEditText.selectionEnd,
@@ -198,22 +225,16 @@ class LineSpaceStyle(editText: RichEditText, var isLarge: Boolean) :
             val lEnd = editable.getSpanEnd(span)
             removeSpans(editable, lineSpaceSpans)
             if (lStart < beforeSelectionStart) {
-                editable.setSpan(
-                    span,
-                    lStart,
-                    beforeSelectionStart,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
+                setSpan(span, lStart, beforeSelectionStart)
             }
             if (mEditText.selectionEnd < lEnd) {
-                editable.setSpan(
-                    LineSpaceSpan(span.factor, (-1).toFloat()),
-                    mEditText.selectionEnd,
-                    lEnd,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
+                setSpan(LineSpaceSpan(span.factor, (-1).toFloat()), mEditText.selectionEnd, lEnd)
             }
         }
+    }
+
+    override fun setSpan(span: ISpan, start: Int, end: Int) {
+        mEditText.editableText.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
     }
 
 }
