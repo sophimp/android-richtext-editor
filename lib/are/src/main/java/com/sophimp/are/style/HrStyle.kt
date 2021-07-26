@@ -10,17 +10,21 @@ import com.sophimp.are.Util.getParagraphEnd
 import com.sophimp.are.Util.getParagraphStart
 import com.sophimp.are.spans.HrSpan
 import com.sophimp.are.spans.IListSpan
+import com.sophimp.are.spans.ISpan
 import com.sophimp.are.spans.IndentSpan
 
-class HrStyle(mEditText: RichEditText) : BaseStyle(mEditText) {
+class HrStyle(mEditText: RichEditText) : BaseFreeStyle<HrSpan>(mEditText) {
     override fun applyStyle(
         editable: Editable,
         event: IStyle.TextEvent?,
         changedText: String?,
         beforeSelectionStart: Int,
-        start: Int,
-        end: Int
+        afterSelectionEnd: Int
     ) {
+    }
+
+    override fun newSpan(): ISpan? {
+        return null
     }
 
     override fun toolItemIconClick() {
@@ -63,5 +67,9 @@ class HrStyle(mEditText: RichEditText) : BaseStyle(mEditText) {
             )
         }
         mEditText.startMonitor()
+    }
+
+    override fun targetClass(): Class<HrSpan> {
+        return HrSpan::class.java
     }
 }

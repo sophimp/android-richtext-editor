@@ -8,7 +8,7 @@ import com.sophimp.are.RichEditText
 import com.sophimp.are.Util
 import com.sophimp.are.spans.QuoteSpan2
 
-class QuoteStyle(editText: RichEditText) : BaseStyle(editText) {
+class QuoteStyle(editText: RichEditText) : BaseParagraphStyle<QuoteSpan2>(editText) {
     private var mRemovedNewLine = false
 
     override fun itemClickOnNonEmptyParagraph(curPStart: Int, curPEnd: Int): Int {
@@ -147,14 +147,8 @@ class QuoteStyle(editText: RichEditText) : BaseStyle(editText) {
         }
     }
 
-    override fun applyStyle(
-        editable: Editable,
-        event: IStyle.TextEvent?,
-        changedText: String?,
-        beforeSelectionStart: Int,
-        start: Int,
-        end: Int
-    ) {
+    override fun targetClass(): Class<QuoteSpan2> {
+        return QuoteSpan2::class.java
     }
 
 }

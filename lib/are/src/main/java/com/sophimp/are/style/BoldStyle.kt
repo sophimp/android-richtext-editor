@@ -9,10 +9,14 @@ import com.sophimp.are.spans.BoldSpan
  * @since: 2021/7/21
  */
 class BoldStyle(editText: RichEditText) :
-    ABSStyle<BoldSpan>(editText, BoldSpan::class.java) {
+    BaseCharacterStyle<BoldSpan>(editText) {
 
     override fun newSpan(): BoldSpan? {
         return BoldSpan()
+    }
+
+    override fun targetClass(): Class<BoldSpan> {
+        return BoldSpan::class.java
     }
 
 }

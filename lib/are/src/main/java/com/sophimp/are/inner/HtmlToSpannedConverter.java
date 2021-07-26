@@ -821,7 +821,7 @@ class HtmlToSpannedConverter implements ContentHandler {
 
         LineSpace lineSpace = getLast(text, LineSpace.class);
         if (lineSpace != null && lineSpace.factor > 1.0f) {
-            setSpanFromMark(text, lineSpace, new LineSpaceSpan(lineSpace.factor, -1));
+            setSpanFromMark(text, lineSpace, new LineSpaceSpan(lineSpace.factor));
         }
 
         Indent indent = getLast(text, Indent.class);

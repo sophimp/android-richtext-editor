@@ -8,8 +8,9 @@ import com.bumptech.glide.RequestManager
 import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
 import com.sophimp.are.spans.ISpan
+import com.sophimp.are.spans.ImageSpan2
 
-class ImageStyle(editText: RichEditText) : BaseStyle(editText) {
+class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
 
     companion object {
         const val REQUEST_CODE = 1001
@@ -79,9 +80,12 @@ class ImageStyle(editText: RichEditText) : BaseStyle(editText) {
         event: IStyle.TextEvent?,
         changedText: String?,
         beforeSelectionStart: Int,
-        start: Int,
-        end: Int
+        afterSelectionEnd: Int
     ) {
+    }
+
+    override fun targetClass(): Class<ImageSpan2> {
+        return ImageSpan2::class.java
     }
 
 }

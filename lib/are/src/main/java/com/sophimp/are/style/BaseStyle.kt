@@ -11,7 +11,7 @@ import kotlin.math.max
  * @author: sfx
  * @since: 2021/7/21
  */
-abstract class BaseStyle(protected var curEditText: RichEditText) : IStyle {
+abstract class BaseStyle<TA : ISpan>(protected var curEditText: RichEditText) : IStyle {
     protected var context = curEditText.context
     protected var checkState: Boolean = false
 
@@ -80,6 +80,67 @@ abstract class BaseStyle(protected var curEditText: RichEditText) : IStyle {
         return 0
     }
 
+    protected fun <T : ISpan> updateSpan(spans: Array<T>, start: Int, end: Int, update: Boolean) {
+        removeSpans(mEditText.editableText, spans)
+        if (spans.isNotEmpty() && update) {
+            setSpan(spans[0], start, end)
+        } else {
+            val ns = newSpan()
+            if (ns != null) {
+                setSpan(ns, start, end)
+            }
+        }
+    }
+
+    override fun applyStyle(
+        editable: Editable,
+        event: IStyle.TextEvent?,
+        changedText: String?,
+        beforeSelectionStart: Int,
+        afterSelectionEnd: Int
+    ) {
+        when (event) {
+            IStyle.TextEvent.DELETE -> handleDeleteEvent(editable)
+            IStyle.TextEvent.INPUT_NEW_LINE -> handleInputNewLine(editable, beforeSelectionStart)
+            IStyle.TextEvent.INPUT_SINGLE_PARAGRAPH -> handleSingleParagraphInput(
+                editable,
+                changedText,
+                beforeSelectionStart,
+                afterSelectionEnd
+            )
+            IStyle.TextEvent.INPUT_MULTI_PARAGRAPH -> handleMultiParagraphInput(
+                editable,
+                changedText,
+                beforeSelectionStart,
+                afterSelectionEnd
+            )
+        }
+    }
+
+    abstract fun handleMultiParagraphInput(
+        editable: Editable,
+        changedText: String?,
+        beforeSelectionStart: Int,
+        afterSelectionEnd: Int
+    )
+
+
+    abstract fun handleSingleParagraphInput(
+        editable: Editable,
+        changedText: String?,
+        beforeSelectionStart: Int,
+        afterSelectionEnd: Int
+    )
+
+
+    abstract fun handleInputNewLine(editable: Editable, beforeSelectionStart: Int)
+
+    abstract fun handleDeleteEvent(editable: Editable)
+
+    /**
+     * 每个 style 处理的span
+     */
+    abstract fun targetClass(): Class<TA>
 
     override val isChecked: Boolean
         get() = checkState

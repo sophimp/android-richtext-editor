@@ -8,7 +8,7 @@ import android.text.style.LineHeightSpan
  * @author: sfx
  * @since: 2021/7/20
  */
-class LineSpaceSpan(var factor: Float, lineHeight: Float) : LineHeightSpan, ISpan {
+class LineSpaceSpan(var factor: Float) : LineHeightSpan, ISpan {
     private var targetDescent = -1
     var delta = -1f
     var originHeight = 0

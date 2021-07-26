@@ -9,10 +9,11 @@ import android.text.style.ParagraphStyle
 import com.sophimp.are.RichEditText
 import com.sophimp.are.Util
 import com.sophimp.are.spans.IListSpan
+import com.sophimp.are.spans.ISpan
 import com.sophimp.are.spans.IndentSpan
 import java.util.*
 
-class IndentRightStyle(editText: RichEditText) : BaseStyle(editText) {
+class IndentRightStyle(editText: RichEditText) : BaseParagraphStyle<IndentSpan>(editText) {
 
     override fun toolItemIconClick() {
         super.toolItemIconClick()
@@ -123,9 +124,16 @@ class IndentRightStyle(editText: RichEditText) : BaseStyle(editText) {
         event: IStyle.TextEvent?,
         changedText: String?,
         beforeSelectionStart: Int,
-        start: Int,
-        end: Int
+        afterSelectionEnd: Int
     ) {
+    }
+
+    override fun newSpan(): ISpan? {
+        return IndentSpan(1)
+    }
+
+    override fun targetClass(): Class<IndentSpan> {
+        return IndentSpan::class.java
     }
 
 }

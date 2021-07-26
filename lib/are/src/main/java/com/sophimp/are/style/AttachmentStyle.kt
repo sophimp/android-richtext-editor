@@ -6,8 +6,9 @@ import android.text.style.ImageSpan
 import com.sophimp.are.AttachmentType
 import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
+import com.sophimp.are.spans.AttachmentSpan
 
-class AttachmentStyle(editText: RichEditText) : BaseStyle(editText) {
+class AttachmentStyle(editText: RichEditText) : BaseFreeStyle<AttachmentSpan>(editText) {
     fun insertAttachment(
         attachmentPath: String?,
         attachmentUrl: String?,
@@ -55,11 +56,14 @@ class AttachmentStyle(editText: RichEditText) : BaseStyle(editText) {
         event: IStyle.TextEvent?,
         changedText: String?,
         beforeSelectionStart: Int,
-        start: Int,
-        end: Int
+        afterSelectionEnd: Int
     ) {
     }
 
     override fun bindEditText(editText: RichEditText) {}
+
+    override fun targetClass(): Class<AttachmentSpan> {
+        return AttachmentSpan::class.java
+    }
 
 }

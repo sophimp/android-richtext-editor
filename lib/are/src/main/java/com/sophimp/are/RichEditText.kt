@@ -132,8 +132,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                         textEvent,
                         changedText,
                         beforeSelectionStart,
-                        startPos,
-                        endPos
+                        0
                     )
                 }
                 startMonitor()

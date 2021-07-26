@@ -5,7 +5,7 @@ import com.sophimp.are.colorpicker.ColorPickerListener
 import com.sophimp.are.spans.FontForegroundColorSpan
 
 class FontColorStyle(editText: RichEditText?) :
-    ABSDynamicStyle<FontForegroundColorSpan>(editText!!, FontForegroundColorSpan::class.java),
+    DynamicCharacterStyle<FontForegroundColorSpan>(editText!!),
     ColorPickerListener {
 
     override fun newSpan(): FontForegroundColorSpan? {
@@ -34,10 +34,13 @@ class FontColorStyle(editText: RichEditText?) :
                 IStyle.TextEvent.IDLE,
                 "",
                 mEditText.selectionStart,
-                mEditText.selectionStart,
-                mEditText.selectionEnd
+                0
             )
         }
+    }
+
+    override fun targetClass(): Class<FontForegroundColorSpan> {
+        return FontForegroundColorSpan::class.java
     }
 
 }

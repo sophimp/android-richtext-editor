@@ -4,10 +4,14 @@ import com.sophimp.are.RichEditText
 import com.sophimp.are.spans.UnderlineSpan2
 
 class UnderlineStyle(editText: RichEditText) :
-    ABSStyle<UnderlineSpan2>(editText, UnderlineSpan2::class.java) {
+    BaseCharacterStyle<UnderlineSpan2>(editText) {
 
     override fun newSpan(): UnderlineSpan2? {
         return UnderlineSpan2()
+    }
+
+    override fun targetClass(): Class<UnderlineSpan2> {
+        return UnderlineSpan2::class.java
     }
 
 }

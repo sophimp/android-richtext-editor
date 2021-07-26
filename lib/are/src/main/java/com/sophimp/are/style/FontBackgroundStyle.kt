@@ -4,7 +4,7 @@ import com.sophimp.are.RichEditText
 import com.sophimp.are.spans.FontBackgroundColorSpan
 
 class FontBackgroundStyle(editText: RichEditText) :
-    ABSDynamicStyle<FontBackgroundColorSpan>(editText, FontBackgroundColorSpan::class.java) {
+    DynamicCharacterStyle<FontBackgroundColorSpan>(editText) {
 
     override fun newSpan(): FontBackgroundColorSpan? {
         return if (mColor == 0) null else FontBackgroundColorSpan(mColor)
@@ -34,10 +34,13 @@ class FontBackgroundStyle(editText: RichEditText) :
                 IStyle.TextEvent.IDLE,
                 "",
                 mEditText.selectionStart,
-                mEditText.selectionStart,
-                mEditText.selectionEnd
+                0
             )
         }
+    }
+
+    override fun targetClass(): Class<FontBackgroundColorSpan> {
+        return FontBackgroundColorSpan::class.java
     }
 
 }

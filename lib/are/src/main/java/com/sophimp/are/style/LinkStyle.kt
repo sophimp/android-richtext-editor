@@ -5,13 +5,14 @@ import android.text.Spanned
 import android.widget.ImageView
 import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
+import com.sophimp.are.spans.AtSpan
 import com.sophimp.are.spans.ISpan
 
 /**
  * @author: sfx
  * @since: 2021/7/22
  */
-class LinkStyle(editText: RichEditText) : BaseStyle(editText) {
+class LinkStyle(editText: RichEditText) : BaseCharacterStyle<AtSpan>(editText) {
 
     companion object {
         const val HTTP = "http://"
@@ -35,13 +36,16 @@ class LinkStyle(editText: RichEditText) : BaseStyle(editText) {
         event: IStyle.TextEvent?,
         changedText: String?,
         beforeSelectionStart: Int,
-        start: Int,
-        end: Int
+        afterSelectionEnd: Int
     ) {
     }
 
     override fun setSpan(span: ISpan, start: Int, end: Int) {
         mEditText.editableText.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         mEditText.editableText.insert(end, Constants.ZERO_WIDTH_SPACE_STR)
+    }
+
+    override fun targetClass(): Class<AtSpan> {
+        return AtSpan::class.java
     }
 }

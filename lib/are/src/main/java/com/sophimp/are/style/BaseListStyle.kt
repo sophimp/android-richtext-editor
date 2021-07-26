@@ -19,12 +19,12 @@ import kotlin.math.min
  * @author: sfx
  * @since: 2021/7/22
  */
-open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
+abstract class BaseListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
     editText: RichEditText,
     protected var basicClass: Class<B>,
     protected var targetClass1: Class<T>,
     protected var targetClass2: Class<TT>
-) : BaseStyle(editText) {
+) : BaseStyle<B>(editText) {
 
     /**
      * 每次插入一个span, 可能会多插入一个字符，使用off记录
@@ -93,63 +93,8 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
     }
 
     override fun toolItemIconClick() {
-//        mEditText.isChange = true
-//        mEditText.stopMonitor()
-//        val editText = mEditText
-//        val editable = editText.editableText
-//
-//        // 先查出选中的段落的始末
-//        val spStart: Int = Util.getParagraphStart(mEditText, editText.selectionStart)
-//        var spEnd: Int = Util.getParagraphEnd(editable, editText.selectionEnd)
-//        Util.log("sgx cake  当前选中始末: " + editText.selectionStart + " - " + editText.selectionEnd + " 段落始末: " + spStart + " - " + spEnd)
-//
-//        var index = max(0, spStart)
-//        while (index <= spEnd) {
-//            off = 0
-//            val curPStart = index
-//            var curPEnd: Int = Util.getParagraphEnd(editable, index)
-//            if (curPEnd == editable.length - 1) {
-//                // 最后一段换行符读不到
-//                curPEnd = editable.length
-//            }
-//            Util.log("sgx cake currentStart - end:$curPStart-$curPEnd")
-//            if (curPStart > curPEnd) {
-//                index += 1
-//                continue
-//            } else if (curPStart == curPEnd) {
-//                // case 2: 空行情况
-//                isEmptyLine = true
-//                handleClickCase2(curPStart, curPEnd + 1)
-//                spEnd += off
-//                index = curPEnd + off + 1
-//                continue
-//            }
-//            val basicSpans =
-//                editable.getSpans(curPStart, curPEnd, basicClass)
-//            val targetSpans1 =
-//                editable.getSpans(curPStart, curPEnd, targetClass1)
-//            val targetSpans2 =
-//                editable.getSpans(curPStart, curPEnd, targetClass2)
-//            if (basicSpans != null && basicSpans.isNotEmpty()) {
-//                // case 1: 有 -> 无
-//                handleClickCase1(basicSpans)
-//            } else {
-//                if (targetSpans1 != null && targetSpans1.isNotEmpty()) {
-//                    // case 3: TargetSpan1 -> BasicSpan, 每一行的转换
-//                    handleClickCase3(targetSpans1)
-//                } else if (targetSpans2 != null && targetSpans2.isNotEmpty()) {
-//                    // case 4: TargetSpan2 -> BasicSpan, 每一行的转换
-//                    handleClickCase4(targetSpans2)
-//                } else {
-//                    // case 2: 无 -> 有
-//                    handleClickCase2(curPStart, curPEnd)
-//                }
-//            }
-//            spEnd += off
-//            index = curPEnd + off + 1
-//            //                    index = curPEnd + 1;
-//        }
         super.toolItemIconClick()
+
         // 重排上一段落及后面所有的 ListNumberSpan, 因为数据量并不会大， 所在重排的性能损失可以忽略，但是实现方法简单得多
         mEditText.postDelayUIRun(Runnable {
             Util.renumberAllListItemSpans(mEditText.editableText)
@@ -190,7 +135,7 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
                 mEditText.postDelayUIRun(Runnable {
                     try {
                         isEmptyLine = false
-                        setSpan(basicClass.newInstance(), currentStart, currentStart + 1)
+                        setSpan(newSpan()!!, currentStart, currentStart + 1)
                         mEditText.refresh(0)
                     } catch (e: IllegalAccessException) {
                         e.printStackTrace()
@@ -200,7 +145,7 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
                 }, 0)
             } else {
                 try {
-                    setSpan(basicClass.newInstance(), currentStart, end)
+                    setSpan(newSpan()!!, currentStart, end)
                 } catch (e: IllegalAccessException) {
                     e.printStackTrace()
                 } catch (e: InstantiationException) {
@@ -242,38 +187,22 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
         removeSpans(editable, spans)
     }
 
-    override fun applyStyle(
+    override fun handleSingleParagraphInput(
         editable: Editable,
-        event: IStyle.TextEvent?,
         changedText: String?,
         beforeSelectionStart: Int,
-        start: Int,
-        end: Int
+        afterSelectionEnd: Int
     ) {
-        when (event) {
-            IStyle.TextEvent.DELETE -> handleDeleteEvent(editable)
-            IStyle.TextEvent.INPUT_NEW_LINE -> handleInputNewLine(
-                editable,
-                start
-            )
-            IStyle.TextEvent.INPUT_MULTI_PARAGRAPH -> handleMultiParagraphInput(
-                editable,
-                changedText,
-                beforeSelectionStart
-            )
-            IStyle.TextEvent.INPUT_SINGLE_PARAGRAPH -> {
-                // 由于是 SPAN_EXCLUSIVE_EXCLUSIVE， 格式需要设置到整个段落，否则光标会错位
-                // 所以每次输入完后，需要重新设置一下span为整个段落, 这里由于只是对一段的处理，性能影响O(n)，n为段落长度，可以忽略
-                val pStart: Int = Util.getParagraphStart(mEditText, start)
-                val pEnd: Int = Util.getParagraphEnd(editable, end)
-                if (pStart < pEnd) {
-                    val base = editable.getSpans(pStart, pEnd, basicClass)
-                    if (base.isNotEmpty()) {
-                        removeSpans(editable, base)
-                        setSpan(base[0], pStart, pEnd)
-                        mEditText.refresh(beforeSelectionStart)
-                    }
-                }
+        // 由于是 SPAN_EXCLUSIVE_EXCLUSIVE， 格式需要设置到整个段落，否则光标会错位
+        // 所以每次输入完后，需要重新设置一下span为整个段落, 这里由于只是对一段的处理，性能影响O(n)，n为段落长度，可以忽略
+        val pStart: Int = Util.getParagraphStart(mEditText, beforeSelectionStart)
+        val pEnd: Int = Util.getParagraphEnd(editable, afterSelectionEnd)
+        if (pStart < pEnd) {
+            val base = editable.getSpans(pStart, pEnd, basicClass)
+            if (base.isNotEmpty()) {
+                removeSpans(editable, base)
+                setSpan(base[0], pStart, pEnd)
+                mEditText.refresh(beforeSelectionStart)
             }
         }
     }
@@ -281,7 +210,7 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
     /**
      * 处理换行操作
      */
-    private fun handleInputNewLine(editable: Editable, start: Int) {
+    override fun handleInputNewLine(editable: Editable, beforeSelectionStart: Int) {
         /*
             case 1: 有 内容 换行
                 移除换行前的span, 然后在当前行与前一行分别添加baseClassSpan即可
@@ -289,8 +218,8 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
                 取消当前的baseClassSpan, 同时移除缩进
          */
         // start 换到当前行的上一行的末尾
-        val lastPStart: Int = Util.getParagraphStart(mEditText, start)
-        var lastPEnd: Int = Util.getParagraphEnd(editable, start)
+        val lastPStart: Int = Util.getParagraphStart(mEditText, beforeSelectionStart)
+        var lastPEnd: Int = Util.getParagraphEnd(editable, beforeSelectionStart)
         if (lastPEnd < lastPStart) lastPEnd = lastPStart
         Util.log("sgx cake: 上一行: " + lastPStart + " - " + lastPEnd + " 当前行: " + mEditText.getSelectionStart() + " - " + mEditText.getSelectionEnd())
         val preListSpan: Array<B> = editable.getSpans(lastPStart, lastPEnd, basicClass)
@@ -342,7 +271,7 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
                 try {
                     val curStart: Int = mEditText.selectionStart
                     editable.insert(curStart, Constants.ZERO_WIDTH_SPACE_STR)
-                    setSpan(basicClass.newInstance(), curStart, min(curStart + 1, editable.length))
+                    setSpan(newSpan()!!, curStart, min(curStart + 1, editable.length))
                 } catch (e: IllegalAccessException) {
                     e.printStackTrace()
                 } catch (e: InstantiationException) {
@@ -367,12 +296,13 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
     /**
      * 处理多行输入
      */
-    private fun handleMultiParagraphInput(
+    override fun handleMultiParagraphInput(
         editable: Editable,
         changedText: String?,
-        beforeSelectionStart: Int
+        beforeSelectionStart: Int,
+        afterSelectionEnd: Int
     ) {
-        val changedEnd: Int = mEditText.getSelectionEnd()
+        val changedEnd: Int = afterSelectionEnd
         val effectPStart: Int = Util.getParagraphStart(mEditText, beforeSelectionStart)
         val effectPEnd: Int = Util.getParagraphEnd(editable, changedEnd)
         val effectFirstPEnd: Int = Util.getParagraphEnd(editable, beforeSelectionStart)
@@ -416,7 +346,7 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
             if (index < pEnd) {
                 if (firstPListSpans.isNotEmpty()) {
                     try {
-                        setSpan(basicClass.newInstance(), index, pEnd)
+                        setSpan(newSpan()!!, index, pEnd)
                     } catch (e: IllegalAccessException) {
                         e.printStackTrace()
                     } catch (e: InstantiationException) {
@@ -434,7 +364,7 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
     /**
      * 处理删除事件
      */
-    private fun handleDeleteEvent(editable: Editable) {
+    override fun handleDeleteEvent(editable: Editable) {
         /*
                删除操作
                case 1: 空行换上一行, 需要删除当前行的span
@@ -465,7 +395,7 @@ open class IListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
         removeSpans(editable, curLeadingSpans)
         if (preDelListSpans.isNotEmpty()) {
             try {
-                setSpan(basicClass.newInstance(), curPStart, curPEnd)
+                setSpan(newSpan()!!, curPStart, curPEnd)
             } catch (e: IllegalAccessException) {
                 e.printStackTrace()
             } catch (e: InstantiationException) {

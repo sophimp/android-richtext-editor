@@ -8,11 +8,20 @@ import com.sophimp.are.RichEditText
 import com.sophimp.are.Util
 import com.sophimp.are.spans.IndentSpan
 
-class IndentLeftStyle(editText: RichEditText) : BaseStyle(editText) {
+class IndentLeftStyle(editText: RichEditText) : BaseParagraphStyle<IndentSpan>(editText) {
 
     override fun itemClickOnNonEmptyParagraph(curPStart: Int, curPEnd: Int): Int {
         update()
         return 0
+    }
+
+    override fun applyStyle(
+        editable: Editable,
+        event: IStyle.TextEvent?,
+        changedText: String?,
+        beforeSelectionStart: Int,
+        afterSelectionEnd: Int
+    ) {
     }
 
     override fun toolItemIconClick() {
@@ -62,14 +71,8 @@ class IndentLeftStyle(editText: RichEditText) : BaseStyle(editText) {
 
     }
 
-    override fun applyStyle(
-        editable: Editable,
-        event: IStyle.TextEvent?,
-        changedText: String?,
-        beforeSelectionStart: Int,
-        start: Int,
-        end: Int
-    ) {
+    override fun targetClass(): Class<IndentSpan> {
+        return IndentSpan::class.java
     }
 
 }

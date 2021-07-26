@@ -6,7 +6,7 @@ import com.sophimp.are.spans.FontSizeSpan
 import com.sophimp.are.style.windows.FontSizeChangeListener
 
 class FontSizeStyle(editText: RichEditText) :
-    ABSDynamicStyle<FontSizeSpan>(editText, FontSizeSpan::class.java), FontSizeChangeListener {
+    DynamicCharacterStyle<FontSizeSpan>(editText), FontSizeChangeListener {
 
     private var mSize = Constants.DEFAULT_FONT_SIZE
 
@@ -28,8 +28,7 @@ class FontSizeStyle(editText: RichEditText) :
                 IStyle.TextEvent.IDLE,
                 "",
                 mEditText.selectionStart,
-                mEditText.selectionStart,
-                mEditText.selectionEnd
+                0
             )
         }
     }
@@ -40,6 +39,10 @@ class FontSizeStyle(editText: RichEditText) :
 
     override fun newSpan(size: Int): FontSizeSpan? {
         return FontSizeSpan(size)
+    }
+
+    override fun targetClass(): Class<FontSizeSpan> {
+        return FontSizeSpan::class.java
     }
 
 }

@@ -1,13 +1,16 @@
 package com.sophimp.are.style
 
-import android.text.*
+import android.text.Layout
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.Spanned
 import android.text.style.AlignmentSpan
 import android.text.style.ImageSpan
 import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
-import com.sophimp.are.spans.ISpan
+import com.sophimp.are.spans.AudioSpan
 
-class AudioStyle(editText: RichEditText) : BaseStyle(editText) {
+class AudioStyle(editText: RichEditText) : BaseFreeStyle<AudioSpan>(editText) {
     //	public static final int REQUEST_CODE = 1001;
     fun insertAudio(
         audioPath: String?,
@@ -56,17 +59,8 @@ class AudioStyle(editText: RichEditText) : BaseStyle(editText) {
         editable.replace(start, end, ssb)
     }
 
-    override fun applyStyle(
-        editable: Editable,
-        event: IStyle.TextEvent?,
-        changedText: String?,
-        beforeSelectionStart: Int,
-        start: Int,
-        end: Int
-    ) {
-    }
 
-    override fun setSpan(span: ISpan, start: Int, end: Int) {
-
+    override fun targetClass(): Class<AudioSpan> {
+        return AudioSpan::class.java
     }
 }

@@ -52,9 +52,15 @@ interface IStyle {
         event: TextEvent?,
         changedText: String?,
         beforeSelectionStart: Int,
-        start: Int,
-        end: Int
+        afterSelectionEnd: Int
     )
+
+    /**
+     * create newSpan
+     */
+    fun newSpan(): ISpan? {
+        return null
+    }
 
     fun bindEditText(editText: RichEditText) {}
 

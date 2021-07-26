@@ -17,7 +17,7 @@ import kotlin.math.abs
  * @since: 2021/6/15
  */
 class LineSpaceStyle(editText: RichEditText, var isLarge: Boolean) :
-    BaseStyle(editText) {
+    BaseCharacterStyle<LineSpaceSpan>(editText) {
     private val EPSILON = 1e-5
 
     override fun itemClickOnNonEmptyParagraph(curPStart: Int, curPEnd: Int): Int {
@@ -90,7 +90,7 @@ class LineSpaceStyle(editText: RichEditText, var isLarge: Boolean) :
         for (lineSpaceSpan in lineSpaceSpans) {
             editable.removeSpan(lineSpaceSpan)
         }
-        val spaceSpan = LineSpaceSpan(factor, text.lineHeight.toFloat())
+        val spaceSpan = LineSpaceSpan(factor)
         setSpan(spaceSpan, start, end)
         logLineSpaceSpanItems(editable)
         mEditText.refresh(start)
@@ -155,15 +155,14 @@ class LineSpaceStyle(editText: RichEditText, var isLarge: Boolean) :
         event: IStyle.TextEvent?,
         changedText: String?,
         beforeSelectionStart: Int,
-        start: Int,
-        end: Int
+        afterSelectionEnd: Int
     ) {
         when (event) {
-            IStyle.TextEvent.DELETE -> handleDeleteLineSpace(editable, start)
+            IStyle.TextEvent.DELETE -> handleDeleteLineSpace(editable, beforeSelectionStart)
             IStyle.TextEvent.INPUT_SINGLE_PARAGRAPH -> handleSingleLineInput(
                 editable,
                 beforeSelectionStart,
-                end
+                afterSelectionEnd
             )
             IStyle.TextEvent.INPUT_NEW_LINE -> handleLineSpacingNewLine(
                 editable,
@@ -186,8 +185,11 @@ class LineSpaceStyle(editText: RichEditText, var isLarge: Boolean) :
                 pStart, pEnd,
                 LineSpaceSpan::class.java
             )
-            if (lineSpaceSpans.isEmpty()) {
-                setSpan(LineSpaceSpan(1.0f, (-1).toFloat()), pStart, pEnd)
+            if (lineSpaceSpans.isNotEmpty()) {
+                removeSpans(mEditText.editableText, lineSpaceSpans)
+                setSpan(LineSpaceSpan(lineSpaceSpans[0].factor), pStart, pEnd)
+            } else {
+                setSpan(LineSpaceSpan(1.0f), pStart, pEnd)
             }
         }
         logLineSpaceSpanItems(editable)
@@ -228,13 +230,17 @@ class LineSpaceStyle(editText: RichEditText, var isLarge: Boolean) :
                 setSpan(span, lStart, beforeSelectionStart)
             }
             if (mEditText.selectionEnd < lEnd) {
-                setSpan(LineSpaceSpan(span.factor, (-1).toFloat()), mEditText.selectionEnd, lEnd)
+                setSpan(LineSpaceSpan(span.factor), mEditText.selectionEnd, lEnd)
             }
         }
     }
 
     override fun setSpan(span: ISpan, start: Int, end: Int) {
         mEditText.editableText.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+    }
+
+    override fun targetClass(): Class<LineSpaceSpan> {
+        return LineSpaceSpan::class.java
     }
 
 }
