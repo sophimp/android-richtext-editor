@@ -1,6 +1,5 @@
 package com.sophimp.are.style
 
-import android.text.Editable
 import android.text.Layout
 import android.text.Spannable
 import android.text.style.AlignmentSpan
@@ -11,26 +10,13 @@ import com.sophimp.are.spans.IndentSpan
 class IndentLeftStyle(editText: RichEditText) : BaseParagraphStyle<IndentSpan>(editText) {
 
     override fun itemClickOnNonEmptyParagraph(curPStart: Int, curPEnd: Int): Int {
-        update()
+        handleItemClick()
+        Util.renumberAllListItemSpans(mEditText.editableText)
+        mEditText.refresh(0)
         return 0
     }
 
-    override fun applyStyle(
-        editable: Editable,
-        event: IStyle.TextEvent?,
-        changedText: String?,
-        beforeSelectionStart: Int,
-        afterSelectionEnd: Int
-    ) {
-    }
-
-    override fun toolItemIconClick() {
-        super.toolItemIconClick()
-        Util.renumberAllListItemSpans(mEditText.editableText)
-        mEditText.refresh(0)
-    }
-
-    fun update() {
+    private fun handleItemClick() {
         val editable = mEditText.editableText
         val currentSelectionLines = Util.getAllSelectionLines(mEditText)
         if (currentSelectionLines.isEmpty()) {

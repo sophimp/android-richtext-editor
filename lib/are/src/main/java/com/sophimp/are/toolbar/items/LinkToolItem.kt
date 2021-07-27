@@ -17,7 +17,7 @@ class LinkToolItem(style: IStyle) : AbstractItem(style) {
         get() = R.mipmap.icon_toolitem_link
 
     override fun iconClickHandle() {
-
+        openLinkDialog()
     }
 
     private fun openLinkDialog() {

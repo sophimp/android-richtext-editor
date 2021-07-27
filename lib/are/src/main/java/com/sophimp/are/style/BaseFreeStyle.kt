@@ -29,4 +29,5 @@ abstract class BaseFreeStyle<T : ISpan>(editText: RichEditText) : BaseStyle<T>(e
     override fun handleInputNewLine(editable: Editable, beforeSelectionStart: Int) {}
 
     override fun handleDeleteEvent(editable: Editable) {}
+
 }

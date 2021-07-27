@@ -25,6 +25,8 @@ import com.sophimp.are.spans.IndentSpan
 import com.sophimp.are.spans.ListNumberSpan
 import java.io.File
 import java.util.*
+import kotlin.math.max
+import kotlin.math.min
 
 object Util {
 
@@ -148,7 +150,7 @@ object Util {
      * 坑点，case 3, 3.1 光标在最后一行空行 与 在最后一行非空行， selection 是一样的
      */
     fun getParagraphStart(text: EditText, selection: Int): Int {
-        var selection = selection
+        var selection = max(0, min(selection, text.length()))
         val editable = text.editableText
         if (editable.isEmpty() || selection == 0) {
             // case 1: 首行空行
@@ -198,7 +200,7 @@ object Util {
      */
     fun getParagraphEnd(editable: Editable, selection: Int): Int {
         var selection = selection
-        if (editable.length == 0) {
+        if (editable.isEmpty()) {
             // case 1: 首行空行
             return 0
         } else if (selection >= editable.length) {

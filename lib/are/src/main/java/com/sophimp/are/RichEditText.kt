@@ -127,13 +127,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                     Util.log(("sgx cake before change selection: $beforeSelectionStart - $beforeSelectionEnd after change selection: $afterSelectionStart   \n textEvent: $textEvent start: $startPos end: $endPos changeText: $changedText"))
                 stopMonitor()
                 for (style: IStyle in styleList) {
-                    style.applyStyle(
-                        s,
-                        textEvent,
-                        changedText,
-                        beforeSelectionStart,
-                        0
-                    )
+                    style.applyStyle(s, textEvent, changedText, beforeSelectionStart, 0)
                 }
                 startMonitor()
             }

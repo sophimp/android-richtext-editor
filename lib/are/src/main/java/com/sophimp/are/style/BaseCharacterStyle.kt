@@ -8,6 +8,8 @@ import com.sophimp.are.Util.getParagraphEnd
 import com.sophimp.are.Util.log
 import com.sophimp.are.spans.ISpan
 import java.util.*
+import kotlin.math.max
+import kotlin.math.min
 
 abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
     BaseStyle<E>(editText) {
@@ -55,8 +57,9 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
         if (beforeSelectionStart < sEnd) {
             val targetSpans = editable.getSpans(beforeSelectionStart, sEnd, targetClass())
             if (isChecked) {
+                val nSpan = newSpan() ?: return
                 if (targetSpans.isEmpty()) {
-                    setSpan(newSpan()!!, beforeSelectionStart, sEnd)
+                    setSpan(nSpan, beforeSelectionStart, sEnd)
                 } // else include特性即可
             } else {
                 if (targetSpans.isNotEmpty()) {
@@ -85,8 +88,8 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
                     var earlyStart = editable.getSpanStart(targetSpans[0])
                     var lastEnd = editable.getSpanEnd(targetSpans[0])
                     for (span in targetSpans) {
-                        earlyStart = Math.min(editable.getSpanStart(span), earlyStart)
-                        lastEnd = Math.max(editable.getSpanEnd(span), lastEnd)
+                        earlyStart = min(editable.getSpanStart(span), earlyStart)
+                        lastEnd = max(editable.getSpanEnd(span), lastEnd)
                         editable.removeSpan(span)
                     }
                     if (earlyStart < lastEnd) {
@@ -94,22 +97,25 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
                     }
                 } else {
                     // 将选中区域的targetSpan移除， 原有的span 拆分首尾
+                    val nSpan = newSpan() ?: return
                     for (span in targetSpans) {
                         val curStart = editable.getSpanStart(span)
                         val curEnd = editable.getSpanEnd(span)
                         if (curStart < sStart) {
-                            setSpan(newSpan()!!, curStart, sStart)
+                            setSpan(nSpan, curStart, sStart)
                         }
                         if (sEnd < curEnd) {
-                            setSpan(newSpan()!!, sEnd, curEnd)
+                            setSpan(nSpan, sEnd, curEnd)
                         }
                         editable.removeSpan(span)
                     }
                 }
             } else {
                 // 没有样式
-                if (isChecked) {
-                    setSpan(newSpan()!!, sStart, sEnd)
+                val nSpan = newSpan() ?: return
+                for (span in targetSpans) {
+                    if (isChecked)
+                        setSpan(nSpan, sStart, sEnd)
                 }
             }
         }

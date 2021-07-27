@@ -48,6 +48,7 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
 
     fun initDefaultToolItem(editText: RichEditText) {
         // top
+        addToolbarItem(EmojiToolItem(EmojiStyle(editText)), true)
         addToolbarItem(ImageToolItem(ImageStyle(editText)), true)
         addToolbarItem(VideoToolItem(VideoStyle(editText)), true)
         addToolbarItem(FontColorToolItem(FontColorStyle(editText)), true)

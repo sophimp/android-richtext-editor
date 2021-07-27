@@ -1,9 +1,12 @@
 package com.sophimp.are.style
 
 import android.text.Editable
+import com.sophimp.are.BuildConfig
 import com.sophimp.are.RichEditText
 import com.sophimp.are.Util
 import com.sophimp.are.spans.ISpan
+import com.sophimp.are.spans.IndentSpan
+import java.util.*
 import kotlin.math.max
 
 /**
@@ -148,4 +151,37 @@ abstract class BaseStyle<TA : ISpan>(protected var curEditText: RichEditText) : 
     override val mEditText: RichEditText
         get() = curEditText
 
+    protected fun logAllSpans(
+        editable: Editable,
+        tag: String,
+        start: Int,
+        end: Int
+    ) {
+        if (!BuildConfig.DEBUG) return
+        val listItemSpans = editable.getSpans(start, end, targetClass())
+        // 坑点， 这里取出来的span 并不是按先后顺序， 需要先排序
+        Arrays.sort(
+            listItemSpans
+        ) { o1: TA, o2: TA ->
+            editable.getSpanStart(o1) - editable.getSpanStart(o2)
+        }
+        val leadingMarginSpans: Array<IndentSpan> =
+            editable.getSpans(start, end, IndentSpan::class.java)
+        Util.log("-----------$tag--------------")
+        for (span in listItemSpans) {
+            val ss = editable.getSpanStart(span)
+            val se = editable.getSpanEnd(span)
+            Util.log("List All " + targetClass().simpleName + ": " + " :: start == " + ss + ", end == " + se)
+        }
+        for (span in leadingMarginSpans) {
+            val ss = editable.getSpanStart(span)
+            val se = editable.getSpanEnd(span)
+            Util.log("List All leading span:  :: start == $ss, end == $se")
+        }
+        Util.log(tag + " : " + "总长度: " + editable.length)
+    }
+
+    override fun newSpan(): ISpan? {
+        return null
+    }
 }

@@ -11,11 +11,13 @@ class AtSpan : ReplacementSpan, ISpan, IClickableSpan {
     /**
      * Will be used when generating HTML code for @
      */
-    var userKey: String
+    var userKey: String = ""
         private set
-    var userName: String
+    var userName: String = ""
         private set
-    private var mColor: Int
+    private var mColor: Int = 0
+
+    constructor()
 
     constructor(atItem: AtItem) {
         userKey = atItem.mKey
