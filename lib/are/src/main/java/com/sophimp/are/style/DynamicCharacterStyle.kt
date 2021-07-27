@@ -56,7 +56,6 @@ abstract class DynamicCharacterStyle<E : IDynamicSpan>(editText: RichEditText) :
                     }
                 }
             }
-            logAllABSSpans(editable, targetClass().simpleName, 0, editable.length)
         }
     }
 

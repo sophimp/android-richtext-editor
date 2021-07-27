@@ -93,7 +93,7 @@ abstract class BaseListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
         mEditText.postDelayUIRun(Runnable {
             Util.renumberAllListItemSpans(mEditText.editableText)
             mEditText.refresh(0)
-            logAllSpans(mEditText.editableText, "style 处理后", 0, mEditText.editableText.length)
+            logAllSpans(mEditText.editableText, "${targetClass().simpleName} item click", 0, mEditText.editableText.length)
         }, 30)
     }
 

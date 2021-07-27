@@ -106,38 +106,19 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
         val lastPStart: Int = Util.getParagraphStart(mEditText, beforeSelectionStart)
         var lastPEnd: Int = Util.getParagraphEnd(editable, beforeSelectionStart)
         if (lastPEnd < lastPStart) lastPEnd = lastPStart
-        Util.log("sgx cake: 上一行: " + lastPStart + " - " + lastPEnd + " 当前行: " + mEditText.getSelectionStart() + " - " + mEditText.getSelectionEnd())
         val preParagraphSpans: Array<T> = editable.getSpans(lastPStart, lastPEnd, targetClass())
         if (preParagraphSpans.isEmpty()) return
+        Util.log("sgx cake: 上一行: " + lastPStart + " - " + lastPEnd + " 当前行: " + mEditText.selectionStart + " - " + mEditText.selectionEnd)
         // 先移除上一行的span
         removeSpans(editable, preParagraphSpans)
         // 移除当前行的Spans
-        removeSpans(
-            editable,
-            editable.getSpans(
-                mEditText.selectionStart,
-                mEditText.selectionEnd,
-                targetClass()
-            )
-        )
-        removeSpans(
-            editable,
-            editable.getSpans(
-                mEditText.selectionStart,
-                mEditText.selectionEnd,
-                IndentSpan::class.java
-            )
-        )
+        removeSpans(editable, editable.getSpans(mEditText.selectionStart, mEditText.selectionEnd, targetClass()))
 
         // 再将上一行与当前行统一处理
         val lastContent = editable.subSequence(lastPStart, lastPEnd).toString()
         if (TextUtils.isEmpty(lastContent) || lastContent.length == 1 && lastContent[0].toInt() == Constants.ZERO_WIDTH_SPACE_INT) {
             // case 2: 没有内容换行
-            editable.delete(
-                max(0, mEditText.selectionStart - 1),
-                mEditText.selectionStart
-            )
-            //            getEditText().setSelection(Math.max(0, getEditText().getSelectionStart() - 1));
+            editable.delete(max(0, mEditText.selectionStart - 1), mEditText.selectionStart)
         } else {
             // case 1: 有内容换行,
             // 前一行添加span

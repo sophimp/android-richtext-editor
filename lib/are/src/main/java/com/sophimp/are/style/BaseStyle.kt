@@ -5,7 +5,6 @@ import com.sophimp.are.BuildConfig
 import com.sophimp.are.RichEditText
 import com.sophimp.are.Util
 import com.sophimp.are.spans.ISpan
-import com.sophimp.are.spans.IndentSpan
 import java.util.*
 import kotlin.math.max
 
@@ -14,7 +13,7 @@ import kotlin.math.max
  * @author: sfx
  * @since: 2021/7/21
  */
-abstract class BaseStyle<TA : ISpan>(protected var curEditText: RichEditText) : IStyle {
+abstract class BaseStyle<TA : ISpan>(private var curEditText: RichEditText) : IStyle {
     protected var context = curEditText.context
     protected var checkState: Boolean = false
 
@@ -67,6 +66,7 @@ abstract class BaseStyle<TA : ISpan>(protected var curEditText: RichEditText) : 
             spEnd += off
             index += curPEnd + off + 1
         }
+        logAllSpans(mEditText.editableText, "${targetClass().simpleName} item click", 0, mEditText.editableText.length)
     }
 
     /**
@@ -118,6 +118,7 @@ abstract class BaseStyle<TA : ISpan>(protected var curEditText: RichEditText) : 
                 afterSelectionEnd
             )
         }
+        logAllSpans(editable, "base apply style: ${targetClass().simpleName}", 0, editable.length)
     }
 
     abstract fun handleMultiParagraphInput(
@@ -160,25 +161,22 @@ abstract class BaseStyle<TA : ISpan>(protected var curEditText: RichEditText) : 
         if (!BuildConfig.DEBUG) return
         val listItemSpans = editable.getSpans(start, end, targetClass())
         // 坑点， 这里取出来的span 并不是按先后顺序， 需要先排序
-        Arrays.sort(
-            listItemSpans
-        ) { o1: TA, o2: TA ->
+        Arrays.sort(listItemSpans) { o1: TA, o2: TA ->
             editable.getSpanStart(o1) - editable.getSpanStart(o2)
         }
-        val leadingMarginSpans: Array<IndentSpan> =
-            editable.getSpans(start, end, IndentSpan::class.java)
+//        val leadingMarginSpans: Array<IndentSpan> = editable.getSpans(start, end, IndentSpan::class.java)
         Util.log("-----------$tag--------------")
         for (span in listItemSpans) {
             val ss = editable.getSpanStart(span)
             val se = editable.getSpanEnd(span)
-            Util.log("List All " + targetClass().simpleName + ": " + " :: start == " + ss + ", end == " + se)
+            Util.log(targetClass().simpleName + ": " + " :: start == " + ss + ", end == " + se)
         }
-        for (span in leadingMarginSpans) {
-            val ss = editable.getSpanStart(span)
-            val se = editable.getSpanEnd(span)
-            Util.log("List All leading span:  :: start == $ss, end == $se")
-        }
-        Util.log(tag + " : " + "总长度: " + editable.length)
+//        for (span in leadingMarginSpans) {
+//            val ss = editable.getSpanStart(span)
+//            val se = editable.getSpanEnd(span)
+//            Util.log("List All leading span:  :: start == $ss, end == $se")
+//        }
+//        Util.log(tag + " : " + "总长度: " + editable.length)
     }
 
     override fun newSpan(): ISpan? {

@@ -2,30 +2,34 @@ package com.sophimp.are.style
 
 import android.text.Editable
 import android.text.Spanned
-import com.sophimp.are.BuildConfig
 import com.sophimp.are.RichEditText
 import com.sophimp.are.Util.getParagraphEnd
-import com.sophimp.are.Util.log
 import com.sophimp.are.spans.ISpan
-import java.util.*
 import kotlin.math.max
 import kotlin.math.min
 
 abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
     BaseStyle<E>(editText) {
 
-//    init {
-//        clazzE = (this.javaClass.genericSuperclass as ParameterizedType).actualTypeArguments[0] as Class<E>
-//    }
-
     override fun toolItemIconClick() {
         checkState = !checkState
         mEditText.isChange = true
         handleAbsButtonClick()
+        logAllSpans(mEditText.editableText, "${targetClass().simpleName} item click", 0, mEditText.editableText.length)
     }
 
     override fun handleDeleteEvent(editable: Editable) {
-        handleDeleteAbsStyle()
+        // 移除掉 start == end 的span即可, 其他的交由TextView处理
+        val editable = mEditText.editableText
+        val pEnd = getParagraphEnd(editable, mEditText.selectionEnd)
+        val targetSpans = editable.getSpans(mEditText.selectionStart, pEnd, targetClass())
+        for (span in targetSpans) {
+            val s = editable.getSpanStart(span)
+            val e = editable.getSpanEnd(span)
+            if (s == e) {
+                editable.removeSpan(span)
+            }
+        }
     }
 
     override fun handleSingleParagraphInput(
@@ -72,7 +76,6 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
                 }
             }
         }
-        //        logAllABSSpans(editable, "所有abs spans", 0, editable.length());
     }
 
     protected open fun handleAbsButtonClick() {
@@ -122,37 +125,7 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
     }
 
     private fun handleDeleteAbsStyle() {
-        // 移除掉 start == end 的span即可, 其他的交由TextView处理
-        val editable = mEditText.editableText
-        val pEnd = getParagraphEnd(editable, mEditText.selectionEnd)
-        val targetSpans = editable.getSpans(mEditText.selectionStart, pEnd, targetClass())
-        for (span in targetSpans) {
-            val s = editable.getSpanStart(span)
-            val e = editable.getSpanEnd(span)
-            if (s == e) {
-                editable.removeSpan(span)
-            }
-        }
-    }
 
-    protected fun logAllABSSpans(
-        editable: Editable,
-        tag: String,
-        start: Int,
-        end: Int
-    ) {
-        if (!BuildConfig.DEBUG) return
-        val absSpans = editable.getSpans(start, end, targetClass())
-        // 坑点， 这里取出来的span 并不是按先后顺序， 需要先排序
-        Arrays.sort(absSpans) { o1: E, o2: E ->
-            editable.getSpanStart(o1) - editable.getSpanStart(o2)
-        }
-        log("-----------$tag--------------")
-        for (span in absSpans) {
-            val ss = editable.getSpanStart(span)
-            val se = editable.getSpanEnd(span)
-            log("List All " + targetClass().simpleName + ": " + " :: start == " + ss + ", end == " + se)
-        }
     }
 
     override fun setSpan(span: ISpan, start: Int, end: Int) {

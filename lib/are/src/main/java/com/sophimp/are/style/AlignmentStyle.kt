@@ -1,5 +1,6 @@
 package com.sophimp.are.style
 
+import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
 import com.sophimp.are.RichEditText
@@ -25,6 +26,11 @@ class AlignmentStyle(
             aligns.isNotEmpty() && aligns[0].alignment == this.mAlignment
         )
         return off
+    }
+
+    override fun handleInputNewLine(editable: Editable, beforeSelectionStart: Int) {
+
+        super.handleInputNewLine(editable, beforeSelectionStart)
     }
 
     override fun newSpan(): ISpan? {

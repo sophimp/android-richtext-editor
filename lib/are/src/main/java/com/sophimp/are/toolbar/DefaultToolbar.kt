@@ -6,7 +6,6 @@ import android.util.AttributeSet
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import com.sophimp.are.RichEditText
-import com.sophimp.are.Util
 import com.sophimp.are.style.*
 import com.sophimp.are.toolbar.items.*
 
@@ -93,7 +92,7 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
     }
 
     fun addToolbarItem(toolbarItem: IToolbarItem, addTop: Boolean) {
-        Util.log("addTop: $addTop")
+//        Util.log("addTop: $addTop")
         if (addTop)
             mTopContainer?.addView(toolbarItem.iconView)
         else
