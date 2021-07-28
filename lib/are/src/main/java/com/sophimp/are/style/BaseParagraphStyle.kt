@@ -17,6 +17,18 @@ import kotlin.math.min
  * @since: 2021/7/26
  */
 abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle<T>(editText) {
+
+    override fun itemClickOnNonEmptyParagraph(curPStart: Int, curPEnd: Int): Int {
+
+        removeMutexSpans(curPStart, curPEnd)
+
+        val targets = mEditText.editableText.getSpans(curPStart, curPEnd, targetClass())
+        updateSpan(targets, curPStart, curPEnd, targets.isNotEmpty())
+        return 0
+    }
+
+    open fun removeMutexSpans(curPStart: Int, curPEnd: Int) {}
+
     override fun handleMultiParagraphInput(
         editable: Editable,
         changedText: String?,

@@ -1,7 +1,6 @@
 package com.sophimp.are.toolbar
 
 import android.content.Context
-import android.text.Layout
 import android.util.AttributeSet
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
@@ -57,15 +56,9 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
         addToolbarItem(IndentRightToolItem(IndentRightStyle(editText)), true)
         addToolbarItem(IndentLeftToolItem(IndentLeftStyle(editText)), true)
 
-        addToolbarItem(
-            AlignmentLeftToolItem(AlignmentStyle(editText, Layout.Alignment.ALIGN_NORMAL)), true
-        )
-        addToolbarItem(
-            AlignmentCenterToolItem(AlignmentStyle(editText, Layout.Alignment.ALIGN_CENTER)), true
-        )
-        addToolbarItem(
-            AlignmentRightToolItem(AlignmentStyle(editText, Layout.Alignment.ALIGN_OPPOSITE)), true
-        )
+        addToolbarItem(AlignmentLeftToolItem(AlignmentLeftStyle(editText)), true)
+        addToolbarItem(AlignmentCenterToolItem(AlignmentCenterStyle(editText)), true)
+        addToolbarItem(AlignmentRightToolItem(AlignmentRightStyle(editText)), true)
 
         addToolbarItem(QuoteToolItem(QuoteStyle(editText)), true)
 
