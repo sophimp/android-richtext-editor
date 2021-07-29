@@ -92,8 +92,8 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
                 // 有样式
                 if (isChecked) {
                     // 将选中区域的targetSpan 合并成一个
-                    var earlyStart = editable.getSpanStart(targetSpans[0])
-                    var lastEnd = editable.getSpanEnd(targetSpans[0])
+                    var earlyStart = sStart
+                    var lastEnd = sEnd
                     for (span in targetSpans) {
                         earlyStart = min(editable.getSpanStart(span), earlyStart)
                         lastEnd = max(editable.getSpanEnd(span), lastEnd)
@@ -108,22 +108,20 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
                     for (span in targetSpans) {
                         val curStart = editable.getSpanStart(span)
                         val curEnd = editable.getSpanEnd(span)
+                        editable.removeSpan(span)
                         if (curStart < sStart) {
-                            setSpan(nSpan, curStart, sStart)
+                            setSpan(span, curStart, sStart)
                         }
                         if (sEnd < curEnd) {
                             setSpan(nSpan, sEnd, curEnd)
                         }
-                        editable.removeSpan(span)
                     }
                 }
             } else {
                 // 没有样式
                 val nSpan = newSpan() ?: return
-                for (span in targetSpans) {
-                    if (isChecked)
-                        setSpan(nSpan, sStart, sEnd)
-                }
+                if (isChecked)
+                    setSpan(nSpan, sStart, sEnd)
             }
         }
     }
