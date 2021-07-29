@@ -57,14 +57,14 @@ abstract class BaseStyle<TA : ISpan>(private var curEditText: RichEditText) : IS
                 // 空行
                 off = itemClickOnEmptyParagraph(curPStart, curPEnd)
                 spEnd += off
-                index += curPEnd + off + 1
+                index = curPEnd + off + 1
                 continue
             }
 
             off = itemClickOnNonEmptyParagraph(curPStart, curPEnd)
 
             spEnd += off
-            index += curPEnd + off + 1
+            index = curPEnd + off + 1
         }
         logAllSpans(mEditText.editableText, "${targetClass().simpleName} item click", 0, mEditText.editableText.length)
     }
