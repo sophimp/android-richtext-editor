@@ -22,7 +22,10 @@ class FontColorToolItem(style: FontColorStyle) :
 
     override fun iconClickHandle() {
         super.iconClickHandle()
-        colorWindow.showAsDropDown(iconView, -(iconView.x).toInt(), -(context.resources.displayMetrics.density * 80).toInt(), Gravity.TOP)
+        colorWindow.showAsDropDown(iconView,
+            -(iconView.x).toInt(),
+            -(context.resources.displayMetrics.density * 80 + iconView.height).toInt(),
+            Gravity.TOP)
     }
 
     override val srcResId: Int
