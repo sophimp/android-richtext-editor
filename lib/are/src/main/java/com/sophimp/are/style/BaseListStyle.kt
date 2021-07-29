@@ -27,8 +27,9 @@ abstract class BaseListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
     private var isEmptyLine = false
 
     override fun itemClickOnEmptyParagraph(curPStart: Int, curPEnd: Int): Int {
+        off = 0
         isEmptyLine = true
-        handleClickCase2(curPStart, curPEnd + 1)
+        handleClickCase2(curPStart, curPEnd)
         return off
     }
 
@@ -61,6 +62,7 @@ abstract class BaseListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
             O cc            O cc
             替换逻辑同case 2
          */
+        off = 0
         val editable = mEditText.editableText
         val basicSpans =
             editable.getSpans(curPStart, curPEnd, basicClass)
@@ -93,45 +95,19 @@ abstract class BaseListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
         mEditText.postDelayUIRun(Runnable {
             Util.renumberAllListItemSpans(mEditText.editableText)
             logAllSpans(mEditText.editableText, "${targetClass().simpleName} item click", 0, mEditText.editableText.length)
+            mEditText.refresh(0)
         }, 30)
     }
 
     private fun handleClickCase2(start: Int, end: Int) {
-//        LogUtils.d("sgx cake setSpan start-end: " + currentStart + " - " + currentEnd);
-        var currentStart = start
         val editable = mEditText.editableText
-        if (editable != null) {
-            if (editable.isEmpty()) {
-                // 全为空
-                currentStart = 0
-                editable.append(Constants.ZERO_WIDTH_SPACE_STR)
-                off = 1
-            } else if (currentStart >= editable.length) {
-                // 最后一行行尾
-                editable.append(Constants.ZERO_WIDTH_SPACE_STR)
-                off = 1
-            } else if (currentStart == end && editable[currentStart] == '\n') {
-                editable.insert(currentStart, Constants.ZERO_WIDTH_SPACE_STR)
-                off = 1
-            } else {
-                if (editable[currentStart].toInt() != Constants.ZERO_WIDTH_SPACE_INT) {
-                    // 每个ListBullet 插入一个零字符， 用于删除时处理最一个字符的临界情况
-                    editable.insert(currentStart, Constants.ZERO_WIDTH_SPACE_STR)
-                    off = 1
-                }
-            }
-            val nSpan = newSpan() ?: return
-            if (isEmptyLine) {
-                // 针对空行情况, 第一次添加，处理不了那么快
-                mEditText.postDelayUIRun(Runnable {
-                    isEmptyLine = false
-                    setSpan(nSpan, currentStart, currentStart + 1)
-                }, 0)
-            } else {
-                setSpan(nSpan, currentStart, end)
-            }
+        val nSpan = newSpan() ?: return
+        if (start == end) {
+            // empty line
+            editable.insert(start, Constants.ZERO_WIDTH_SPACE_STR)
+            off = 1
         }
-        //        logAllSpans(editable, "case2 添加span后");
+        setSpan(nSpan, start, end + off)
     }
 
     /**
