@@ -25,6 +25,8 @@ ARE 是基于Android原生的Spannable架构，因此名字我依旧沿承了 an
 - 左对齐 - Align left
 - 居中对齐 - Align center
 - 右对齐 - Align right
+- 增大行距
+- 缩小行距
 - 插入图片 - Insert image
 - 文字背景色 - Background color
 - 插入超链接 - Hyper link
