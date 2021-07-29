@@ -132,11 +132,11 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
             if (preParagraphSpans.isNotEmpty()) {
                 // 前一行添加span
                 setSpan(preParagraphSpans[0], lastPStart, lastPEnd)
-                nSpan = newSpan(preParagraphSpans[0])
 
+                nSpan = newSpan(preParagraphSpans[0])
                 // 当前行添加span
                 if (nSpan != null) {
-                    val curStart = mEditText.selectionStart
+                    val curStart = lastPEnd + 1
                     if (curStart >= editable.length || editable[curStart].toInt() != Constants.ZERO_WIDTH_SPACE_INT) {
                         editable.insert(curStart, Constants.ZERO_WIDTH_SPACE_STR)
                     }
