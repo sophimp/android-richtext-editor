@@ -6,7 +6,10 @@ import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
+import android.view.GestureDetector
+import android.view.MotionEvent
 import androidx.appcompat.widget.AppCompatEditText
+import com.sophimp.are.spans.*
 import com.sophimp.are.style.IStyle
 import kotlin.math.min
 
@@ -21,16 +24,46 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
 
     private var styleList: MutableList<IStyle> = arrayListOf()
 
+    private var isEditMode = true
+
+    var clickStrategy: IEditorClickStrategy? = DefaultClickStrategyImpl()
+
     init {
         setupTextWatcher()
+    }
+
+    private val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+        override fun onSingleTapUp(e: MotionEvent?): Boolean {
+            if (!isEditMode) return false
+            val offset = Util.getTextOffset(this@RichEditText, e!!)
+            val clickSpans = editableText.getSpans(offset, offset, IClickableSpan::class.java)
+            if (clickSpans.isEmpty()) return false
+            when {
+                clickSpans[0] is UrlSpan -> {
+                    clickStrategy?.onClickUrl(context, clickSpans[0] as UrlSpan)
+                }
+                clickSpans[0] is ImageSpan2 -> {
+                    clickStrategy?.onClickImage(context, clickSpans[0] as ImageSpan2)
+                }
+                clickSpans[0] is VideoSpan -> {
+                    clickStrategy?.onClickVideo(context, clickSpans[0] as VideoSpan)
+                }
+                clickSpans[0] is AttachmentSpan -> {
+                }
+            }
+            return false
+        }
+    })
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        gestureDetector.onTouchEvent(event)
+        return super.onTouchEvent(event)
     }
 
     /**
      * Monitoring text changes.
      */
     private fun setupTextWatcher() {
-        var startPos: Int = 0
-        var endPos: Int = 0
         // 用来判断是点周事件还是删除事件
         var beforeSelectionStart = 0
         var beforeSelectionEnd = 0
@@ -67,8 +100,6 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
 //                if (BuildConfig.DEBUG) {
 //                    Util.log(("onTextChanged:: s = $s, start = $start, count = $count, before = $before"))
 //                }
-                startPos = start
-                endPos = start + count
             }
 
             override fun afterTextChanged(s: Editable) {
@@ -111,16 +142,16 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                         // 输入或复制操作
                         changedText = getEditableText().subSequence(
                             beforeSelectionStart,
-                            Math.min(afterSelectionStart + 1, length())
+                            min(afterSelectionStart + 1, length())
                         ).toString()
                         val findNewLine: Int = changedText.indexOf("\n")
-                        if (findNewLine > 0 && findNewLine <= changedText.length - 1) {
-                            textEvent = IStyle.TextEvent.INPUT_MULTI_PARAGRAPH
+                        textEvent = if (findNewLine > 0 && findNewLine <= changedText.length - 1) {
+                            IStyle.TextEvent.INPUT_MULTI_PARAGRAPH
                         } else if (findNewLine == 0 && changedText.length > 1) {
-                            textEvent = IStyle.TextEvent.INPUT_MULTI_PARAGRAPH
+                            IStyle.TextEvent.INPUT_MULTI_PARAGRAPH
                         } else {
-                            // 没找到
-                            textEvent = IStyle.TextEvent.INPUT_SINGLE_PARAGRAPH
+                            // find nothing
+                            IStyle.TextEvent.INPUT_SINGLE_PARAGRAPH
                         }
                     }
                 }

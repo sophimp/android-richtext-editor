@@ -13,13 +13,16 @@ import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.text.Editable
+import android.text.Layout
 import android.text.Selection
 import android.text.TextUtils
 import android.util.Log
 import android.util.TypedValue
+import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import com.sophimp.are.spans.IndentSpan
 import com.sophimp.are.spans.ListNumberSpan
@@ -862,5 +865,20 @@ object Util {
         fun isMediaDocument(uri: Uri): Boolean {
             return "com.android.providers.media.documents" == uri.authority
         }
+    }
+
+    /**
+     * find touch point of offset in line
+     */
+    fun getTextOffset(widget: TextView, event: MotionEvent): Int {
+        var x: Int = event.x.toInt()
+        var y: Int = event.y.toInt()
+        x -= widget.totalPaddingLeft
+        y -= widget.totalPaddingTop
+        x += widget.scrollX
+        y += widget.scrollY
+        val layout: Layout = widget.layout
+        val line: Int = layout.getLineForVertical(y)
+        return layout.getOffsetForHorizontal(line, x.toFloat())
     }
 }
