@@ -23,12 +23,19 @@ class IndentLeftStyle(editText: RichEditText) : BaseParagraphStyle<IndentSpan>(e
             (spans[0] as IndentSpan).decreaseLevel()
             setSpan(spans[0], start, end)
             Util.renumberAllListItemSpans(mEditText.editableText)
-            mEditText.refresh(0)
             mEditText.setSelection(mEditText.selectionStart, mEditText.selectionEnd)
         }
     }
 
-    override fun handleDeleteEvent(editable: Editable, epStart: Int, epEnd: Int) {
+    override fun applyStyle(
+        editable: Editable,
+        event: IStyle.TextEvent?,
+        changedText: String?,
+        beforeSelectionStart: Int,
+        afterSelectionEnd: Int,
+        epStart: Int,
+        epEnd: Int
+    ) {
         // left无需操作， 由 IndentRightStyle 处理
     }
 

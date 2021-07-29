@@ -2,13 +2,19 @@ package com.sophimp.are.spans
 
 import android.graphics.Paint.FontMetricsInt
 import android.text.style.LineHeightSpan
+import kotlin.math.roundToInt
 
 /**
  * line spacing
  * @author: sfx
  * @since: 2021/7/20
  */
-class LineSpaceSpan(var factor: Float) : LineHeightSpan, ISpan {
+class LineSpaceSpan(factor: Float) : LineHeightSpan, ISpan {
+    var factor = factor
+        set(value) {
+            delta = -1f
+            field = value
+        }
     private var targetDescent = -1
     var delta = -1f
     var originHeight = 0
@@ -27,7 +33,7 @@ class LineSpaceSpan(var factor: Float) : LineHeightSpan, ISpan {
         }
         if (delta < 0) {
             delta = originHeight * (factor - 1.0f)
-            targetDescent = Math.round(fm.descent + delta)
+            targetDescent = (fm.descent + delta).roundToInt()
         }
         fm.descent = targetDescent
     }

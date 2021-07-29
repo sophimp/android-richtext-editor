@@ -28,7 +28,6 @@ class IndentRightStyle(editText: RichEditText) : BaseParagraphStyle<IndentSpan>(
             }
         }
         Util.renumberAllListItemSpans(mEditText.editableText)
-        mEditText.refresh(0)
         mEditText.setSelection(mEditText.selectionStart, mEditText.selectionEnd)
     }
 

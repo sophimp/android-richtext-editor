@@ -23,7 +23,11 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
         removeMutexSpans(curPStart, curPEnd)
 
         val targets = mEditText.editableText.getSpans(curPStart, curPEnd, targetClass())
+        Arrays.sort(targets) { o1: T, o2: T ->
+            mEditText.editableText.getSpanStart(o1) - mEditText.editableText.getSpanStart(o2)
+        }
         updateSpan(targets, curPStart, curPEnd)
+        mEditText.refresh(curPStart)
         return 0
     }
 
@@ -43,7 +47,6 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
         if (firstTargetParagraphSpans.isEmpty()) return
         val allTargetParagraphSpans: Array<T> = editable.getSpans(epStart, epEnd, targetClass())
 //        val allPLeadSpans: Array<IndentSpan> = editable.getSpans(effectPStart, effectPEnd, IndentSpan::class.java)
-        // 先移复制内容部分所有的缩进与
         removeSpans(editable, allTargetParagraphSpans)
 //        removeSpans(editable, allPLeadSpans)
         logAllSpans(editable, "多行输入前处理", 0, editable.length)

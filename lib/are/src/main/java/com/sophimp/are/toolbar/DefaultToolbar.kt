@@ -73,8 +73,8 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
 
         addToolbarItem(SubscriptToolItem(SubscriptStyle(editText)), false)
         addToolbarItem(SuperscriptToolItem(SuperscriptStyle(editText)), false)
-        addToolbarItem(LineSpaceToolItem(LineSpaceStyle(editText, true)), false)
-        addToolbarItem(LineSpaceToolItem(LineSpaceStyle(editText, false)), false)
+        addToolbarItem(LineSpaceEnlargeToolItem(LineSpaceEnlargeStyle(editText)), false)
+        addToolbarItem(LineSpaceReduceToolItem(LineSpaceReduceStyle(editText)), false)
         addToolbarItem(HrToolItem(HrStyle(editText)), false)
         addToolbarItem(LinkToolItem(LinkStyle(editText)), false)
 

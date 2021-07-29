@@ -84,8 +84,8 @@ abstract class BaseStyle<TA : ISpan>(private var curEditText: RichEditText) : IS
     }
 
     open fun <T : ISpan> updateSpan(spans: Array<T>, start: Int, end: Int) {
-        removeSpans(mEditText.editableText, spans)
         if (spans.isNotEmpty()) {
+            removeSpans(mEditText.editableText, spans)
             setSpan(spans[0], start, end)
         } else {
             val ns = newSpan()
@@ -129,7 +129,7 @@ abstract class BaseStyle<TA : ISpan>(private var curEditText: RichEditText) : IS
 
             )
         }
-        logAllSpans(editable, "base apply style: ${targetClass().simpleName}", 0, editable.length)
+        logAllSpans(editable, "base apply style: ${this.javaClass.simpleName}", 0, editable.length)
     }
 
     /**
@@ -181,24 +181,17 @@ abstract class BaseStyle<TA : ISpan>(private var curEditText: RichEditText) : IS
         end: Int
     ) {
         if (!BuildConfig.DEBUG) return
-        val listItemSpans = editable.getSpans(start, end, targetClass())
+        val targets = editable.getSpans(start, end, targetClass())
         // 坑点， 这里取出来的span 并不是按先后顺序， 需要先排序
-        Arrays.sort(listItemSpans) { o1: TA, o2: TA ->
+        Arrays.sort(targets) { o1: TA, o2: TA ->
             editable.getSpanStart(o1) - editable.getSpanStart(o2)
         }
-//        val leadingMarginSpans: Array<IndentSpan> = editable.getSpans(start, end, IndentSpan::class.java)
         Util.log("-----------$tag--------------")
-        for (span in listItemSpans) {
+        for (span in targets) {
             val ss = editable.getSpanStart(span)
             val se = editable.getSpanEnd(span)
-            Util.log(targetClass().simpleName + ": " + " :: start == " + ss + ", end == " + se)
+            Util.log(targetClass().simpleName + ": start == " + ss + ", end == " + se)
         }
-//        for (span in leadingMarginSpans) {
-//            val ss = editable.getSpanStart(span)
-//            val se = editable.getSpanEnd(span)
-//            Util.log("List All leading span:  :: start == $ss, end == $se")
-//        }
-//        Util.log(tag + " : " + "总长度: " + editable.length)
     }
 
     override fun newSpan(): ISpan? {

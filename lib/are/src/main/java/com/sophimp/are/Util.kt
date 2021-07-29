@@ -42,8 +42,8 @@ object Util {
         Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
     }
 
-    fun log(s: String?) {
-        Log.d("CAKE", s!!)
+    fun log(s: String) {
+        Log.d("CAKE", s)
     }
 
     /**
