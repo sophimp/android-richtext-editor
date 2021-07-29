@@ -4,10 +4,9 @@ import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
 import com.sophimp.are.spans.FontSizeSpan
 import com.sophimp.are.spans.ISpan
-import com.sophimp.are.style.windows.FontSizeChangeListener
 
 class FontSizeStyle(editText: RichEditText) :
-    DynamicCharacterStyle<FontSizeSpan>(editText), FontSizeChangeListener {
+    DynamicCharacterStyle<FontSizeSpan>(editText) {
 
     private var mSize = Constants.DEFAULT_FONT_SIZE
 
@@ -15,7 +14,7 @@ class FontSizeStyle(editText: RichEditText) :
         return FontSizeSpan(mSize)
     }
 
-    override fun onFontSizeChange(fontSize: Int) {
+    fun onFontSizeChange(fontSize: Int) {
         checkState = true
         if (mSize == fontSize) return
         hasChanged = true
