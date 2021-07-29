@@ -88,7 +88,7 @@ abstract class BaseStyle<TA : ISpan>(private var curEditText: RichEditText) : IS
             removeSpans(mEditText.editableText, spans)
             setSpan(spans[0], start, end)
         } else {
-            val ns = newSpan()
+            val ns = newSpan(null)
             if (ns != null) {
                 setSpan(ns, start, end)
             }
@@ -194,7 +194,7 @@ abstract class BaseStyle<TA : ISpan>(private var curEditText: RichEditText) : IS
         }
     }
 
-    override fun newSpan(): ISpan? {
+    override fun newSpan(inheritSpan: ISpan?): ISpan? {
         return null
     }
 }

@@ -31,8 +31,12 @@ class IndentRightStyle(editText: RichEditText) : BaseParagraphStyle<IndentSpan>(
         mEditText.setSelection(mEditText.selectionStart, mEditText.selectionEnd)
     }
 
-    override fun newSpan(): ISpan? {
-        return IndentSpan(1)
+    override fun newSpan(inheritSpan: ISpan?): ISpan? {
+        val span = IndentSpan(1)
+        if (inheritSpan != null) {
+            span.mLevel = (inheritSpan as IndentSpan).mLevel
+        }
+        return span
     }
 
     override fun targetClass(): Class<IndentSpan> {

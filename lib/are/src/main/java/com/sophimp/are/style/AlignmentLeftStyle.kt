@@ -31,7 +31,7 @@ class AlignmentLeftStyle(editText: RichEditText) : BaseParagraphStyle<AlignmentL
         // default style, no need to handle
     }
 
-    override fun newSpan(): ISpan? {
+    override fun newSpan(inheritSpan: ISpan?): ISpan? {
         return null
     }
 

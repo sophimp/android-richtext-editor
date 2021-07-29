@@ -13,8 +13,18 @@ import com.sophimp.are.Util.log
  * @since: 2021/7/20
  */
 class IndentSpan constructor(level: Int = 0) : LeadingMarginSpan, ISpan {
-    var mLevel: Int
     private var mLeadingMargin: Int
+
+    /**
+     * Set leading level
+     *
+     * @param level
+     */
+    var mLevel: Int = level
+        set(level) {
+            field = level
+            mLeadingMargin = LEADING_MARGIN * mLevel
+        }
 
     companion object {
         /**
@@ -45,18 +55,6 @@ class IndentSpan constructor(level: Int = 0) : LeadingMarginSpan, ISpan {
         mLevel = leadingMargin / LEADING_MARGIN
         mLeadingMargin = LEADING_MARGIN * mLevel
     }
-
-    /**
-     * Set leading level
-     *
-     * @param level
-     */
-    var level: Int
-        get() = mLevel
-        set(level) {
-            mLevel = level
-            mLeadingMargin = LEADING_MARGIN * mLevel
-        }
 
     /**
      * Increase leading level.

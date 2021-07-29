@@ -60,7 +60,7 @@ interface IStyle {
     /**
      * create newSpan
      */
-    fun newSpan(): ISpan?
+    fun newSpan(inheritSpan: ISpan? = null): ISpan?
 
     fun bindEditText(editText: RichEditText) {}
 

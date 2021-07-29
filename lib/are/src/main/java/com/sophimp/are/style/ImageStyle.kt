@@ -68,22 +68,10 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
             editable.insert(end + 1, text)
             mEditText.startMonitor()
             mEditText.isChange = true
-            mEditText.refresh(0)
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
-    }
-
-    override fun applyStyle(
-        editable: Editable,
-        event: IStyle.TextEvent?,
-        changedText: String?,
-        beforeSelectionStart: Int,
-        afterSelectionEnd: Int,
-        epStart: Int,
-        epEnd: Int
-    ) {
     }
 
     override fun targetClass(): Class<ImageSpan2> {

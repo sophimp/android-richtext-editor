@@ -10,14 +10,16 @@ import com.sophimp.are.spans.ISpan
  * @since: 2021/7/26
  */
 abstract class BaseFreeStyle<T : ISpan>(editText: RichEditText) : BaseStyle<T>(editText) {
-    override fun handleMultiParagraphInput(
+    override fun applyStyle(
         editable: Editable,
+        event: IStyle.TextEvent?,
         changedText: String?,
         beforeSelectionStart: Int,
         afterSelectionEnd: Int,
         epStart: Int,
         epEnd: Int
     ) {
+        // 单独个体， 无需处理
     }
 
     override fun handleSingleParagraphInput(
@@ -28,6 +30,17 @@ abstract class BaseFreeStyle<T : ISpan>(editText: RichEditText) : BaseStyle<T>(e
         epStart: Int,
         epEnd: Int
     ) {
+    }
+
+    override fun handleMultiParagraphInput(
+        editable: Editable,
+        changedText: String?,
+        beforeSelectionStart: Int,
+        afterSelectionEnd: Int,
+        epStart: Int,
+        epEnd: Int
+    ) {
+
     }
 
     override fun handleInputNewLine(editable: Editable, beforeSelectionStart: Int) {}

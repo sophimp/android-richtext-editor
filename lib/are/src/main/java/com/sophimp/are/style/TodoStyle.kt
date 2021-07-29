@@ -20,7 +20,7 @@ class TodoStyle(editText: RichEditText) :
         super.setSpan(span, start, end)
     }
 
-    override fun newSpan(): ISpan? {
+    override fun newSpan(inheritSpan: ISpan?): ISpan? {
         return TodoSpan()
     }
 

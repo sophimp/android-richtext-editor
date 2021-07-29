@@ -51,17 +51,6 @@ class AttachmentStyle(editText: RichEditText) : BaseFreeStyle<AttachmentSpan>(ed
         mEditText.isChange = true
     }
 
-    override fun applyStyle(
-        editable: Editable,
-        event: IStyle.TextEvent?,
-        changedText: String?,
-        beforeSelectionStart: Int,
-        afterSelectionEnd: Int,
-        epStart: Int,
-        epEnd: Int
-    ) {
-    }
-
     override fun bindEditText(editText: RichEditText) {}
 
     override fun targetClass(): Class<AttachmentSpan> {

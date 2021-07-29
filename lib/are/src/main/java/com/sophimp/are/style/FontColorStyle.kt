@@ -3,12 +3,13 @@ package com.sophimp.are.style
 import com.sophimp.are.RichEditText
 import com.sophimp.are.colorpicker.ColorPickerListener
 import com.sophimp.are.spans.FontForegroundColorSpan
+import com.sophimp.are.spans.ISpan
 
 class FontColorStyle(editText: RichEditText?) :
     DynamicCharacterStyle<FontForegroundColorSpan>(editText!!),
     ColorPickerListener {
 
-    override fun newSpan(): FontForegroundColorSpan? {
+    override fun newSpan(inheritSpan: ISpan?): FontForegroundColorSpan? {
         return FontForegroundColorSpan(mColor)
     }
 

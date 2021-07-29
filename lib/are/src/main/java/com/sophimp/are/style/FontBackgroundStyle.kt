@@ -2,11 +2,12 @@ package com.sophimp.are.style
 
 import com.sophimp.are.RichEditText
 import com.sophimp.are.spans.FontBackgroundColorSpan
+import com.sophimp.are.spans.ISpan
 
 class FontBackgroundStyle(editText: RichEditText) :
     DynamicCharacterStyle<FontBackgroundColorSpan>(editText) {
 
-    override fun newSpan(): FontBackgroundColorSpan? {
+    override fun newSpan(inheritSpan: ISpan?): FontBackgroundColorSpan? {
         return if (mColor == 0) null else FontBackgroundColorSpan(mColor)
     }
 

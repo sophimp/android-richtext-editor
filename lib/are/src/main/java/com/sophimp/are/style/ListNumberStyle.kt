@@ -18,7 +18,7 @@ class ListNumberStyle(editText: RichEditText) :
         ListBulletSpan::class.java,
         TodoSpan::class.java
     ) {
-    override fun newSpan(): ISpan? {
+    override fun newSpan(inheritSpan: ISpan?): ISpan? {
         return ListNumberSpan()
     }
 

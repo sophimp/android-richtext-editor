@@ -68,7 +68,6 @@ class EmojiStyle(editText: RichEditText) : BaseFreeStyle<EmojiSpan>(editText) {
             editable.insert(end + 1, text)
             mEditText.startMonitor()
             mEditText.isChange = true
-            mEditText.refresh(0)
         } catch (e: Exception) {
             e.printStackTrace()
         }

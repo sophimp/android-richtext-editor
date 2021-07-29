@@ -429,7 +429,7 @@ public class Html {
         IndentSpan[] leadingMarginSpans = text.getSpans(start, end, IndentSpan.class);
         if (leadingMarginSpans != null && leadingMarginSpans.length > 0) {
             for (IndentSpan leadingMarginSpan : leadingMarginSpans) {
-                margin = String.format("padding-left:%dpx;", (leadingMarginSpan.getLevel() * IndentSpan.LEADING_MARGIN));
+                margin = String.format("padding-left:%dpx;", (leadingMarginSpan.getMLevel() * IndentSpan.LEADING_MARGIN));
             }
         }
 
@@ -440,9 +440,9 @@ public class Html {
             lineHeight = String.format("line-height:%s;", factor);
         }
 
-        if (margin == null && textAlign == null && lineHeight == null) {
-            return "";
-        }
+//        if (margin == null && textAlign == null && lineHeight == null) {
+//            return "";
+//        }
 
         final StringBuilder style = new StringBuilder(" style=\"");
         if (margin != null && textAlign != null) {

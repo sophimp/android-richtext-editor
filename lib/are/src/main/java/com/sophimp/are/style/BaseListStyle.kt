@@ -89,10 +89,9 @@ abstract class BaseListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
     override fun toolItemIconClick() {
         super.toolItemIconClick()
 
-        // 重排上一段落及后面所有的 ListNumberSpan, 因为数据量并不会大， 所在重排的性能损失可以忽略，但是实现方法简单得多
+        // 重排所有的 ListNumberSpan, 因为实际数据量并不会大， 所在重排的性能损失可以忽略，但是实现方法简单得多
         mEditText.postDelayUIRun(Runnable {
             Util.renumberAllListItemSpans(mEditText.editableText)
-            mEditText.refresh(0)
             logAllSpans(mEditText.editableText, "${targetClass().simpleName} item click", 0, mEditText.editableText.length)
         }, 30)
     }
@@ -125,25 +124,11 @@ abstract class BaseListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
             if (isEmptyLine) {
                 // 针对空行情况, 第一次添加，处理不了那么快
                 mEditText.postDelayUIRun(Runnable {
-                    try {
-                        isEmptyLine = false
-                        setSpan(nSpan, currentStart, currentStart + 1)
-                        mEditText.refresh(0)
-                    } catch (e: IllegalAccessException) {
-                        e.printStackTrace()
-                    } catch (e: InstantiationException) {
-                        e.printStackTrace()
-                    }
+                    isEmptyLine = false
+                    setSpan(nSpan, currentStart, currentStart + 1)
                 }, 0)
             } else {
-                try {
-                    setSpan(nSpan, currentStart, end)
-                } catch (e: IllegalAccessException) {
-                    e.printStackTrace()
-                } catch (e: InstantiationException) {
-                    e.printStackTrace()
-                }
-                mEditText.refresh(0)
+                setSpan(nSpan, currentStart, end)
             }
         }
         //        logAllSpans(editable, "case2 添加span后");
@@ -186,8 +171,7 @@ abstract class BaseListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
         super.handleInputNewLine(editable, beforeSelectionStart)
         // 重排所有的 ListNumberSpan, 因为数据量并不会大， 所在重排的性能损失可以忽略，但是实现方法简单得多
         Util.renumberAllListItemSpans(editable)
-        mEditText.refresh(0)
-        logAllSpans(editable, targetClass().simpleName + "after new line", 0, editable.length)
+//        logAllSpans(editable, targetClass().simpleName + " after new line", 0, editable.length)
     }
 
     override fun handleMultiParagraphInput(
@@ -200,7 +184,6 @@ abstract class BaseListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
     ) {
         super.handleMultiParagraphInput(editable, changedText, beforeSelectionStart, afterSelectionEnd, epStart, epEnd)
         Util.renumberAllListItemSpans(editable)
-        mEditText.refresh(0)
     }
 
     /**
@@ -210,7 +193,6 @@ abstract class BaseListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
         super.handleDeleteEvent(editable, epStart, epEnd)
         // 重排所有的 ListNumberSpan, 因为数据量并不会大， 所在重排的性能损失可以忽略，但是实现方法简单得多
         Util.renumberAllListItemSpans(editable)
-        mEditText.refresh(0)
     }
 
 

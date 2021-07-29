@@ -2,6 +2,7 @@ package com.sophimp.are.style
 
 import com.sophimp.are.RichEditText
 import com.sophimp.are.spans.BoldSpan
+import com.sophimp.are.spans.ISpan
 
 /**
  *
@@ -11,7 +12,7 @@ import com.sophimp.are.spans.BoldSpan
 class BoldStyle(editText: RichEditText) :
     BaseCharacterStyle<BoldSpan>(editText) {
 
-    override fun newSpan(): BoldSpan? {
+    override fun newSpan(inheritSpan: ISpan?): BoldSpan? {
         return BoldSpan()
     }
 

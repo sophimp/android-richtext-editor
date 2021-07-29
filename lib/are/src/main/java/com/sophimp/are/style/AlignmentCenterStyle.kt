@@ -19,7 +19,7 @@ class AlignmentCenterStyle(editText: RichEditText) : BaseParagraphStyle<Alignmen
         removeSpans(editable, rightSpans)
     }
 
-    override fun newSpan(): ISpan? {
+    override fun newSpan(inheritSpan: ISpan?): ISpan? {
         return AlignmentCenterSpan()
     }
 

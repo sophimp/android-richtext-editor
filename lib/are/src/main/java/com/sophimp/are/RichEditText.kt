@@ -49,9 +49,9 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                 beforeSelectionStart = selectionStart
                 beforeSelectionEnd = selectionEnd
                 changedText = ""
-                if (BuildConfig.DEBUG) {
-                    Util.log(("beforeTextChanged:: s = $s, start = $start, count = $count, after = $after"))
-                }
+//                if (BuildConfig.DEBUG) {
+//                    Util.log(("beforeTextChanged:: s = $s, start = $start, count = $count, after = $after"))
+//                }
             }
 
             override fun onTextChanged(
@@ -64,9 +64,9 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                     return
                 }
                 isChange = true
-                if (BuildConfig.DEBUG) {
-                    Util.log(("onTextChanged:: s = $s, start = $start, count = $count, before = $before"))
-                }
+//                if (BuildConfig.DEBUG) {
+//                    Util.log(("onTextChanged:: s = $s, start = $start, count = $count, before = $before"))
+//                }
                 startPos = start
                 endPos = start + count
             }
@@ -124,15 +124,16 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                         }
                     }
                 }
-                if (BuildConfig.DEBUG)
-                    Util.log(("sgx cake before change selection: $beforeSelectionStart - $beforeSelectionEnd after change selection: $afterSelectionStart   \n textEvent: $textEvent start: $startPos end: $endPos changeText: $changedText"))
+//                if (BuildConfig.DEBUG)
+//                    Util.log(("sgx cake before change selection: $beforeSelectionStart - $beforeSelectionEnd after change selection: $afterSelectionStart   \n textEvent: $textEvent start: $startPos end: $endPos changeText: $changedText"))
                 stopMonitor()
 
                 for (style: IStyle in styleList) {
                     val epStart = Util.getParagraphStart(this@RichEditText, min(beforeSelectionStart, afterSelectionStart))
-                    var epEnd = Util.getParagraphEnd(editableText, afterSelectionStart)
+                    val epEnd = Util.getParagraphEnd(editableText, afterSelectionStart)
                     style.applyStyle(s, textEvent, changedText, beforeSelectionStart, afterSelectionStart, epStart, epEnd)
                 }
+                refresh(0)
                 startMonitor()
             }
         }

@@ -204,6 +204,7 @@ object Util {
             // case 1: 首行空行
             return 0
         } else if (selection >= editable.length) {
+            selection = editable.length
             if (editable[selection - 1] == '\n') {
                 // case 3:
                 return selection

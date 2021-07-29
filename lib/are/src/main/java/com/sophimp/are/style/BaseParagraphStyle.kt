@@ -27,7 +27,7 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
             mEditText.editableText.getSpanStart(o1) - mEditText.editableText.getSpanStart(o2)
         }
         updateSpan(targets, curPStart, curPEnd)
-        mEditText.refresh(curPStart)
+        mEditText.refresh(0)
         return 0
     }
 
@@ -76,13 +76,7 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
             if (index < pEnd) {
                 val nSpan = newSpan()
                 if (firstPListSpans.isNotEmpty() && nSpan != null) {
-                    try {
-                        setSpan(nSpan, index, pEnd)
-                    } catch (e: IllegalAccessException) {
-                        e.printStackTrace()
-                    } catch (e: InstantiationException) {
-                        e.printStackTrace()
-                    }
+                    setSpan(nSpan, index, pEnd)
                 }
             } // else { // 相等， 空行, 不处理
             index = pEnd + 1 + off
@@ -104,7 +98,6 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
             if (base.isNotEmpty()) {
                 removeSpans(editable, base)
                 setSpan(base[0], epStart, epEnd)
-                mEditText.refresh(beforeSelectionStart)
             }
         }
     }
@@ -120,7 +113,7 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
         val lastPStart: Int = Util.getParagraphStart(mEditText, beforeSelectionStart)
         var lastPEnd: Int = Util.getParagraphEnd(editable, beforeSelectionStart)
         if (lastPEnd < lastPStart) lastPEnd = lastPStart
-        val preParagraphSpans: Array<T> = editable.getSpans(lastPStart, lastPEnd, targetClass())
+        val preParagraphSpans = editable.getSpans(lastPStart, lastPEnd, targetClass())
         if (preParagraphSpans.isEmpty()) return
         Util.log("sgx cake: 上一行: " + lastPStart + " - " + lastPEnd + " 当前行: " + mEditText.selectionStart + " - " + mEditText.selectionEnd)
         // 先移除上一行的span
@@ -135,25 +128,22 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
             editable.delete(max(0, mEditText.selectionStart - 1), mEditText.selectionStart)
         } else {
             // case 1: 有内容换行,
-            // 前一行添加span
+            var nSpan = newSpan()
             if (preParagraphSpans.isNotEmpty()) {
+                // 前一行添加span
                 setSpan(preParagraphSpans[0], lastPStart, lastPEnd)
-            }
-            // 当前行添加span
-            val nSpan = newSpan()
-            if (preParagraphSpans.isNotEmpty() && nSpan != null) {
-                try {
-                    val curStart: Int = mEditText.selectionStart
-                    editable.insert(curStart, Constants.ZERO_WIDTH_SPACE_STR)
+                nSpan = newSpan(preParagraphSpans[0])
+
+                // 当前行添加span
+                if (nSpan != null) {
+                    val curStart = mEditText.selectionStart
+                    if (curStart >= editable.length || editable[curStart].toInt() != Constants.ZERO_WIDTH_SPACE_INT) {
+                        editable.insert(curStart, Constants.ZERO_WIDTH_SPACE_STR)
+                    }
                     setSpan(nSpan, curStart, min(curStart + 1, editable.length))
-                } catch (e: IllegalAccessException) {
-                    e.printStackTrace()
-                } catch (e: InstantiationException) {
-                    e.printStackTrace()
                 }
             }
         }
-
     }
 
     override fun handleDeleteEvent(editable: Editable, epStart: Int, epEnd: Int) {

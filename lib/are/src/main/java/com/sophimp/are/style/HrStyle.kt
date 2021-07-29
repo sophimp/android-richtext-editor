@@ -1,6 +1,5 @@
 package com.sophimp.are.style
 
-import android.text.Editable
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -14,18 +13,7 @@ import com.sophimp.are.spans.ISpan
 import com.sophimp.are.spans.IndentSpan
 
 class HrStyle(mEditText: RichEditText) : BaseFreeStyle<HrSpan>(mEditText) {
-    override fun applyStyle(
-        editable: Editable,
-        event: IStyle.TextEvent?,
-        changedText: String?,
-        beforeSelectionStart: Int,
-        afterSelectionEnd: Int,
-        epStart: Int,
-        epEnd: Int
-    ) {
-    }
-
-    override fun newSpan(): ISpan? {
+    override fun newSpan(inheritSpan: ISpan?): ISpan? {
         return null
     }
 

@@ -3,6 +3,7 @@ package com.sophimp.are.style
 import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
 import com.sophimp.are.spans.FontSizeSpan
+import com.sophimp.are.spans.ISpan
 import com.sophimp.are.style.windows.FontSizeChangeListener
 
 class FontSizeStyle(editText: RichEditText) :
@@ -10,7 +11,7 @@ class FontSizeStyle(editText: RichEditText) :
 
     private var mSize = Constants.DEFAULT_FONT_SIZE
 
-    override fun newSpan(): FontSizeSpan? {
+    override fun newSpan(inheritSpan: ISpan?): FontSizeSpan? {
         return FontSizeSpan(mSize)
     }
 
