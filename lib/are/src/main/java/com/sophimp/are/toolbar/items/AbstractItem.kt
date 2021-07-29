@@ -12,7 +12,7 @@ import com.sophimp.are.style.IStyle
  * @since: 2021/7/21
  */
 abstract class AbstractItem(protected var style: IStyle) : IToolbarItem {
-    val context: Context = style.mEditText.context.applicationContext
+    val context: Context = style.mEditText.context
     val imageView: ImageView
     val mEditText = style.mEditText
 

@@ -9,21 +9,23 @@ import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.KeyEvent
+import com.sophimp.are.R
 import com.sophimp.are.databinding.DialogLinkInputBinding
 
 /**
  * @author: sfx
  * @since: 2021/6/9
  */
-class LinkInputDialog(context: Context) : Dialog(context) {
+class LinkInputDialog(context: Context) : Dialog(context, R.style.ThemeOverlay_AppCompat_Dialog_Alert) {
 
-    var binding: DialogLinkInputBinding? = null
+    private lateinit var binding: DialogLinkInputBinding
     private var linkLister: OnInertLinkListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DialogLinkInputBinding.inflate(layoutInflater)
-        setContentView(binding?.root!!)
+        setContentView(binding.root)
+        setCanceledOnTouchOutside(false)
         setUpView()
         setOnKeyListener(object : DialogInterface.OnKeyListener {
             override fun onKey(dialog: DialogInterface?, keyCode: Int, event: KeyEvent?): Boolean {
@@ -34,16 +36,16 @@ class LinkInputDialog(context: Context) : Dialog(context) {
                 return false
             }
         })
+        addListener()
     }
 
     private fun setUpView() {
-//        window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
-        binding!!.iclTitle.tvBtnConfirm.text = "save"
+        binding.iclTitle.tvBtnConfirm.text = "save"
         updateConfirmBtnState()
     }
 
-    protected fun setListenner() {
-        binding!!.etLinkAddr.addTextChangedListener(object : TextWatcher {
+    private fun addListener() {
+        binding.etLinkAddr.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(
                 s: CharSequence,
                 start: Int,
@@ -63,12 +65,12 @@ class LinkInputDialog(context: Context) : Dialog(context) {
 
             override fun afterTextChanged(s: Editable) {}
         })
-        binding!!.iclTitle.tvBtnClose.setOnClickListener({ v -> dismiss() })
-        binding!!.iclTitle.tvBtnConfirm.setOnClickListener {
+        binding.iclTitle.tvBtnClose.setOnClickListener { dismiss() }
+        binding.iclTitle.tvBtnConfirm.setOnClickListener {
             if (linkLister != null) {
                 linkLister!!.onLinkInert(
-                    binding!!.etLinkAddr.text.toString(),
-                    binding!!.etLinkAddrName.text.toString()
+                    binding.etLinkAddr.text.toString(),
+                    binding.etLinkAddrName.text.toString()
                 )
             }
             dismiss()
@@ -81,17 +83,13 @@ class LinkInputDialog(context: Context) : Dialog(context) {
     }
 
     private fun updateConfirmBtnState() {
-        if (TextUtils.isEmpty(binding!!.etLinkAddr.text)) {
-            binding!!.iclTitle.tvBtnConfirm.setTextColor(Color.parseColor("#4d3c3c43"))
-            binding!!.iclTitle.tvBtnConfirm.setEnabled(false)
+        if (TextUtils.isEmpty(binding.etLinkAddr.text)) {
+            binding.iclTitle.tvBtnConfirm.setTextColor(Color.parseColor("#4d3c3c43"))
+            binding.iclTitle.tvBtnConfirm.isEnabled = false
         } else {
-            binding!!.iclTitle.tvBtnConfirm.setTextColor(Color.parseColor("#ff2899fb"))
-            binding!!.iclTitle.tvBtnConfirm.setEnabled(true)
+            binding.iclTitle.tvBtnConfirm.setTextColor(Color.parseColor("#ff2899fb"))
+            binding.iclTitle.tvBtnConfirm.isEnabled = true
         }
-    }
-
-    override fun dismiss() {
-        super.dismiss()
     }
 
     interface OnInertLinkListener {
