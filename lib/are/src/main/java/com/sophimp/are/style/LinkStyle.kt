@@ -36,7 +36,9 @@ class LinkStyle(editText: RichEditText) : BaseCharacterStyle<AtSpan>(editText) {
         event: IStyle.TextEvent?,
         changedText: String?,
         beforeSelectionStart: Int,
-        afterSelectionEnd: Int
+        afterSelectionEnd: Int,
+        epStart: Int,
+        epEnd: Int
     ) {
     }
 

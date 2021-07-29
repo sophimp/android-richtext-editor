@@ -56,7 +56,9 @@ class AttachmentStyle(editText: RichEditText) : BaseFreeStyle<AttachmentSpan>(ed
         event: IStyle.TextEvent?,
         changedText: String?,
         beforeSelectionStart: Int,
-        afterSelectionEnd: Int
+        afterSelectionEnd: Int,
+        epStart: Int,
+        epEnd: Int
     ) {
     }
 

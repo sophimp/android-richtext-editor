@@ -147,18 +147,23 @@ class LineSpaceStyle(editText: RichEditText, var isLarge: Boolean) :
         }
     }
 
-    override fun handleSingleParagraphInput(editable: Editable, changedText: String?, beforeSelectionStart: Int, afterSelectionEnd: Int) {
+    override fun handleSingleParagraphInput(
+        editable: Editable,
+        changedText: String?,
+        beforeSelectionStart: Int,
+        afterSelectionEnd: Int,
+        epStart: Int,
+        epEnd: Int
+    ) {
 
-        super.handleSingleParagraphInput(editable, changedText, beforeSelectionStart, afterSelectionEnd)
+        super.handleSingleParagraphInput(editable, changedText, beforeSelectionStart, afterSelectionEnd, epStart, epEnd)
 
         // if current line has no LineSpaceSpan, need to add one, for resolve the problem of the overlap when you apply this style on where two paragraphs separate with consecutive empty line
         // also we should limit factor <= 1.0 LineSpaceSpan not to be converted to html rich text to avoid the html too long
-        val pStart = Util.getParagraphStart(mEditText, beforeSelectionStart)
-        val pEnd = Util.getParagraphEnd(editable, afterSelectionEnd)
-        if (pStart < pEnd) {
-            val lineSpaceSpans = editable.getSpans(pStart, pEnd, LineSpaceSpan::class.java)
+        if (epStart < epEnd) {
+            val lineSpaceSpans = editable.getSpans(epStart, epEnd, LineSpaceSpan::class.java)
             if (lineSpaceSpans.isEmpty()) {
-                setSpan(LineSpaceSpan(1.0f), pStart, pEnd)
+                setSpan(LineSpaceSpan(1.0f), epStart, epEnd)
             }
         }
     }

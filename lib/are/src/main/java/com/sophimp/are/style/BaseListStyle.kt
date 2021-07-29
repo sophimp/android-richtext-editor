@@ -121,7 +121,6 @@ abstract class BaseListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
                     off = 1
                 }
             }
-            val finalCurrentStart = currentStart
             val nSpan = newSpan() ?: return
             if (isEmptyLine) {
                 // 针对空行情况, 第一次添加，处理不了那么快
@@ -191,8 +190,15 @@ abstract class BaseListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
         logAllSpans(editable, targetClass().simpleName + "after new line", 0, editable.length)
     }
 
-    override fun handleMultiParagraphInput(editable: Editable, changedText: String?, beforeSelectionStart: Int, afterSelectionEnd: Int) {
-        super.handleMultiParagraphInput(editable, changedText, beforeSelectionStart, afterSelectionEnd)
+    override fun handleMultiParagraphInput(
+        editable: Editable,
+        changedText: String?,
+        beforeSelectionStart: Int,
+        afterSelectionEnd: Int,
+        epStart: Int,
+        epEnd: Int
+    ) {
+        super.handleMultiParagraphInput(editable, changedText, beforeSelectionStart, afterSelectionEnd, epStart, epEnd)
         Util.renumberAllListItemSpans(editable)
         mEditText.refresh(0)
     }
@@ -200,8 +206,8 @@ abstract class BaseListStyle<B : IListSpan, T : IListSpan, TT : IListSpan>(
     /**
      * 处理删除事件
      */
-    override fun handleDeleteEvent(editable: Editable) {
-        super.handleDeleteEvent(editable)
+    override fun handleDeleteEvent(editable: Editable, epStart: Int, epEnd: Int) {
+        super.handleDeleteEvent(editable, epStart, epEnd)
         // 重排所有的 ListNumberSpan, 因为数据量并不会大， 所在重排的性能损失可以忽略，但是实现方法简单得多
         Util.renumberAllListItemSpans(editable)
         mEditText.refresh(0)

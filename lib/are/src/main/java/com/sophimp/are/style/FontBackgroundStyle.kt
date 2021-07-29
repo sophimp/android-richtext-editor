@@ -25,18 +25,7 @@ class FontBackgroundStyle(editText: RichEditText) :
         hasChanged = true
         checkState = color != 0
         mColor = color
-        val editable = mEditText.editableText
-        val start = mEditText.selectionStart
-        val end = mEditText.selectionEnd
-        if (end >= start) {
-            applyStyle(
-                editable,
-                IStyle.TextEvent.IDLE,
-                "",
-                mEditText.selectionStart,
-                0
-            )
-        }
+        toolItemIconClick()
     }
 
     override fun targetClass(): Class<FontBackgroundColorSpan> {

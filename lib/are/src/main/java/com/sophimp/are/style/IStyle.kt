@@ -52,7 +52,9 @@ interface IStyle {
         event: TextEvent?,
         changedText: String?,
         beforeSelectionStart: Int,
-        afterSelectionEnd: Int
+        afterSelectionEnd: Int,
+        epStart: Int,
+        epEnd: Int
     )
 
     /**

@@ -19,7 +19,9 @@ class HrStyle(mEditText: RichEditText) : BaseFreeStyle<HrSpan>(mEditText) {
         event: IStyle.TextEvent?,
         changedText: String?,
         beforeSelectionStart: Int,
-        afterSelectionEnd: Int
+        afterSelectionEnd: Int,
+        epStart: Int,
+        epEnd: Int
     ) {
     }
 

@@ -10,7 +10,9 @@ class VideoStyle(editText: RichEditText) : BaseFreeStyle<VideoSpan>(editText) {
         event: IStyle.TextEvent?,
         changedText: String?,
         beforeSelectionStart: Int,
-        afterSelectionEnd: Int
+        afterSelectionEnd: Int,
+        epStart: Int,
+        epEnd: Int
     ) {
     }
 

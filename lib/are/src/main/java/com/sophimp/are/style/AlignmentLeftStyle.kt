@@ -19,7 +19,15 @@ class AlignmentLeftStyle(editText: RichEditText) : BaseParagraphStyle<AlignmentL
         removeSpans(editable, rightSpans)
     }
 
-    override fun applyStyle(editable: Editable, event: IStyle.TextEvent?, changedText: String?, beforeSelectionStart: Int, afterSelectionEnd: Int) {
+    override fun applyStyle(
+        editable: Editable,
+        event: IStyle.TextEvent?,
+        changedText: String?,
+        beforeSelectionStart: Int,
+        afterSelectionEnd: Int,
+        epStart: Int,
+        epEnd: Int
+    ) {
         // default style, no need to handle
     }
 

@@ -19,18 +19,7 @@ class FontSizeStyle(editText: RichEditText) :
         if (mSize == fontSize) return
         hasChanged = true
         mSize = fontSize
-        val editable = mEditText.editableText
-        val start = mEditText.selectionStart
-        val end = mEditText.selectionEnd
-        if (end > start) {
-            applyStyle(
-                editable,
-                IStyle.TextEvent.IDLE,
-                "",
-                mEditText.selectionStart,
-                0
-            )
-        }
+        toolItemIconClick()
     }
 
     override fun featureChangedHook(lastSpanFontSize: Int) {

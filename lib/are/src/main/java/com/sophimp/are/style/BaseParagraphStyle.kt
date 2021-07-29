@@ -7,7 +7,7 @@ import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
 import com.sophimp.are.Util
 import com.sophimp.are.spans.ISpan
-import com.sophimp.are.spans.IndentSpan
+import java.util.*
 import kotlin.math.max
 import kotlin.math.min
 
@@ -23,7 +23,7 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
         removeMutexSpans(curPStart, curPEnd)
 
         val targets = mEditText.editableText.getSpans(curPStart, curPEnd, targetClass())
-        updateSpan(targets, curPStart, curPEnd, targets.isNotEmpty())
+        updateSpan(targets, curPStart, curPEnd)
         return 0
     }
 
@@ -33,24 +33,23 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
         editable: Editable,
         changedText: String?,
         beforeSelectionStart: Int,
-        afterSelectionEnd: Int
+        afterSelectionEnd: Int,
+        epStart: Int,
+        epEnd: Int
     ) {
-        val changedEnd: Int = afterSelectionEnd
-        val effectPStart: Int = Util.getParagraphStart(mEditText, beforeSelectionStart)
-        val effectPEnd: Int = Util.getParagraphEnd(editable, changedEnd)
         val effectFirstPEnd: Int = Util.getParagraphEnd(editable, beforeSelectionStart)
-        val firstTargetParagraphSpans: Array<T> = editable.getSpans(effectPStart, effectFirstPEnd, targetClass())
+        val firstTargetParagraphSpans: Array<T> = editable.getSpans(epStart, effectFirstPEnd, targetClass())
 //        val firstPLeadingSpans: Array<IndentSpan> = editable.getSpans(effectPStart, effectFirstPEnd, IndentSpan::class.java)
         if (firstTargetParagraphSpans.isEmpty()) return
-        val allTargetParagraphSpans: Array<T> = editable.getSpans(effectPStart, effectPEnd, targetClass())
+        val allTargetParagraphSpans: Array<T> = editable.getSpans(epStart, epEnd, targetClass())
 //        val allPLeadSpans: Array<IndentSpan> = editable.getSpans(effectPStart, effectPEnd, IndentSpan::class.java)
         // 先移复制内容部分所有的缩进与
         removeSpans(editable, allTargetParagraphSpans)
 //        removeSpans(editable, allPLeadSpans)
         logAllSpans(editable, "多行输入前处理", 0, editable.length)
         // 暂时都使用同级类目处理
-        handleCommonInput(editable, effectPStart, effectPEnd, firstTargetParagraphSpans)
-        logAllSpans(editable, javaClass.simpleName + " apply style 后", 0, editable.length)
+        handleCommonInput(editable, epStart, epEnd, firstTargetParagraphSpans)
+//        logAllSpans(editable, javaClass.simpleName + " apply style 后", 0, editable.length)
     }
 
     /**
@@ -91,17 +90,17 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
         editable: Editable,
         changedText: String?,
         beforeSelectionStart: Int,
-        afterSelectionEnd: Int
+        afterSelectionEnd: Int,
+        epStart: Int,
+        epEnd: Int
     ) {
         // 由于是 SPAN_EXCLUSIVE_EXCLUSIVE， 格式需要设置到整个段落，否则光标会错位
         // 所以每次输入完后，需要重新设置一下span为整个段落, 这里由于只是对一段的处理，性能影响O(n)，n为段落长度，可以忽略
-        val pStart: Int = Util.getParagraphStart(mEditText, beforeSelectionStart)
-        val pEnd: Int = Util.getParagraphEnd(editable, afterSelectionEnd)
-        if (pStart < pEnd) {
-            val base = editable.getSpans(pStart, pEnd, targetClass())
+        if (epStart < epEnd) {
+            val base = editable.getSpans(epStart, epEnd, targetClass())
             if (base.isNotEmpty()) {
                 removeSpans(editable, base)
-                setSpan(base[0], pStart, pEnd)
+                setSpan(base[0], epStart, epEnd)
                 mEditText.refresh(beforeSelectionStart)
             }
         }
@@ -154,7 +153,7 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
 
     }
 
-    override fun handleDeleteEvent(editable: Editable) {
+    override fun handleDeleteEvent(editable: Editable, epStart: Int, epEnd: Int) {
         /*
                删除操作
                case 1: 空行换上一行, 需要删除当前行的span
@@ -164,36 +163,16 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
              */
 
         // 不管哪一种删除，只要将删除后的当前光标段落, 再重新设置一下Span即可
-        val curPStart: Int = Util.getParagraphStart(mEditText, mEditText.selectionStart)
-        val curPEnd: Int = Util.getParagraphEnd(editable, mEditText.selectionStart)
-        val preDelListSpans: Array<T> = editable.getSpans(curPStart, max(mEditText.selectionStart - 1, curPStart), targetClass())
-        val preLeadSpans: Array<IndentSpan> = editable.getSpans(
-            curPStart,
-            max(mEditText.selectionStart - 1, curPStart),
-            IndentSpan::class.java
-        )
-        val curListSpans: Array<T> = editable.getSpans(curPStart, curPEnd, targetClass())
-        val curLeadingSpans: Array<IndentSpan> =
-            editable.getSpans(curPStart, curPEnd, IndentSpan::class.java)
-        if (curListSpans.isEmpty() && curLeadingSpans.isEmpty()) return
-        logAllSpans(editable, "即将删除的spans ", curPStart, curPEnd)
-        removeSpans(editable, curListSpans)
-        removeSpans(editable, curLeadingSpans)
-        val nSpan = newSpan()
-        if (preDelListSpans.isNotEmpty() && nSpan != null) {
-            try {
-                setSpan(nSpan, curPStart, curPEnd)
-            } catch (e: IllegalAccessException) {
-                e.printStackTrace()
-            } catch (e: InstantiationException) {
-                e.printStackTrace()
-            }
+//        val curPStart: Int = Util.getParagraphStart(mEditText, mEditText.selectionStart)
+//        val curPEnd: Int = Util.getParagraphEnd(editable, mEditText.selectionStart)
+        val curTargetSpans: Array<T> = editable.getSpans(epStart, epEnd, targetClass())
+        Arrays.sort(curTargetSpans) { o1: T, o2: T ->
+            editable.getSpanStart(o1) - editable.getSpanStart(o2)
         }
-        if (preLeadSpans.isNotEmpty()) {
-            setSpan(IndentSpan(preLeadSpans[0].mLevel), curPStart, curPEnd)
-        }
-
-        logAllSpans(editable, javaClass.simpleName + " apply delete 后", 0, editable.length)
+        if (curTargetSpans.isEmpty()) return
+//        logAllSpans(editable, "即将删除的spans ", epStart, epEnd)
+        removeSpans(editable, curTargetSpans)
+        setSpan(curTargetSpans[0], epStart, epEnd)
     }
 
     override fun setSpan(span: ISpan, start: Int, end: Int) {

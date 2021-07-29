@@ -21,7 +21,7 @@ abstract class BaseStyle<TA : ISpan>(private var curEditText: RichEditText) : IS
         curEditText = editText
     }
 
-    protected fun <FT : ISpan> removeSpans(editable: Editable, spans: Array<FT>) {
+    protected fun <FT : Any> removeSpans(editable: Editable, spans: Array<FT>) {
         if (spans.isNotEmpty()) {
             for (span in spans) {
                 editable.removeSpan(span)
@@ -83,9 +83,9 @@ abstract class BaseStyle<TA : ISpan>(private var curEditText: RichEditText) : IS
         return 0
     }
 
-    protected fun <T : ISpan> updateSpan(spans: Array<T>, start: Int, end: Int, update: Boolean) {
+    open fun <T : ISpan> updateSpan(spans: Array<T>, start: Int, end: Int) {
         removeSpans(mEditText.editableText, spans)
-        if (spans.isNotEmpty() && update) {
+        if (spans.isNotEmpty()) {
             setSpan(spans[0], start, end)
         } else {
             val ns = newSpan()
@@ -95,51 +95,73 @@ abstract class BaseStyle<TA : ISpan>(private var curEditText: RichEditText) : IS
         }
     }
 
+    /**
+     * @param epStart effect paragraph start selection
+     * @param epEnd effect paragraph end selection
+     */
     override fun applyStyle(
         editable: Editable,
         event: IStyle.TextEvent?,
         changedText: String?,
         beforeSelectionStart: Int,
-        afterSelectionEnd: Int
+        afterSelectionEnd: Int,
+        epStart: Int,
+        epEnd: Int
     ) {
         when (event) {
-            IStyle.TextEvent.DELETE -> handleDeleteEvent(editable)
+            IStyle.TextEvent.DELETE -> handleDeleteEvent(editable, epStart, epEnd)
             IStyle.TextEvent.INPUT_NEW_LINE -> handleInputNewLine(editable, beforeSelectionStart)
             IStyle.TextEvent.INPUT_SINGLE_PARAGRAPH -> handleSingleParagraphInput(
                 editable,
                 changedText,
                 beforeSelectionStart,
-                afterSelectionEnd
+                afterSelectionEnd,
+                epStart,
+                epEnd
             )
             IStyle.TextEvent.INPUT_MULTI_PARAGRAPH -> handleMultiParagraphInput(
                 editable,
                 changedText,
                 beforeSelectionStart,
-                afterSelectionEnd
+                afterSelectionEnd,
+                epStart,
+                epEnd
+
             )
         }
         logAllSpans(editable, "base apply style: ${targetClass().simpleName}", 0, editable.length)
     }
 
+    /**
+     * @param epStart effect paragraph start selection
+     * @param epEnd effect paragraph end selection
+     */
     abstract fun handleMultiParagraphInput(
         editable: Editable,
         changedText: String?,
         beforeSelectionStart: Int,
-        afterSelectionEnd: Int
+        afterSelectionEnd: Int,
+        epStart: Int,
+        epEnd: Int
     )
 
-
+    /**
+     * @param epStart effect paragraph start selection
+     * @param epEnd effect paragraph end selection
+     */
     abstract fun handleSingleParagraphInput(
         editable: Editable,
         changedText: String?,
         beforeSelectionStart: Int,
-        afterSelectionEnd: Int
+        afterSelectionEnd: Int,
+        epStart: Int,
+        epEnd: Int
     )
 
 
     abstract fun handleInputNewLine(editable: Editable, beforeSelectionStart: Int)
 
-    abstract fun handleDeleteEvent(editable: Editable)
+    abstract fun handleDeleteEvent(editable: Editable, epStart: Int, epEnd: Int)
 
     /**
      * 每个 style 处理的span

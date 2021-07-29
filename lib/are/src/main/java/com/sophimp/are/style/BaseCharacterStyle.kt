@@ -18,7 +18,7 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
         logAllSpans(mEditText.editableText, "${targetClass().simpleName} item click", 0, mEditText.editableText.length)
     }
 
-    override fun handleDeleteEvent(editable: Editable) {
+    override fun handleDeleteEvent(editable: Editable, epStart: Int, epEnd: Int) {
         // 移除掉 start == end 的span即可, 其他的交由TextView处理
         val editable = mEditText.editableText
         val pEnd = getParagraphEnd(editable, mEditText.selectionEnd)
@@ -36,7 +36,9 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
         editable: Editable,
         changedText: String?,
         beforeSelectionStart: Int,
-        afterSelectionEnd: Int
+        afterSelectionEnd: Int,
+        epStart: Int,
+        epEnd: Int
     ) {
         handleAbsInput(beforeSelectionStart)
     }
@@ -45,7 +47,9 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
         editable: Editable,
         changedText: String?,
         beforeSelectionStart: Int,
-        afterSelectionEnd: Int
+        afterSelectionEnd: Int,
+        epStart: Int,
+        epEnd: Int
     ) {
         handleAbsInput(beforeSelectionStart)
     }

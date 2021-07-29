@@ -8,6 +8,7 @@ import android.text.TextWatcher
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatEditText
 import com.sophimp.are.style.IStyle
+import kotlin.math.min
 
 /**
  * rich text editor
@@ -31,9 +32,9 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         var startPos: Int = 0
         var endPos: Int = 0
         // 用来判断是点周事件还是删除事件
-        var beforeSelectionStart: Int = 0
-        var beforeSelectionEnd: Int = 0
-        var afterSelectionStart: Int = 0
+        var beforeSelectionStart = 0
+        var beforeSelectionEnd = 0
+        var afterSelectionStart = 0
         var changedText: String = ""
         val mTextWatcher = object : TextWatcher {
             override fun beforeTextChanged(
@@ -126,8 +127,11 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                 if (BuildConfig.DEBUG)
                     Util.log(("sgx cake before change selection: $beforeSelectionStart - $beforeSelectionEnd after change selection: $afterSelectionStart   \n textEvent: $textEvent start: $startPos end: $endPos changeText: $changedText"))
                 stopMonitor()
+
                 for (style: IStyle in styleList) {
-                    style.applyStyle(s, textEvent, changedText, beforeSelectionStart, 0)
+                    val epStart = Util.getParagraphStart(this@RichEditText, min(beforeSelectionStart, afterSelectionStart))
+                    var epEnd = Util.getParagraphEnd(editableText, afterSelectionStart)
+                    style.applyStyle(s, textEvent, changedText, beforeSelectionStart, afterSelectionStart, epStart, epEnd)
                 }
                 startMonitor()
             }
