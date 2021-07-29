@@ -78,7 +78,7 @@ class TodoSpan : IClickableSpan, IListSpan {
             }
             var margin = 0
             val leadingMarginSpans = text.getSpans(start, end, IndentSpan::class.java)
-            if (leadingMarginSpans != null && leadingMarginSpans.size > 0) {
+            if (leadingMarginSpans != null && leadingMarginSpans.isNotEmpty()) {
                 margin = leadingMarginSpans[0].getLeadingMargin(true)
                 //二次绘制，ix已经偏移了，故不需要再重新加偏移量
                 if (x == margin) {
