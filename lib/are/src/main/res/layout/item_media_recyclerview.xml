@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+
+    <RelativeLayout
+        android:id="@+id/rl_src_container"
+        android:layout_width="match_parent"
+        android:background="#eeeff3"
+        android:layout_margin="2dp"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/iv_src"
+            android:layout_width="match_parent"
+            android:layout_height="117dp"
+            android:background="#e2e2e2"
+            android:scaleType="centerCrop" />
+
+        <ImageView
+            android:id="@+id/iv_camera_src"
+            android:layout_width="49dp"
+            android:layout_height="49dp"
+            android:layout_centerInParent="true"
+            android:scaleType="fitCenter"
+            android:src="@mipmap/icon_camera"
+            android:visibility="visible" />
+
+
+    </RelativeLayout>
+
+
+    <View
+        android:id="@+id/image_mask"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#88000000"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/iv_image_checked"
+        android:layout_width="21dp"
+        android:layout_height="21dp"
+        android:layout_gravity="top|end"
+        android:layout_marginEnd="7.5dp"
+        android:layout_marginTop="7.5dp"
+        android:src="@drawable/selector_circle_checked" />
+
+    <TextView
+        android:id="@+id/tv_image_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="5dp"
+        android:visibility="gone" />
+
+</FrameLayout>

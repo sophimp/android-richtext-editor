@@ -10,7 +10,7 @@ import java.util.Map;
 
 public enum AttachmentType {
 
-    VIDEO("01", "video/*", R.mipmap.icon_list_video_play, "m4a", "mp4", "avi", "mpg", "mov", "dat", "swf", "rm", "rmvb", "3gp", "mpeg", "mkv"),
+    VIDEO("01", "video/*", R.mipmap.icon_video_play, "m4a", "mp4", "avi", "mpg", "mov", "dat", "swf", "rm", "rmvb", "3gp", "mpeg", "mkv"),
     AUDIO("02", "audio/*", R.mipmap.icon_file_audio, "wav", "aif", "au", "mp3", "ram", "wma", "mmf", "amr", "aac", "flac"),
     EXCEL("03", "application/vnd.ms-excel", R.mipmap.icon_file_excel, "xls", "xlsx"),
     WORD("04", "application/msword", R.mipmap.icon_file_word, "doc", "docx"),

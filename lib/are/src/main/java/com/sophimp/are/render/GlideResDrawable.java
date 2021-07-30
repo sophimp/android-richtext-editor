@@ -54,7 +54,7 @@ public class GlideResDrawable extends CustomTarget<Bitmap> {
         hasReady = true;
 
         if (isVideoDrawable) {
-            Bitmap playIcon = BitmapFactory.decodeResource(res, R.mipmap.icon_list_video_play);
+            Bitmap playIcon = BitmapFactory.decodeResource(res, R.mipmap.icon_video_play);
             Bitmap videoCompose = Util.INSTANCE.mergeBitMapWithLimit(resource, playIcon, w, h);
             BitmapDrawable vd = new BitmapDrawable(res, videoCompose);
             vd.setBounds(new Rect(0, 0, w, h));

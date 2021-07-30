@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.sophimp.are">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.sophimp.are">
 
+    <application>
+        <activity
+            android:name=".activity.VideoAndImageGallery"
+            android:theme="@style/ThemeOverlay.AppCompat.ActionBar" />
+    </application>
 </manifest>
