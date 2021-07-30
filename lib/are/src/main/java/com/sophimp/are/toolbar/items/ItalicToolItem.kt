@@ -11,6 +11,6 @@ class ItalicToolItem(style: ItalicStyle, itemClickAction: IToolbarItemClickActio
 
     override fun iconClickHandle() {
         super.iconClickHandle()
-        iconView.setImageResource(if (style.isChecked) R.mipmap.icon_toolitem_italic_checked else R.mipmap.icon_toolitem_italic_unchecked)
+        iconView.setIconResId(if (style.isChecked) R.mipmap.icon_toolitem_italic_checked else R.mipmap.icon_toolitem_italic_unchecked)
     }
 }

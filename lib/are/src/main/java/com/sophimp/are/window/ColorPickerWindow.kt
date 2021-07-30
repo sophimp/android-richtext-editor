@@ -3,10 +3,7 @@ package com.sophimp.are.window
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
+import android.view.*
 import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
@@ -49,7 +46,7 @@ class ColorPickerWindow(context: Context) : PopupWindow(context) {
             layoutParams.rightMargin = (parent.context.resources.displayMetrics.density * 5).toInt()
             layoutParams.topMargin = (parent.context.resources.displayMetrics.density * 5).toInt()
             layoutParams.bottomMargin = (parent.context.resources.displayMetrics.density * 5).toInt()
-            view.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
+            view.gravity = Gravity.CENTER
             view.layoutParams = layoutParams
             return ColorHolder(view)
         }

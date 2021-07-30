@@ -10,6 +10,6 @@ class UnderlineToolItem(style: UnderlineStyle, itemClickAction: IToolbarItemClic
 
     override fun iconClickHandle() {
         super.iconClickHandle()
-        iconView.setImageResource(if (style.isChecked) R.mipmap.icon_toolitem_underline_checked else R.mipmap.icon_toolitem_underline_unchecked)
+        iconView.setIconResId(if (style.isChecked) R.mipmap.icon_toolitem_underline_checked else R.mipmap.icon_toolitem_underline_unchecked)
     }
 }

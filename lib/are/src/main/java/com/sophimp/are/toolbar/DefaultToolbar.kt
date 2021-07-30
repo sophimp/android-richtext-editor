@@ -3,8 +3,10 @@ package com.sophimp.are.toolbar
 import android.content.Context
 import android.util.AttributeSet
 import android.view.Gravity
+import android.view.View
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
+import com.sophimp.are.Constants
 import com.sophimp.are.R
 import com.sophimp.are.RichEditText
 import com.sophimp.are.style.*
@@ -54,24 +56,29 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
 
         colorWindow = ColorPickerWindow(context)
         colorWindow.pickerListener = object : PickerListener {
-            override fun onPickValue(color: Int) {
-                curPopItem?.iconView?.setBackgroundColor(color)
-                (curPopItem?.mStyle as DynamicCharacterStyle<*>).onFeatureChanged(color)
+            override fun onPickValue(feature: Int) {
+                curPopItem?.iconView?.background = null
+                curPopItem?.iconView?.setMarkVisible(if (feature == Constants.DEFAULT_FEATURE) View.GONE else View.VISIBLE)
+                curPopItem?.iconView?.setMarkBackgroundColor(feature)
+                (curPopItem?.mStyle as DynamicCharacterStyle<*>).onFeatureChanged(feature)
                 colorWindow.dismiss()
             }
         }
 
         fontWindow = FontSizeWindow(context)
         fontWindow.pickerListener = object : PickerListener {
-            override fun onPickValue(color: Int) {
-                (curPopItem?.mStyle as DynamicCharacterStyle<*>).onFeatureChanged(color)
+            override fun onPickValue(feature: Int) {
+                curPopItem?.iconView?.background = null
+                curPopItem?.iconView?.setMarkVisible(if (feature == Constants.DEFAULT_FEATURE) View.GONE else View.VISIBLE)
+                curPopItem?.iconView?.setMarkText("$feature")
+                (curPopItem?.mStyle as DynamicCharacterStyle<*>).onFeatureChanged(feature)
                 fontWindow.dismiss()
             }
         }
     }
 
     fun initDefaultToolItem(editText: RichEditText) {
-        fontWindow.fontSizes = Array(20) { i -> (editText.textSize / context.resources.displayMetrics.scaledDensity + i + 1).toInt() }
+        fontWindow.fontSizes = Array(50) { i -> (editText.textSize / context.resources.displayMetrics.scaledDensity + i + 1).toInt() }
         // top
         addToolbarItem(EmojiToolItem(EmojiStyle(editText)), true)
         addToolbarItem(ImageToolItem(ImageStyle(editText)), true)
@@ -84,7 +91,7 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
                 curPopItem = item
                 colorWindow.showAsDropDown(item.iconView,
                     -(item.iconView.x).toInt(),
-                    -(context.resources.displayMetrics.density * 80 + item.iconView.height).toInt(),
+                    -(context.resources.displayMetrics.density * 80 + item.iconView.height + 10).toInt(),
                     Gravity.TOP)
             }
         }
@@ -96,7 +103,7 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
                 curPopItem = item
                 fontWindow.showAsDropDown(item.iconView,
                     -(item.iconView.x).toInt(),
-                    -(context.resources.displayMetrics.density * 80 + item.iconView.height).toInt(),
+                    -(context.resources.displayMetrics.density * 80 + item.iconView.height + 10).toInt(),
                     Gravity.TOP)
             }
         }), true)

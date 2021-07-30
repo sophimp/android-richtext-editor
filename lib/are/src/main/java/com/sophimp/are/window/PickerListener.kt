@@ -6,5 +6,5 @@ package com.sophimp.are.window
  * @since: 2021/7/21
  */
 interface PickerListener {
-    fun onPickValue(color: Int)
+    fun onPickValue(feature: Int)
 }

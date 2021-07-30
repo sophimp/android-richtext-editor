@@ -11,6 +11,6 @@ class StrikeThroughToolItem(style: StrikethroughStyle, itemClickAction: IToolbar
 
     override fun iconClickHandle() {
         super.iconClickHandle()
-        iconView.setImageResource(if (style.isChecked) R.mipmap.icon_toolitem_strike_through_checked else R.mipmap.icon_toolitem_strike_through_unchecked)
+        iconView.setIconResId(if (style.isChecked) R.mipmap.icon_toolitem_strike_through_checked else R.mipmap.icon_toolitem_strike_through_unchecked)
     }
 }

@@ -10,6 +10,6 @@ class BoldToolItem(style: BoldStyle, itemClickAction: IToolbarItemClickAction? =
 
     override fun iconClickHandle() {
         super.iconClickHandle()
-        iconView.setImageResource(if (style.isChecked) R.mipmap.icon_toolitem_bold_checked else R.mipmap.icon_toolitem_bold_unchecked)
+        iconView.setIconResId(if (style.isChecked) R.mipmap.icon_toolitem_bold_checked else R.mipmap.icon_toolitem_bold_unchecked)
     }
 }

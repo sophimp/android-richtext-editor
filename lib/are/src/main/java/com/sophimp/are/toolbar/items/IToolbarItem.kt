@@ -1,7 +1,7 @@
 package com.sophimp.are.toolbar.items
 
-import android.widget.ImageView
 import com.sophimp.are.style.IStyle
+import com.sophimp.are.toolbar.ItemView
 
 /**
  *
@@ -13,7 +13,7 @@ interface IToolbarItem {
     /**
      * item icon ImageView
      */
-    val iconView: ImageView
+    val iconView: ItemView
 
     /**
      * item icon resId
