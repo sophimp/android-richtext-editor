@@ -25,10 +25,4 @@ interface IToolbarItem {
      */
     val mStyle: IStyle
 
-    /**
-     * icon click handle, some style should handle both in toolbar item and style
-     */
-    fun iconClickHandle() {
-        mStyle.toolItemIconClick()
-    }
 }

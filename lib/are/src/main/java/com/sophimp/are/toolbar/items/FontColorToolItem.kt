@@ -5,27 +5,33 @@ import com.sophimp.are.R
 import com.sophimp.are.colorpicker.ColorPickerListener
 import com.sophimp.are.colorpicker.ColorPickerWindow
 import com.sophimp.are.style.FontColorStyle
+import com.sophimp.are.toolbar.IToolbarItemClickAction
 
-class FontColorToolItem(style: FontColorStyle) :
-    AbstractItem(style) {
-    private val colorWindow = ColorPickerWindow(context)
+class FontColorToolItem(style: FontColorStyle, itemClickAction: IToolbarItemClickAction? = null) :
+    AbstractItem(style, itemClickAction) {
+    private var colorWindow: ColorPickerWindow? = null
 
     init {
-        colorWindow.colorPickerListener = object : ColorPickerListener {
-            override fun onPickColor(color: Int) {
-                iconView.setBackgroundColor(color)
-                style.onPickColor(color)
-                colorWindow.dismiss()
+        if (itemClickAction == null) {
+            colorWindow = ColorPickerWindow(context)
+            colorWindow?.colorPickerListener = object : ColorPickerListener {
+                override fun onPickColor(color: Int) {
+                    iconView.setBackgroundColor(color)
+                    style.onPickColor(color)
+                    colorWindow?.dismiss()
+                }
             }
         }
     }
 
     override fun iconClickHandle() {
         super.iconClickHandle()
-        colorWindow.showAsDropDown(iconView,
-            -(iconView.x).toInt(),
-            -(context.resources.displayMetrics.density * 80 + iconView.height).toInt(),
-            Gravity.TOP)
+        if (itemClickAction == null) {
+            colorWindow?.showAsDropDown(iconView,
+                -(iconView.x).toInt(),
+                -(context.resources.displayMetrics.density * 80 + iconView.height).toInt(),
+                Gravity.TOP)
+        }
     }
 
     override val srcResId: Int

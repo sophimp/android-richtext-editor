@@ -2,12 +2,13 @@ package com.sophimp.are.toolbar.items
 
 import com.sophimp.are.R
 import com.sophimp.are.style.IStyle
+import com.sophimp.are.toolbar.IToolbarItemClickAction
 
 /**
  * @author: sfx
  * @since: 2021/7/21
  */
-class ImageToolItem(style: IStyle) : AbstractItem(style) {
+class ImageToolItem(style: IStyle, itemClickAction: IToolbarItemClickAction? = null) : AbstractItem(style, itemClickAction) {
     override val srcResId: Int
         get() = R.mipmap.default_image
 

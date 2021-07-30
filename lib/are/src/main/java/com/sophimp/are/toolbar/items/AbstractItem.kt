@@ -6,12 +6,13 @@ import android.widget.LinearLayout
 import com.sophimp.are.Util.getPixelByDp
 import com.sophimp.are.Util.log
 import com.sophimp.are.style.IStyle
+import com.sophimp.are.toolbar.IToolbarItemClickAction
 
 /**
  * @author: sfx
  * @since: 2021/7/21
  */
-abstract class AbstractItem(protected var style: IStyle) : IToolbarItem {
+abstract class AbstractItem(protected var style: IStyle, protected var itemClickAction: IToolbarItemClickAction?) : IToolbarItem {
     val context: Context = style.mEditText.context
     val imageView: ImageView
     val mEditText = style.mEditText
@@ -45,4 +46,11 @@ abstract class AbstractItem(protected var style: IStyle) : IToolbarItem {
     override val mStyle: IStyle
         get() = style
 
+    /**
+     * icon click handle, some style should handle both in toolbar item and style
+     */
+    open fun iconClickHandle() {
+        mStyle.toolItemIconClick()
+        itemClickAction?.onItemClick(mStyle)
+    }
 }

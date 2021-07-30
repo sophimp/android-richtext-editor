@@ -6,12 +6,13 @@ import com.sophimp.are.dialog.LinkInputDialog
 import com.sophimp.are.spans.UrlSpan
 import com.sophimp.are.style.IStyle
 import com.sophimp.are.style.LinkStyle
+import com.sophimp.are.toolbar.IToolbarItemClickAction
 
 /**
  * @author: sfx
  * @since: 2021/7/22
  */
-class LinkToolItem(style: IStyle) : AbstractItem(style) {
+class LinkToolItem(style: IStyle, itemClickAction: IToolbarItemClickAction? = null) : AbstractItem(style, itemClickAction) {
 
     override val srcResId: Int
         get() = R.mipmap.icon_toolitem_link
