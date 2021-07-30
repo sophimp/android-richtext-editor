@@ -3,8 +3,8 @@
 
 ### 背景
 
-在使用[chinalwb/Android-Rich-text-Editor](https://github.com/chinalwb/Android-Rich-text-Editor)(下面简称ARE)过程中，随着新需求的增加，对ARE修改定制越来越深,
-同时发现了ARE计上的一些不足, 再加上ARE作者久不维护， 且ARE帮助了我很多，因此萌生重构的想法， 便有了此库回馈开源社区。
+在使用[chinalwb/Android-Rich-text-Editor](https://github.com/chinalwb/Android-Rich-text-Editor)(ARE)过程中，随着新需求的增加，对ARE修改定制越来越深, 正与其readme所说的，还达不到商业化需求。
+由于ARE作者久不维护， 且ARE帮助了我很多，因此萌生重构的想法，便有了此库回馈开源社区。
 
 ARE 是基于Android原生的Spannable架构，因此名字我依旧沿承了 android-richtext-editor, 同样简称 are
 
@@ -16,34 +16,37 @@ ARE 是基于Android原生的Spannable架构，因此名字我依旧沿承了 an
 
 ### 已实现特性
 具体使用查看 DefaultToolbar 实现
-- 加粗 - Bold
-- 斜体 - Italic
-- 下划线 - Underline
-- 删除线 - Strikethrough
-- 有序列表 - Numeric list
-- 无序列表 - Bullet list
+- 插入表情
+- 插入视频
+- 插入图片(本地与网络)
+- 文字颜色（前景色）
+- 文字背景色 - Background color
+- 字体大小
+- 右缩进
+- 左缩进
 - 左对齐 - Align left
 - 居中对齐 - Align center
 - 右对齐 - Align right
-- 增大行距
-- 缩小行距
-- 插入图片 - Insert image
-- 文字背景色 - Background color
-- 插入超链接 - Hyper link
 - 引用
-- 文字颜色（前景色）
-- 插入表情
+
+- 加粗 - Bold
+- 下划线 - Underline
+- 斜体 - Italic
+- 删除线 - Strikethrough
+- 有序列表 - Numeric list
+- 无序列表 - Bullet list
+- TODO列表 - TODO list
 - 上角标
 - 下角标
-- 字体大小
-- 插入视频
-- 插入网络图片
+- 增大行距
+- 缩小行距
 - 插入分割线
+- 插入超链接 - Hyper link
 - 所有样式均支持导出HTML文件
 - 加载HTML内容并继续编辑或显示
 
 ### 未实现特性
 1. 表格
 直接在EditText中编辑表格，基于原生的Spannable框架有些难以实现, 但是也可以绕过
-
-2.
+2. 音频
+3.
