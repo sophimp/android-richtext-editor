@@ -30,12 +30,12 @@ abstract class DynamicCharacterStyle<E : IDynamicSpan>(editText: RichEditText) :
         if (beforeSelectionStart < sEnd) {
             val targetSpans = editable.getSpans(beforeSelectionStart, sEnd, targetClass())
             if (isChecked) {
-                val newSpan = newSpan() as IDynamicSpan
+                val newSpan = newSpan() ?: return
                 if (targetSpans.isNotEmpty()) {
                     // 颜色值不一样前后的span都得重新设置
                     val curSpan = targetSpans[targetSpans.size - 1]
                     val curStart = editable.getSpanStart(curSpan)
-                    if (curSpan.dynamicFeature != newSpan.dynamicFeature) {
+                    if (curSpan.dynamicFeature != (newSpan as IDynamicSpan).dynamicFeature) {
                         editable.removeSpan(curSpan)
                         // 设置原有的
                         setSpan(curSpan, curStart, beforeSelectionStart)
@@ -100,6 +100,6 @@ abstract class DynamicCharacterStyle<E : IDynamicSpan>(editText: RichEditText) :
         }
     }
 
-    protected abstract fun featureChangedHook(feature: Int)
+    abstract fun onFeatureChanged(feature: Int)
     protected abstract fun newSpan(feature: Int): E?
 }

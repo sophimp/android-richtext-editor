@@ -1,6 +1,6 @@
 package com.sophimp.are.toolbar
 
-import com.sophimp.are.style.IStyle
+import com.sophimp.are.toolbar.items.IToolbarItem
 
 /**
  * custom the action for the item click
@@ -8,5 +8,5 @@ import com.sophimp.are.style.IStyle
  * @since: 2021/7/30
  */
 interface IToolbarItemClickAction {
-    fun onItemClick(style: IStyle)
+    fun onItemClick(item: IToolbarItem)
 }

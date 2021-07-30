@@ -8,20 +8,16 @@ import com.sophimp.are.spans.ISpan
 class FontSizeStyle(editText: RichEditText) :
     DynamicCharacterStyle<FontSizeSpan>(editText) {
 
-    private var mSize = Constants.DEFAULT_FONT_SIZE
+    private var mSize = Constants.DEFAULT_FEATURE
 
     override fun newSpan(inheritSpan: ISpan?): FontSizeSpan? {
         return FontSizeSpan(mSize)
     }
 
-    fun onFontSizeChange(fontSize: Int) {
-        mSize = fontSize
-        checkState = mSize != Constants.DEFAULT_FONT_SIZE
+    override fun onFeatureChanged(feature: Int) {
+        mSize = feature
+        checkState = mSize != Constants.DEFAULT_FEATURE
         handleAbsButtonClick()
-    }
-
-    override fun featureChangedHook(lastSpanFontSize: Int) {
-        mSize = lastSpanFontSize
     }
 
     override fun newSpan(size: Int): FontSizeSpan? {

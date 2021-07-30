@@ -51,6 +51,6 @@ abstract class AbstractItem(protected var style: IStyle, protected var itemClick
      */
     open fun iconClickHandle() {
         mStyle.toolItemIconClick()
-        itemClickAction?.onItemClick(mStyle)
+        itemClickAction?.onItemClick(this)
     }
 }

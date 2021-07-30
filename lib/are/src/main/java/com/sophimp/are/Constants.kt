@@ -10,7 +10,7 @@ object Constants {
     const val CHAR_NEW_LINE = '\n'
     const val KEY_DEL = 67
     const val COLOR_BACKGROUND_DEFAULT = -0x3380
-    const val DEFAULT_FONT_SIZE = 18
+    const val DEFAULT_FEATURE = 0
     var SCREEN_WIDTH = 0
     var SCREEN_HEIGHT = 0
     const val EMOJI = "emoji"
