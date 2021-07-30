@@ -15,11 +15,9 @@ class FontSizeStyle(editText: RichEditText) :
     }
 
     fun onFontSizeChange(fontSize: Int) {
-        checkState = true
-        if (mSize == fontSize) return
-        hasChanged = true
         mSize = fontSize
-        toolItemIconClick()
+        checkState = mSize != Constants.DEFAULT_FONT_SIZE
+        handleAbsButtonClick()
     }
 
     override fun featureChangedHook(lastSpanFontSize: Int) {

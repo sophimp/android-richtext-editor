@@ -17,12 +17,14 @@ import kotlin.math.min
 </E> */
 abstract class DynamicCharacterStyle<E : IDynamicSpan>(editText: RichEditText) :
     BaseCharacterStyle<E>(editText) {
+    /**
+     * 0 transparent
+     */
     protected var mColor: Int = 0
-    protected var hasChanged = false
 
     override fun handleAbsInput(beforeSelectionStart: Int) {
-//        super.handleAbsInput(beforeSelectionStart);
-        // 如果当前改变的区域
+        super.handleAbsInput(beforeSelectionStart)
+//        // 如果当前改变的区域
         val editable = mEditText.editableText
         val sEnd = mEditText.selectionEnd
         if (beforeSelectionStart < sEnd) {
@@ -41,10 +43,7 @@ abstract class DynamicCharacterStyle<E : IDynamicSpan>(editText: RichEditText) :
                     }
                 } else {
                     // 设置新的
-                    if (hasChanged) {
-                        hasChanged = false
-                        setSpan(newSpan, beforeSelectionStart, sEnd)
-                    }
+                    setSpan(newSpan, beforeSelectionStart, sEnd)
                 }
             } else {
                 if (targetSpans.isNotEmpty()) {

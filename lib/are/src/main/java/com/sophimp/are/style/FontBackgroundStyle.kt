@@ -22,11 +22,9 @@ class FontBackgroundStyle(editText: RichEditText) :
     }
 
     fun onPickColor(color: Int) {
-        if (color != 0 && color == mColor) return
-        hasChanged = true
-        checkState = color != 0
         mColor = color
-        toolItemIconClick()
+        checkState = mColor != 0
+        handleAbsButtonClick()
     }
 
     override fun targetClass(): Class<FontBackgroundColorSpan> {

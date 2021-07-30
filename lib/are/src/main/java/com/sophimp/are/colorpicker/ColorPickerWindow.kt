@@ -1,6 +1,7 @@
 package com.sophimp.are.colorpicker
 
 import android.content.Context
+import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
@@ -45,6 +46,7 @@ class ColorPickerWindow(context: Context) : PopupWindow(context) {
             layoutParams.rightMargin = (parent.context.resources.displayMetrics.density * 5).toInt()
             layoutParams.topMargin = (parent.context.resources.displayMetrics.density * 5).toInt()
             layoutParams.bottomMargin = (parent.context.resources.displayMetrics.density * 5).toInt()
+            view.gravity = TextView.TEXT_ALIGNMENT_CENTER
             return ColorHolder(view)
         }
 
@@ -53,20 +55,32 @@ class ColorPickerWindow(context: Context) : PopupWindow(context) {
         }
 
         override fun onBindViewHolder(holder: ColorHolder, position: Int) {
-            val bg = GradientDrawable()
-            bg.cornerRadius = holder.itemView.context.resources.displayMetrics.density * 40
 //            Util.log("colors size: ${this@ColorPickerWindow.colors.size} ${this@ColorPickerWindow.colors.contentToString()}")
             if (this@ColorPickerWindow.colors.isNotEmpty()) {
-                val color = this@ColorPickerWindow.colors[position]
-                bg.colors = intArrayOf(color, color)
+                if (position == 0) {
+                    (holder.itemView as TextView).apply {
+                        gravity = TextView.TEXT_ALIGNMENT_CENTER
+                        text = "def"
+                    }
+                    holder.itemView.setBackgroundColor(Color.WHITE)
+                } else {
+                    val bg = GradientDrawable()
+                    bg.cornerRadius = holder.itemView.context.resources.displayMetrics.density * 40
+                    val color = this@ColorPickerWindow.colors[position]
+                    bg.colors = intArrayOf(color, color)
+                    holder.itemView.background = bg
+                }
             }
-            holder.itemView.background = bg
         }
 
         inner class ColorHolder(view: View) : RecyclerView.ViewHolder(view) {
             init {
                 view.setOnClickListener {
-                    this@ColorPickerWindow.colorPickerListener?.onPickColor(this@ColorPickerWindow.colors[adapterPosition])
+                    if (adapterPosition == 0) {
+                        this@ColorPickerWindow.colorPickerListener?.onPickColor(0)
+                    } else {
+                        this@ColorPickerWindow.colorPickerListener?.onPickColor(this@ColorPickerWindow.colors[adapterPosition])
+                    }
                 }
             }
         }
