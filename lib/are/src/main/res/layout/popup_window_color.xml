@@ -5,6 +5,8 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_palette"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="80dp" />

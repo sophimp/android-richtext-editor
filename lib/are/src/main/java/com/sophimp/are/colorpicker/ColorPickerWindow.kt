@@ -6,6 +6,7 @@ import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
@@ -28,6 +29,8 @@ class ColorPickerWindow(context: Context) : PopupWindow(context) {
     }
 
     private fun initView(context: Context) {
+        width = WindowManager.LayoutParams.MATCH_PARENT
+        height = WindowManager.LayoutParams.WRAP_CONTENT
         colors = context.resources.getIntArray(R.array.colorPickerColors)
         val binding = PopupWindowColorBinding.inflate(LayoutInflater.from(context))
         contentView = binding.root
@@ -41,12 +44,12 @@ class ColorPickerWindow(context: Context) : PopupWindow(context) {
             val layoutParams = RecyclerView.LayoutParams((parent.context.resources.displayMetrics.density * 30).toInt(),
                 (parent.context.resources.displayMetrics.density * 30).toInt())
             val view = TextView(parent.context)
-            view.layoutParams = layoutParams
             layoutParams.leftMargin = (parent.context.resources.displayMetrics.density * 5).toInt()
             layoutParams.rightMargin = (parent.context.resources.displayMetrics.density * 5).toInt()
             layoutParams.topMargin = (parent.context.resources.displayMetrics.density * 5).toInt()
             layoutParams.bottomMargin = (parent.context.resources.displayMetrics.density * 5).toInt()
-            view.gravity = TextView.TEXT_ALIGNMENT_CENTER
+            view.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
+            view.layoutParams = layoutParams
             return ColorHolder(view)
         }
 
@@ -59,16 +62,18 @@ class ColorPickerWindow(context: Context) : PopupWindow(context) {
             if (this@ColorPickerWindow.colors.isNotEmpty()) {
                 if (position == 0) {
                     (holder.itemView as TextView).apply {
-                        gravity = TextView.TEXT_ALIGNMENT_CENTER
                         text = "def"
+                        setBackgroundColor(Color.WHITE)
                     }
-                    holder.itemView.setBackgroundColor(Color.WHITE)
                 } else {
                     val bg = GradientDrawable()
                     bg.cornerRadius = holder.itemView.context.resources.displayMetrics.density * 40
                     val color = this@ColorPickerWindow.colors[position]
                     bg.colors = intArrayOf(color, color)
-                    holder.itemView.background = bg
+                    (holder.itemView as TextView).apply {
+                        text = ""
+                        background = bg
+                    }
                 }
             }
         }
