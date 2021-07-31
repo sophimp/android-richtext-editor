@@ -2,20 +2,25 @@ package com.sophimp.are.style
 
 import android.text.Editable
 import android.text.Spanned
+import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
 import com.sophimp.are.Util.getParagraphEnd
 import com.sophimp.are.spans.ISpan
+import java.util.*
 import kotlin.math.max
 import kotlin.math.min
 
 abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
     BaseStyle<E>(editText) {
 
-    override fun toolItemIconClick() {
-        checkState = !checkState
-        mEditText.isChange = true
-        handleAbsButtonClick()
-        logAllSpans(mEditText.editableText, "${targetClass().simpleName} item click", 0, mEditText.editableText.length)
+    /**
+     * 0 -> [Constants.DEFAULT_FEATURE], 不需要设置新的span
+     */
+    protected var mFeature: Int = Constants.DEFAULT_FEATURE
+
+    override fun itemClickOnNonEmptyParagraph(curPStart: Int, curPEnd: Int): Int {
+        handleAbsButtonClick(mEditText.selectionStart, mEditText.selectionEnd)
+        return 0
     }
 
     override fun handleDeleteEvent(editable: Editable, epStart: Int, epEnd: Int) {
@@ -54,80 +59,110 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
         handleAbsInput(beforeSelectionStart)
     }
 
-    override fun handleInputNewLine(editable: Editable, beforeSelectionStart: Int) {
-
-    }
-
     protected open fun handleAbsInput(beforeSelectionStart: Int) {
         // 如果当前改变的区域
         val editable = mEditText.editableText
         val sEnd = mEditText.selectionEnd
         if (beforeSelectionStart < sEnd) {
-            val targetSpans = editable.getSpans(beforeSelectionStart, sEnd, targetClass())
-            if (isChecked) {
-                val nSpan = newSpan() ?: return
-                if (targetSpans.isEmpty()) {
-                    setSpan(nSpan, beforeSelectionStart, sEnd)
-                } // else include特性即可
-            } else {
-                if (targetSpans.isNotEmpty()) {
-                    val curSpan = targetSpans[targetSpans.size - 1]
-                    val curStart = editable.getSpanStart(curSpan)
-                    if (curStart < beforeSelectionStart) {
-                        editable.removeSpan(curSpan)
-                        setSpan(curSpan, curStart, beforeSelectionStart)
-                    }
-                }
-            }
+            handleAbsButtonClick(beforeSelectionStart, sEnd)
         }
     }
 
-    protected open fun handleAbsButtonClick() {
+    protected open fun handleAbsButtonClick(start: Int, end: Int) {
         val editable = mEditText.editableText
-        val sStart = mEditText.selectionStart
-        val sEnd = mEditText.selectionEnd
-        if (sStart < sEnd) {
-            val targetSpans = editable.getSpans(sStart, sEnd, targetClass())
+        if (start < end) {
+            val targetSpans = editable.getSpans(start, end, targetClass())
+            val newSpan = newSpan()
             if (targetSpans.isNotEmpty()) {
-                // 有样式
-                if (isChecked) {
-                    // 将选中区域的targetSpan 合并成一个
-                    var earlyStart = sStart
-                    var lastEnd = sEnd
-                    for (span in targetSpans) {
-                        earlyStart = min(editable.getSpanStart(span), earlyStart)
-                        lastEnd = max(editable.getSpanEnd(span), lastEnd)
-                        editable.removeSpan(span)
-                    }
-                    if (earlyStart < lastEnd) {
-                        setSpan(targetSpans[0], earlyStart, lastEnd)
-                    }
-                } else {
-                    // 将选中区域的targetSpan移除， 原有的span 拆分首尾
-                    val nSpan = newSpan() ?: return
-                    for (span in targetSpans) {
-                        val curStart = editable.getSpanStart(span)
-                        val curEnd = editable.getSpanEnd(span)
-                        editable.removeSpan(span)
-                        if (curStart < sStart) {
-                            setSpan(span, curStart, sStart)
+                // 选择区域内有不同style的情况会导致多次设置同一个span, 统一放在最后再设置
+                var hasSet = false
+                // 有样式, 根据feature值来判断
+                for (tar in targetSpans) {
+                    val curStart = editable.getSpanStart(tar)
+                    val curEnd = editable.getSpanEnd(tar)
+                    // 先将原有的移除
+                    editable.removeSpan(tar)
+                    // 将选中区域 拆分 targetSpan
+                    splitSpan(tar, curStart, curEnd, start, end)
+                    // 最后再设置新的
+                    if (newSpan != null && !hasSet) {
+                        // 将选中区域 拆分 targetSpan
+                        if (checkFeatureEqual(tar, newSpan)) {
+                            // 将选中区域的 targetSpan 合并成一个
+                            setSpan(tar, min(curStart, start), max(curEnd, end))
+                        } else {
+                            setSpan(newSpan, start, end)
                         }
-                        if (sEnd < curEnd) {
-                            setSpan(nSpan, sEnd, curEnd)
-                        }
+                        hasSet = true
                     }
                 }
             } else {
                 // 没有样式
-                val nSpan = newSpan() ?: return
-                if (isChecked)
-                    setSpan(nSpan, sStart, sEnd)
+                if (isChecked && newSpan != null) {
+                    setSpan(newSpan, start, end)
+                }
             }
+            // 合并相同style
+            mergeSameStyle(start, end)
         }
     }
 
+    protected open fun mergeSameStyle(start: Int, end: Int) {
+        // 前后紧挨着相同属性的， 同一个span在同一个区域设置多次的
+        val editable = mEditText.editableText
+        val targetSpans = editable.getSpans(max(0, start - 1), min(end + 1, mEditText.length()), targetClass())
+        if (targetSpans.size < 2) return
+        Arrays.sort(targetSpans) { o1: E, o2: E ->
+            editable.getSpanStart(o1) - editable.getSpanStart(o2)
+        }
+        var i = 0
+        var tStart = -1
+        var tEnd = -1
+        var tarSpan: ISpan? = null
+        while (i < (targetSpans.size - 1)) {
+            if (checkFeatureEqual(targetSpans[i], targetSpans[i + 1])) {
+                val curStart = editable.getSpanStart(targetSpans[i])
+                val curEnd = editable.getSpanEnd(targetSpans[i])
+                val nextStart = editable.getSpanStart(targetSpans[i + 1])
+                val nextEnd = editable.getSpanEnd(targetSpans[i + 1])
+                if (curEnd >= nextStart) {
+                    // 同一个起点, 紧挨着或者相交, 都要合并成一个
+                    tStart = min(curStart, nextStart)
+                    tEnd = max(curEnd, nextEnd)
+                    editable.removeSpan(targetSpans[i])
+                    if (i == targetSpans.size - 2) {
+                        editable.removeSpan(targetSpans[i + 1])
+                    }
+                    tarSpan = targetSpans[i + 1]
+                } else if (curEnd < nextStart) {
+                    // 相离，不需要合并
+                    break
+                }
+            }
+            i++
+        }
+        if (tarSpan != null && tStart < tEnd) {
+            setSpan(tarSpan, tStart, tEnd)
+        }
+    }
+
+    private fun splitSpan(tar: E, curStart: Int, curEnd: Int, start: Int, end: Int) {
+        if (curStart < start) {
+            setSpan(tar, curStart, start)
+        }
+        if (end < curEnd) {
+            setSpan(newSpan(tar)!!, end, curEnd)
+        }
+    }
+
+    open fun checkFeatureEqual(span1: ISpan, span2: ISpan): Boolean = true
+
     private fun handleDeleteAbsStyle() {
 
+    }
+
+    override fun newSpan(inheritSpan: ISpan?): ISpan? {
+        return if (isChecked || inheritSpan != null) targetClass().newInstance() else null
     }
 
     override fun setSpan(span: ISpan, start: Int, end: Int) {
