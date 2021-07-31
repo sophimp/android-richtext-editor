@@ -1,15 +1,12 @@
 package com.sophimp.are.style
 
 import android.text.Editable
-import android.text.TextUtils
 import com.sophimp.are.BuildConfig
-import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
 import com.sophimp.are.Util
 import com.sophimp.are.spans.ISpan
 import java.util.*
 import kotlin.math.max
-import kotlin.math.min
 
 /**
  *
@@ -162,49 +159,7 @@ abstract class BaseStyle<T : ISpan>(private var curEditText: RichEditText) : ISt
     )
 
 
-    open fun handleInputNewLine(editable: Editable, beforeSelectionStart: Int) {
-        /*
-            case 1: 有 内容 换行
-                移除换行前的span, 然后在当前行与前一行分别添加baseClassSpan即可
-            case 2: 没有内容换行
-                取消当前的baseClassSpan, 同时移除缩进
-         */
-        // start 换到当前行的上一行的末尾
-        val lastPStart: Int = Util.getParagraphStart(mEditText, beforeSelectionStart)
-        var lastPEnd: Int = Util.getParagraphEnd(editable, beforeSelectionStart)
-        if (lastPEnd < lastPStart) lastPEnd = lastPStart
-        val preParagraphSpans = editable.getSpans(lastPStart, lastPEnd, targetClass())
-        if (preParagraphSpans.isEmpty()) return
-        Util.log("sgx cake: 上一行: " + lastPStart + " - " + lastPEnd + " 当前行: " + mEditText.selectionStart + " - " + mEditText.selectionEnd)
-        // 先移除上一行的span
-        removeSpans(editable, preParagraphSpans)
-        // 移除当前行的Spans
-        removeSpans(editable, editable.getSpans(mEditText.selectionStart, mEditText.selectionEnd, targetClass()))
-
-        // 再将上一行与当前行统一处理
-        val lastContent = editable.subSequence(lastPStart, lastPEnd).toString()
-        if (TextUtils.isEmpty(lastContent) || lastContent.length == 1 && lastContent[0].toInt() == Constants.ZERO_WIDTH_SPACE_INT) {
-            // case 2: 没有内容换行
-            editable.delete(max(0, mEditText.selectionStart - 1), mEditText.selectionStart)
-        } else {
-            // case 1: 有内容换行,
-            var nSpan = newSpan()
-            if (preParagraphSpans.isNotEmpty()) {
-                // 前一行添加span
-                setSpan(preParagraphSpans[0], lastPStart, lastPEnd)
-
-                nSpan = newSpan(preParagraphSpans[0])
-                // 当前行添加span
-                if (nSpan != null) {
-                    val curStart = lastPEnd + 1
-                    if (curStart >= editable.length || editable[curStart].toInt() != Constants.ZERO_WIDTH_SPACE_INT) {
-                        editable.insert(curStart, Constants.ZERO_WIDTH_SPACE_STR)
-                    }
-                    setSpan(nSpan, curStart, min(curStart + 1, editable.length))
-                }
-            }
-        }
-    }
+    abstract fun handleInputNewLine(editable: Editable, beforeSelectionStart: Int)
 
     abstract fun handleDeleteEvent(editable: Editable, epStart: Int, epEnd: Int)
 

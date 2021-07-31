@@ -4,6 +4,7 @@ import android.text.Editable
 import android.text.Spanned
 import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
+import com.sophimp.are.Util
 import com.sophimp.are.Util.getParagraphEnd
 import com.sophimp.are.spans.ISpan
 import java.util.*
@@ -104,6 +105,26 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
             }
             // 合并相同style
             mergeSameStyle(start, end)
+        }
+    }
+
+    override fun handleInputNewLine(editable: Editable, beforeSelectionStart: Int) {
+        /*
+            行尾有样式换行，需要分段， 如果不分段，当前段有段落样式的话(列表，缩进)，如果超过两行，格式会乱
+        */
+        val lastPStart: Int = Util.getParagraphStart(mEditText, beforeSelectionStart)
+        var lastPEnd: Int = Util.getParagraphEnd(editable, beforeSelectionStart)
+        if (lastPEnd <= lastPStart) return
+        val preParagraphSpans = editable.getSpans(lastPEnd - 1, lastPEnd, targetClass())
+        if (preParagraphSpans.isEmpty()) return
+        Util.log("sgx cake: 上一行: " + lastPStart + " - " + lastPEnd + " 当前行: " + mEditText.selectionStart + " - " + mEditText.selectionEnd)
+        val preSpanStart = editable.getSpanStart(preParagraphSpans[0]);
+        // 先移除上一行的span
+        removeSpans(editable, preParagraphSpans)
+        // 移除当前行的Spans
+        removeSpans(editable, editable.getSpans(mEditText.selectionStart, mEditText.selectionEnd, targetClass()))
+        if (preSpanStart < lastPEnd) {
+            setSpan(preParagraphSpans[0], preSpanStart, lastPEnd)
         }
     }
 
