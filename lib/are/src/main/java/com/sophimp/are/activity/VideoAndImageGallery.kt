@@ -63,11 +63,12 @@ class VideoAndImageGallery : AppCompatActivity(), View.OnClickListener {
         setContentView(R.layout.activity_images_and_video_gallery)
         initViews()
         initDatas()
+        initListener()
     }
 
     fun requestReadStorageRuntimePermission() {
-        if (ContextCompat.checkSelfPermission(this@VideoAndImageGallery, Manifest.permission.READ_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED
+        if (ContextCompat.checkSelfPermission(this@VideoAndImageGallery,
+                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(this@VideoAndImageGallery,
                 arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
@@ -105,6 +106,7 @@ class VideoAndImageGallery : AppCompatActivity(), View.OnClickListener {
         permissions: Array<String>,
         grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             PERMISSIONS_REQUEST_STORAGE_CODE -> {
 
@@ -214,14 +216,15 @@ class VideoAndImageGallery : AppCompatActivity(), View.OnClickListener {
     }
 
     protected fun initDatas() {
-        requestReadStorageRuntimePermission()
         rvMedia!!.itemAnimator = null
         rvMedia!!.layoutManager = GridLayoutManager(this, mColumnCount)
         mediaSelectAdapter = MediaSelectAdapter(null)
         rvMedia!!.adapter = mediaSelectAdapter
+
+        requestReadStorageRuntimePermission()
     }
 
-    protected fun setListenner() {
+    protected fun initListener() {
         mediaSelectAdapter!!.onItemClickListener = OnItemClickListener { parent, view, position, id ->
             val mediaInfo = mediaSelectAdapter!!.datas[position]
             if (mediaInfo.isCamera) {
@@ -229,7 +232,6 @@ class VideoAndImageGallery : AppCompatActivity(), View.OnClickListener {
             } else {
                 mediaInfo.isSelected = !mediaInfo.isSelected
                 if (mediaInfo.isSelected) {
-                    mediaInfo.isSelected = !mediaInfo.isSelected
                     mSelectMediaInfos.add(mediaInfo)
                 } else {
                     mSelectMediaInfos.remove(mediaInfo)
@@ -241,17 +243,18 @@ class VideoAndImageGallery : AppCompatActivity(), View.OnClickListener {
     }
 
     // this method is to load images and folders for all
-    fun LoadVideoAndImages() {
-        // todo coroutine
+    private fun LoadVideoAndImages() {
+//        GlobalScope.launch {
         queryImages()
         queryVideos()
-        Collections.sort(mQueryMediaInfos) { o1, o2 -> (o2.dateAdded - o1.dateAdded).toInt() }
+        mQueryMediaInfos.sortWith(Comparator { o1, o2 -> (o2.dateAdded - o1.dateAdded).toInt() })
         val images = ArrayList<List<MediaInfo>>()
         images.add(mQueryMediaInfos)
         var displayName = ""
         displayName = if (takePicture) "拍视频" else "拍照"
         mQueryMediaInfos.add(0, MediaInfo(true, displayName))
         mediaSelectAdapter!!.datas = mQueryMediaInfos
+//        }
     }
 
     private fun queryVideos() {

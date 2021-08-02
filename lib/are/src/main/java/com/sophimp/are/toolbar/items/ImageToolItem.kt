@@ -12,11 +12,6 @@ class ImageToolItem(style: IStyle, itemClickAction: IToolbarItemClickAction? = n
     override val srcResId: Int
         get() = R.mipmap.default_image
 
-    override fun iconClickHandle() {
-        super.iconClickHandle()
-        // todo release picture choose and insert
-    }
-
     /**
      * Open system image chooser page.
      */

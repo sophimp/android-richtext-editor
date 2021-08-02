@@ -67,6 +67,7 @@ class MediaSelectAdapter(data: List<MediaInfo>?) : RecyclerView.Adapter<MediaSel
             }
             holder.ivImageChecked.isSelected = item.isSelected
         } else {
+            holder.ivBg.setImageResource(0)
             holder.ivBg.setBackgroundColor(Color.parseColor("#e2e2e2"))
             holder.ivCamera.visibility = View.VISIBLE
             holder.ivCamera.setImageResource(R.mipmap.icon_camera)

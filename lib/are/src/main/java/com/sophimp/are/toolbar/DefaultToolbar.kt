@@ -1,6 +1,7 @@
 package com.sophimp.are.toolbar
 
 import android.content.Context
+import android.content.Intent
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
@@ -9,6 +10,7 @@ import android.widget.LinearLayout
 import com.sophimp.are.Constants
 import com.sophimp.are.R
 import com.sophimp.are.RichEditText
+import com.sophimp.are.activity.VideoAndImageGallery
 import com.sophimp.are.style.*
 import com.sophimp.are.toolbar.items.*
 import com.sophimp.are.window.ColorPickerWindow
@@ -81,7 +83,12 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
         fontWindow.fontSizes = Array(50) { i -> (editText.textSize / context.resources.displayMetrics.scaledDensity + i + 1).toInt() }
         // top
         addToolbarItem(EmojiToolItem(EmojiStyle(editText)), true)
-        addToolbarItem(ImageToolItem(ImageStyle(editText)), true)
+        addToolbarItem(ImageToolItem(ImageStyle(editText), object : IToolbarItemClickAction {
+            override fun onItemClick(item: IToolbarItem) {
+                context.startActivity(Intent(context, VideoAndImageGallery::class.java))
+            }
+        }), true)
+
         addToolbarItem(VideoToolItem(VideoStyle(editText)), true)
 
         val dynamicItemClickAction = object : IToolbarItemClickAction {
