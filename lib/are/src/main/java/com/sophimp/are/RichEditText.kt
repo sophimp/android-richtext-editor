@@ -9,7 +9,10 @@ import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
 import androidx.appcompat.widget.AppCompatEditText
-import com.sophimp.are.spans.*
+import com.sophimp.are.spans.IClickableSpan
+import com.sophimp.are.spans.ImageSpan2
+import com.sophimp.are.spans.UrlSpan
+import com.sophimp.are.spans.VideoSpan
 import com.sophimp.are.style.IStyle
 import kotlin.math.min
 
@@ -47,8 +50,6 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                 }
                 clickSpans[0] is VideoSpan -> {
                     clickStrategy?.onClickVideo(context, clickSpans[0] as VideoSpan)
-                }
-                clickSpans[0] is AttachmentSpan -> {
                 }
             }
             return false

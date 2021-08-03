@@ -913,38 +913,6 @@ class HtmlToSpannedConverter implements ContentHandler {
         String uploadTime = attributes.getValue("", "data-uploadtime");
         String duration = attributes.getValue("", "data-duration");
 
-
-//        View view = LayoutInflater.from(Html.sContext).inflate(R.layout.view_edit_annex, null);
-//        ((ImageView) view.findViewById(R.id.edit_annex_icon_iv)).setImageResource(AttachmentType.AUDIO.getResId());
-//        ((TextView) view.findViewById(R.id.edit_annex_title_tv)).setText(name);
-//
-//        ((TextView) view.findViewById(R.id.edit_annex_subtitle_tv)).setText(StringUtils.getTimeDurationDesc(StringUtils.parseLong(duration))
-//                + "  " + FileUtils.getFileSizeDesc(StringUtils.parseLong(size)));
-//
-//        String localPath = "";
-//        LocalNetMapping localMappingSync = LocalNetSourceImp.getInstance().getLocalMappingSync(url);
-//        if (localMappingSync != null) {
-//            localPath = localMappingSync.getLocalPath();
-//        }
-//
-//        Bitmap bitmap = Util.view2Bitmap(view);
-//
-//        if (bitmap == null) return;
-//        DRAudioSpan videoSpan = new DRAudioSpan(Html.sContext, bitmap, localPath, url, name, size, duration);
-//        videoSpan.setUploadTime(uploadTime);
-
-//        int len = text.length();
-//        text.append("\uFFFC");
-
-//        text.setSpan(videoSpan, len, text.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-//        try {
-//            //多插个空格
-//            String endText = " ";
-//            text.append(endText);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
     }
 
     private static void startAttachment(Editable text, Attributes attributes) {
@@ -956,39 +924,8 @@ class HtmlToSpannedConverter implements ContentHandler {
         String size = attributes.getValue("", "data-file-size");
         String uploadTime = attributes.getValue("", "data-uploadtime");
         String duration = attributes.getValue("", "data-duration");
-
         AttachmentType attachmentType = AttachmentType.getAttachmentTypeByValue(type);
 
-//        View view = LayoutInflater.from(Html.sContext).inflate(R.layout.view_edit_annex, null);
-//        ((ImageView) view.findViewById(R.id.edit_annex_icon_iv)).setImageResource(attachmentType.getResId());
-//        ((TextView) view.findViewById(R.id.edit_annex_title_tv)).setText(name);
-//
-//        ((TextView) view.findViewById(R.id.edit_annex_subtitle_tv)).setText(FileUtils.getFileSizeDesc(StringUtils.parseLong(size)));
-//
-//        Bitmap bitmap = Util.view2Bitmap(view);
-//
-//        String localPath = "";
-//        LocalNetMapping localMappingSync = LocalNetSourceImp.getInstance().getLocalMappingSync(url);
-//        if (localMappingSync != null) {
-//            localPath = localMappingSync.getLocalPath();
-//        }
-//
-//        if (bitmap == null) return;
-//        DRAttachmentSpan imageSpan = new DRAttachmentSpan(Html.sContext, bitmap, localPath, url, name, size, type);
-//        imageSpan.setUploadTime(uploadTime);
-//
-//        int len = text.length();
-//        text.append("\uFFFC");
-//
-//        text.setSpan(imageSpan, len, text.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-//        try {
-//            //多插个空格
-//            String endText = " ";
-//            text.append(endText);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
     }
 
 
