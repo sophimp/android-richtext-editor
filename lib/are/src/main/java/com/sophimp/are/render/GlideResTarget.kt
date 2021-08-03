@@ -18,7 +18,7 @@ abstract class GlideResTarget(ctx: Context, width: Int, height: Int, var path: S
     init {
         w = width
         h = height
-        maxWidth = (res.displayMetrics.widthPixels - res.displayMetrics.density * 12).toInt()
+        maxWidth = (res.displayMetrics.widthPixels - res.displayMetrics.density * 24).toInt()
     }
 
     override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap?>?) {

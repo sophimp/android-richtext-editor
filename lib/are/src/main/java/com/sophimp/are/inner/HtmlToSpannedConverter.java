@@ -44,6 +44,7 @@ import com.sophimp.are.spans.UnderlineSpan2;
 import com.sophimp.are.spans.UrlSpan;
 import com.sophimp.are.spans.VideoSpan;
 import com.sophimp.are.style.ImageStyle;
+import com.sophimp.are.style.VideoStyle;
 
 import org.ccil.cowan.tagsoup.Parser;
 import org.xml.sax.Attributes;
@@ -866,9 +867,7 @@ class HtmlToSpannedConverter implements ContentHandler {
                 url = src;
             }
         }
-        ImageSpan2 defSpan = new ImageSpan2(defDrawable, localPath, url);
-        defSpan.setName(name);
-        defSpan.setSize(size);
+        ImageSpan2 defSpan = new ImageSpan2(defDrawable, localPath, url, name, size, Integer.parseInt(width), Integer.parseInt(height));
         defSpan.setUploadTime(uploadTime);
         ImageStyle.Companion.addImageSpanToEditable(Html.sContext, text, len, defSpan);
     }
@@ -884,40 +883,23 @@ class HtmlToSpannedConverter implements ContentHandler {
         String uploadTime = attributes.getValue("", "data-uploadtime");
         final String duration = attributes.getValue("", "data-duration");
 
-
-        VideoSpan imageSpan = null;
-//        Bitmap video;
-//        String imagePathSync = LocalNetSourceImp.getInstance().getLocalImagePathSync(url);
-//        if (TextUtils.isEmpty(imagePathSync)) {
-//            video = BitmapFactory.decodeResource(Html.sContext.getResources(), R.drawable.memo_icon_file_videodef);
-//        } else {
-//            Bitmap thumb = BitmapFactory.decodeFile(imagePathSync);
-//            Bitmap play = BitmapFactory.decodeResource(Html.sContext.getResources(), R.drawable.memo_list_video_play);
-//            video = Util.mergeBitmaps(thumb, play);
-//        }
-//        View view = LayoutInflater.from(Html.sContext).inflate(R.layout.view_edit_annex, null);
-//        ((ImageView) view.findViewById(R.id.edit_annex_icon_iv)).setImageBitmap(video);
-//        ((TextView) view.findViewById(R.id.edit_annex_title_tv)).setText(name);
-//
-//        ((TextView) view.findViewById(R.id.edit_annex_subtitle_tv)).setText(StringUtils.getTimeDurationDesc(StringUtils.parseLong(duration))
-//                + "  " + FileUtils.getFileSizeDesc(StringUtils.parseLong(size)));
-//        Bitmap bitmap = Util.INSTANCE.view2Bitmap(view);
-//        if (bitmap == null) return;
-//        imageSpan = new VideoSpan(Html.sContext, bitmap, "", url, name, size, duration);
-        if (imageSpan != null) {
-            imageSpan.setUploadTime(uploadTime);
-            int len = text.length();
-            text.append("\uFFFC");
-
-            text.setSpan(imageSpan, len, text.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        Drawable defDrawable = Html.sContext.getResources().getDrawable(R.mipmap.default_image);
+        defDrawable.setBounds(0, 0, defDrawable.getIntrinsicWidth(), defDrawable.getIntrinsicHeight());
+        String localPath = "", videoUrl = "";
+        if (!TextUtils.isEmpty(url)) {
+            if (new File(url).exists()) {
+                localPath = url;
+            } else {
+                videoUrl = url;
+            }
         }
-//        try {
-//            //多插个空格
-//            String endText = " ";
-//            text.append(endText);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        VideoSpan defSpan = new VideoSpan(defDrawable, localPath, videoUrl, name, size, duration);
+        defSpan.setUploadTime(uploadTime);
+        int len = text.length();
+        // obj符号 "\uFFFC"
+        text.append("\uFFFC\n");
+        VideoStyle.Companion.addVideoSpanToEditable(Html.sContext, text, len, defSpan);
+
     }
 
     private static void startAudio(Editable text, Attributes attributes) {

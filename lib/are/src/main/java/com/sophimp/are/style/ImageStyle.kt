@@ -79,7 +79,7 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
      */
     fun addImageSpan(path: String) {
         val start = max(min(mEditText.selectionStart, mEditText.length()), 0)
-        mEditText.editableText.replace(start, mEditText.selectionEnd, "\uFFFc")
+        mEditText.editableText.replace(start, mEditText.selectionEnd, "\uFFFc\n")
         val file = File(path)
         val defaultImage = ImageSpan2(defaultDrawable, if (file.exists()) path else "", if (file.exists()) "" else path).apply {
             this.width = defaultDrawable.intrinsicWidth

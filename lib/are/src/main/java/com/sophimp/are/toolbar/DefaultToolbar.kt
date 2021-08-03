@@ -86,7 +86,7 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
         addToolbarItem(EmojiToolItem(EmojiStyle(editText)), true)
         addToolbarItem(ImageToolItem(ImageStyle(editText), object : IToolbarItemClickAction {
             override fun onItemClick(item: IToolbarItem) {
-                VideoAndImageGallery.startActivity(context, object : IMediaChooseListener {
+                VideoAndImageGallery.startActivity(context, VideoAndImageGallery.QueryType.IMAGE, object : IMediaChooseListener {
                     override fun onMediaChoose(mediaInfos: List<MediaInfo>) {
                         (item.mStyle as ImageStyle).apply {
                             for (info in mediaInfos) {
@@ -98,7 +98,19 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
             }
         }), true)
 
-        addToolbarItem(VideoToolItem(VideoStyle(editText)), true)
+        addToolbarItem(VideoToolItem(VideoStyle(editText), object : IToolbarItemClickAction {
+            override fun onItemClick(item: IToolbarItem) {
+                VideoAndImageGallery.startActivity(context, VideoAndImageGallery.QueryType.VIDEO, object : IMediaChooseListener {
+                    override fun onMediaChoose(mediaInfos: List<MediaInfo>) {
+                        (item.mStyle as VideoStyle).apply {
+                            for (info in mediaInfos) {
+                                addVideoSpan(info.data!!)
+                            }
+                        }
+                    }
+                })
+            }
+        }), true)
 
         val dynamicItemClickAction = object : IToolbarItemClickAction {
             override fun onItemClick(item: IToolbarItem) {

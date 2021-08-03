@@ -29,11 +29,16 @@ import java.util.*
  * @since: 2021/7/30
  */
 class VideoAndImageGallery : AppCompatActivity(), View.OnClickListener {
+    enum class QueryType {
+        IMAGE, VIDEO, ALL
+    }
+
     companion object {
         private const val TAG = "ImageSelector"
         private const val PERMISSIONS_REQUEST_STORAGE_CODE = 197
         private const val PERMISSIONS_REQUEST_CAMERA_CODE = 341
         private const val CAMERA_REQUEST_CODE = 694
+        private var queryType: QueryType = QueryType.IMAGE
         private val localVideoThumbnailColumns = arrayOf(
             MediaStore.Video.Thumbnails.DATA,  // 视频缩略图路径
             MediaStore.Video.Thumbnails.VIDEO_ID,  // 视频id
@@ -43,7 +48,8 @@ class VideoAndImageGallery : AppCompatActivity(), View.OnClickListener {
         )
 
         private var mediaChooseListener: IMediaChooseListener? = null
-        fun startActivity(context: Context, chooseListener: IMediaChooseListener) {
+        fun startActivity(context: Context, type: QueryType, chooseListener: IMediaChooseListener) {
+            queryType = type
             context.startActivity(Intent(context, VideoAndImageGallery::class.java))
             mediaChooseListener = chooseListener
         }
@@ -62,7 +68,6 @@ class VideoAndImageGallery : AppCompatActivity(), View.OnClickListener {
     private var tvPickCount: TextView? = null
     private var tvBtnComplete: TextView? = null
     private var mediaSelectAdapter: MediaSelectAdapter? = null
-    private val takePicture = false
     private val mFilePath = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -251,13 +256,18 @@ class VideoAndImageGallery : AppCompatActivity(), View.OnClickListener {
 
     // this method is to load images and folders for all
     private fun LoadVideoAndImages() {
-        queryImages()
-        queryVideos()
+        var displayName = ""
+        if (queryType == QueryType.IMAGE || queryType == QueryType.ALL) {
+            displayName = "Image"
+            queryImages()
+        }
+        if (queryType == QueryType.VIDEO || queryType == QueryType.ALL) {
+            displayName = "Video"
+            queryVideos()
+        }
         mQueryMediaInfos.sortWith(Comparator { o1, o2 -> (o2.dateAdded - o1.dateAdded).toInt() })
         val images = ArrayList<List<MediaInfo>>()
         images.add(mQueryMediaInfos)
-        var displayName = ""
-        displayName = if (takePicture) "拍视频" else "拍照"
         mQueryMediaInfos.add(0, MediaInfo(true, displayName))
         mediaSelectAdapter!!.datas = mQueryMediaInfos
     }
