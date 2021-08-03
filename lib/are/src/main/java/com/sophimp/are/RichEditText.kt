@@ -9,10 +9,7 @@ import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
 import androidx.appcompat.widget.AppCompatEditText
-import com.sophimp.are.spans.IClickableSpan
-import com.sophimp.are.spans.ImageSpan2
-import com.sophimp.are.spans.UrlSpan
-import com.sophimp.are.spans.VideoSpan
+import com.sophimp.are.spans.*
 import com.sophimp.are.style.IStyle
 import kotlin.math.min
 
@@ -28,6 +25,9 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
     private var styleList: MutableList<IStyle> = arrayListOf()
 
     private var isEditMode = true
+
+    var beforeSelectionStart = 0
+    var beforeSelectionEnd = 0
 
     var clickStrategy: IEditorClickStrategy? = DefaultClickStrategyImpl()
 
@@ -51,12 +51,17 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                 clickSpans[0] is VideoSpan -> {
                     clickStrategy?.onClickVideo(context, clickSpans[0] as VideoSpan)
                 }
+                clickSpans[0] is TodoSpan -> {
+                    (clickSpans[0] as TodoSpan).onClick(this@RichEditText, e.x, beforeSelectionEnd)
+                }
             }
             return false
         }
     })
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
+        beforeSelectionStart = selectionStart
+        beforeSelectionEnd = selectionEnd
         gestureDetector.onTouchEvent(event)
         return super.onTouchEvent(event)
     }
@@ -66,8 +71,6 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
      */
     private fun setupTextWatcher() {
         // 用来判断是点周事件还是删除事件
-        var beforeSelectionStart = 0
-        var beforeSelectionEnd = 0
         var afterSelectionStart = 0
         var changedText: String = ""
         val mTextWatcher = object : TextWatcher {

@@ -15,7 +15,7 @@ import kotlin.math.max
 
 class TodoSpan : IClickableSpan, IListSpan {
     var isCheck = false
-    var drawable: Drawable? = null
+    lateinit var drawable: Drawable
     var drawableRectf = RectF()
 
     /**
@@ -25,7 +25,6 @@ class TodoSpan : IClickableSpan, IListSpan {
 
     private var drawableSize = 35
 
-    constructor()
     constructor(ctx: Context, isCheck: Boolean) {
         this.isCheck = isCheck
         drawable = if (isCheck) {
@@ -46,7 +45,7 @@ class TodoSpan : IClickableSpan, IListSpan {
     ) {
         if ((text as Spanned).getSpanStart(this) == start) {
 
-            drawableSize = max(baseline - top, drawable!!.intrinsicHeight)
+            drawableSize = max(baseline - top, drawable.intrinsicHeight)
             val dh = drawableSize
 
             var itop = top + delta
@@ -57,21 +56,21 @@ class TodoSpan : IClickableSpan, IListSpan {
                     val v = p.measureText(text, start, end)
                     if (span.alignment == Layout.Alignment.ALIGN_CENTER) {
                         val rx = (layout.width - v - dh - IListSpan.STANDARD_GAP_WIDTH).toInt() / 2
-                        drawable!!.setBounds(rx, itop, rx + dh, itop + dh)
+                        drawable.setBounds(rx, itop, rx + dh, itop + dh)
                         drawableRectf.left = rx.toFloat()
                         drawableRectf.top = itop.toFloat()
                         drawableRectf.right = rx + dh.toFloat()
                         drawableRectf.bottom = itop + dh.toFloat()
-                        drawable!!.draw(c)
+                        drawable.draw(c)
                         return
                     } else if (alignmentSpans[0].alignment == Layout.Alignment.ALIGN_OPPOSITE) {
                         val rx = (layout.width - v - dh - IListSpan.STANDARD_GAP_WIDTH).toInt()
-                        drawable!!.setBounds(rx, itop, rx + dh, itop + dh)
+                        drawable.setBounds(rx, itop, rx + dh, itop + dh)
                         drawableRectf.left = rx.toFloat()
                         drawableRectf.top = itop.toFloat()
                         drawableRectf.right = rx + dh.toFloat()
                         drawableRectf.bottom = itop + dh.toFloat()
-                        drawable!!.draw(c)
+                        drawable.draw(c)
                         return
                     }
                 }
@@ -87,17 +86,16 @@ class TodoSpan : IClickableSpan, IListSpan {
             }
             val ix =
                 x + margin + IListSpan.LEADING_MARGIN - drawableSize - IListSpan.STANDARD_GAP_WIDTH
-            drawable!!.setBounds(ix, itop, ix + dh, itop + dh)
+            drawable.setBounds(ix, itop, ix + dh, itop + dh)
             drawableRectf.left = ix.toFloat()
             drawableRectf.top = itop.toFloat()
             drawableRectf.right = ix + dh.toFloat()
             drawableRectf.bottom = itop + dh.toFloat()
-            drawable!!.draw(c)
+            drawable.draw(c)
         }
     }
 
-    fun onClick(editText: RichEditText?, clickX: Float): Boolean {
-        if (editText == null) return false
+    fun onClick(editText: RichEditText, clickX: Float, beforeSelectionEnd: Int): Boolean {
         if (clickX >= drawableRectf.left && clickX <= drawableRectf.right) {
             try {
                 isCheck = !isCheck
@@ -113,13 +111,11 @@ class TodoSpan : IClickableSpan, IListSpan {
                     this,
                     spanStart,
                     spanEnd,
-                    Spannable.SPAN_INCLUSIVE_INCLUSIVE
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
-                editText.postDelayed(Runnable {
-                    if (editText != null && spanEnd > 0 && spanEnd <= editText.length()) {
-                        editText.setSelection(spanEnd)
-                    }
-                }, 16 * 2.toLong())
+                editText.post {
+                    editText.setSelection(beforeSelectionEnd)
+                }
                 editText.isChange = true
             } catch (e: Exception) {
                 e.printStackTrace()

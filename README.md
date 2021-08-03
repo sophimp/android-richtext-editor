@@ -7,32 +7,39 @@ android-richtext-editor(ARE) 是基于Android原生Spannable架构实现，参�
 
 ### 已实现特性
 <b>具体使用查看 DefaultToolbar 实现</b>
-- 插入表情
-- 插入视频
-- 插入图片(本地与网络)
+
+1. 段落级
+右缩进 (支持5级)
+左缩进
+左对齐 - Align left
+居中对齐 - Align center
+右对齐 - Align right
+引用
+有序列表 - Numeric list (支持多级缩进)
+无序列表 - Bullet list (支持多级缩进)
+TODO列表 - TODO list (支持多级缩进)
+增大行距
+缩小行距
+
+2. 字符级
 - 文字颜色（前景色）
 - 文字背景色 - Background color
 - 字体大小
-- 右缩进
-- 左缩进
-- 左对齐 - Align left
-- 居中对齐 - Align center
-- 右对齐 - Align right
-- 引用
-
 - 加粗 - Bold
 - 下划线 - Underline
 - 斜体 - Italic
 - 删除线 - Strikethrough
-- 有序列表 - Numeric list
-- 无序列表 - Bullet list
-- TODO列表 - TODO list
 - 上角标
 - 下角标
-- 增大行距
-- 缩小行距
+- 插入超链接 - Hyper link (支持别名)
+
+3. 个体块
+- 插入表情
+- 插入视频
+- 插入图片(本地与网络)
 - 插入分割线
-- 插入超链接 - Hyper link
-- 段落样式的复制粘贴
+
+4. 操作
+- 段落样式的复制粘贴 (支持多段落)
 - 所有样式均支持导出HTML文件
 - 加载HTML内容并继续编辑或显示
