@@ -1,21 +1,12 @@
 
 ## Android 富文本编辑器
 
-### 背景
+android-richtext-editor(ARE) 是基于Android原生Spannable架构实现，参考了 [chinalwb/Android-Rich-text-Editor](https://github.com/chinalwb/Android-Rich-text-Editor)
 
-在使用[chinalwb/Android-Rich-text-Editor](https://github.com/chinalwb/Android-Rich-text-Editor)(ARE)过程中，随着新需求的增加，对ARE修改定制越来越深, 正与其readme所说的，还达不到商业化需求。
-由于ARE作者久不维护， 且ARE帮助了我很多，因此萌生重构的想法，便有了此库回馈开源社区。
-
-ARE 是基于Android原生的Spannable架构，因此名字我依旧沿承了 android-richtext-editor, 同样简称 are
-
-### 重构了什么
-1. 使用kotlin
-2. 重构了整体架构
-3. 基于商业化需求，优化了每个Style的实现
-4. 扩展了新的功能
+由于`chinalwb/Android-Rich-text-Editor`不再维护，随着定制需求与BUG修改越来越多，便想着使用kotlin重新实现一番，完善了每个style的实现细节，新增了几种Style实现。
 
 ### 已实现特性
-具体使用查看 DefaultToolbar 实现
+<b>具体使用查看 DefaultToolbar 实现</b>
 - 插入表情
 - 插入视频
 - 插入图片(本地与网络)
@@ -42,11 +33,6 @@ ARE 是基于Android原生的Spannable架构，因此名字我依旧沿承了 an
 - 缩小行距
 - 插入分割线
 - 插入超链接 - Hyper link
+- 段落样式的复制粘贴
 - 所有样式均支持导出HTML文件
 - 加载HTML内容并继续编辑或显示
-
-### 未实现特性
-1. 表格
-直接在EditText中编辑表格，基于原生的Spannable框架有些难以实现, 但是也可以绕过
-2. 音频
-3.
