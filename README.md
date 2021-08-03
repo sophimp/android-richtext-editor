@@ -32,6 +32,8 @@ TODO列表 - TODO list (支持多级缩进)
 - 下角标
 - 插入超链接 - Hyper link (支持别名)
 
+![character_demo](https://github.com/sophimp/android-richtext-editor/art/character_demo.gif)
+
 3. 个体块
 - 插入表情
 - 插入视频
@@ -44,5 +46,5 @@ TODO列表 - TODO list (支持多级缩进)
 - 加载HTML内容并继续编辑或显示
 
 ### 使用说明
-<b>具体使用查看 DefaultToolbar initDefaultToolItem </b>
+<b>具体使用查看 [DefaultToolbar#initDefaultToolItem](https://github.com/sophimp/android-richtext-editor/blob/master/lib/are/src/main/java/com/sophimp/are/toolbar/DefaultToolbar.kt) </b>
 每一个style 对应一个 toolbar item
