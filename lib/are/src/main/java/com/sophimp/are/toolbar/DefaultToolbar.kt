@@ -19,7 +19,7 @@ import com.sophimp.are.window.FontSizeWindow
 import com.sophimp.are.window.PickerListener
 
 /**
- * demo toolbar， this also is the usage of each style
+ * demo toolbar， usage of each style
  * @author: sfx
  * @since: 2021/7/21
  */
@@ -80,10 +80,17 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
         }
     }
 
+    /**
+     * 每个style 对应一个toolbar item, toolbar item 点击事件处理对外开放
+     * 当然 Toolbar 也可自定义
+     */
     fun initDefaultToolItem(editText: RichEditText) {
         fontWindow.fontSizes = Array(50) { i -> (editText.textSize / context.resources.displayMetrics.scaledDensity + i + 1).toInt() }
         // top
-        addToolbarItem(EmojiToolItem(EmojiStyle(editText)), true)
+        // todo 后续实现
+//        addToolbarItem(EmojiToolItem(EmojiStyle(editText)), true)
+
+        // 可替换自己的图片选择器, 使用IMediaChooseListener 数据交互
         addToolbarItem(ImageToolItem(ImageStyle(editText), object : IToolbarItemClickAction {
             override fun onItemClick(item: IToolbarItem) {
                 VideoAndImageGallery.startActivity(context, VideoAndImageGallery.QueryType.IMAGE, object : IMediaChooseListener {
@@ -112,6 +119,7 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
             }
         }), true)
 
+        // 可自行替换定制颜色选择器
         val dynamicItemClickAction = object : IToolbarItemClickAction {
             override fun onItemClick(item: IToolbarItem) {
                 if (colorWindow.isShowing || fontWindow.isShowing) return
@@ -123,6 +131,7 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
                     Gravity.TOP)
             }
         }
+
         addToolbarItem(FontColorToolItem(FontColorStyle(editText), dynamicItemClickAction), true)
         addToolbarItem(FontBackgroundColorToolItem(FontBackgroundStyle(editText), dynamicItemClickAction), true)
         addToolbarItem(FontSizeToolItem(FontSizeStyle(editText), object : IToolbarItemClickAction {
