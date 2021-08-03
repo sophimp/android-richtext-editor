@@ -2,6 +2,7 @@ package com.sophimp.are.activity
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -40,6 +41,12 @@ class VideoAndImageGallery : AppCompatActivity(), View.OnClickListener {
             MediaStore.Video.Thumbnails.WIDTH,  // 视频缩略图宽度
             MediaStore.Video.Thumbnails.HEIGHT // 视频缩略图高度
         )
+
+        private var mediaChooseListener: IMediaChooseListener? = null
+        fun startActivity(context: Context, chooseListener: IMediaChooseListener) {
+            context.startActivity(Intent(context, VideoAndImageGallery::class.java))
+            mediaChooseListener = chooseListener
+        }
     }
 
     private val mColumnCount = 3
@@ -50,7 +57,7 @@ class VideoAndImageGallery : AppCompatActivity(), View.OnClickListener {
     private val mQueryMediaInfos: MutableList<MediaInfo> = ArrayList()
     private val mSelectMediaInfos: MutableList<MediaInfo> = ArrayList()
     private var rvMedia: RecyclerView? = null
-    private var tvBtnPreview: TextView? = null
+    private var btnBack: ImageView? = null
     private var tvBtnFullSize: TextView? = null
     private var tvPickCount: TextView? = null
     private var tvBtnComplete: TextView? = null
@@ -205,8 +212,8 @@ class VideoAndImageGallery : AppCompatActivity(), View.OnClickListener {
 
     protected fun initViews() {
         rvMedia = findViewById(R.id.rv_medias)
-        tvBtnPreview = findViewById(R.id.tv_btn_preview)
-        tvBtnPreview?.setOnClickListener(this)
+        btnBack = findViewById(R.id.iv_btn_back)
+        btnBack?.setOnClickListener(this)
         tvBtnFullSize = findViewById(R.id.tv_btn_full_size)
         tvBtnFullSize?.setOnClickListener(this)
         tvPickCount = findViewById(R.id.tv_pick_count)
@@ -236,7 +243,7 @@ class VideoAndImageGallery : AppCompatActivity(), View.OnClickListener {
                 } else {
                     mSelectMediaInfos.remove(mediaInfo)
                 }
-                tvPickCount!!.text = mSelectMediaInfos.size.toString() + ""
+                tvPickCount!!.text = "${mSelectMediaInfos.size}"
                 mediaSelectAdapter!!.notifyItemChanged(position)
             }
         }
@@ -244,7 +251,6 @@ class VideoAndImageGallery : AppCompatActivity(), View.OnClickListener {
 
     // this method is to load images and folders for all
     private fun LoadVideoAndImages() {
-//        GlobalScope.launch {
         queryImages()
         queryVideos()
         mQueryMediaInfos.sortWith(Comparator { o1, o2 -> (o2.dateAdded - o1.dateAdded).toInt() })
@@ -254,7 +260,6 @@ class VideoAndImageGallery : AppCompatActivity(), View.OnClickListener {
         displayName = if (takePicture) "拍视频" else "拍照"
         mQueryMediaInfos.add(0, MediaInfo(true, displayName))
         mediaSelectAdapter!!.datas = mQueryMediaInfos
-//        }
     }
 
     private fun queryVideos() {
@@ -372,28 +377,12 @@ class VideoAndImageGallery : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View) {
-//        if (v.id == R.id.selector_button_back || v.id == R.id.pic_num) {
-//            val data = Intent()
-//            data.putStringArrayListExtra(SelectorSettings.SELECTOR_RESULTS, ArrayList())
-//            setResult(Activity.RESULT_OK, data)
-//            finish()
-//        } else if (v.id == R.id.tv_btn_complete) { // 完成按钮
-//            // 取消按钮
-//            val data = Intent()
-//            if (mSelectMediaInfos.size > 0) {
-//                val selectPath = ArrayList<String?>()
-//                for (mediaInfo in mSelectMediaInfos) {
-//                    if (!TextUtils.isEmpty(mediaInfo.data)) {
-//                        selectPath.add(mediaInfo.data)
-//                    }
-//                }
-//                data.putStringArrayListExtra(SelectorSettings.SELECTOR_RESULTS, selectPath)
-//                setResult(Activity.RESULT_OK, data)
-//            }
-//            finish()
-//        } else if (v.id == R.id.tv_btn_full_size) {
-//            tvBtnFullSize!!.isSelected = !tvBtnFullSize!!.isSelected
-//        }
+        if (v.id == R.id.iv_btn_back) {
+            finish()
+        } else if (v.id == R.id.tv_btn_complete) { // 完成按钮
+            mediaChooseListener?.onMediaChoose(mSelectMediaInfos)
+            finish()
+        }
     }
 
 }

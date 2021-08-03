@@ -1,7 +1,6 @@
 package com.sophimp.are.toolbar
 
 import android.content.Context
-import android.content.Intent
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
@@ -10,7 +9,9 @@ import android.widget.LinearLayout
 import com.sophimp.are.Constants
 import com.sophimp.are.R
 import com.sophimp.are.RichEditText
+import com.sophimp.are.activity.IMediaChooseListener
 import com.sophimp.are.activity.VideoAndImageGallery
+import com.sophimp.are.models.MediaInfo
 import com.sophimp.are.style.*
 import com.sophimp.are.toolbar.items.*
 import com.sophimp.are.window.ColorPickerWindow
@@ -85,7 +86,15 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
         addToolbarItem(EmojiToolItem(EmojiStyle(editText)), true)
         addToolbarItem(ImageToolItem(ImageStyle(editText), object : IToolbarItemClickAction {
             override fun onItemClick(item: IToolbarItem) {
-                context.startActivity(Intent(context, VideoAndImageGallery::class.java))
+                VideoAndImageGallery.startActivity(context, object : IMediaChooseListener {
+                    override fun onMediaChoose(mediaInfos: List<MediaInfo>) {
+                        (item.mStyle as ImageStyle).apply {
+                            for (info in mediaInfos) {
+                                addImageSpan(info.data!!)
+                            }
+                        }
+                    }
+                })
             }
         }), true)
 

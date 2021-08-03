@@ -3,7 +3,6 @@ package com.sophimp.are.inner;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
@@ -24,9 +23,9 @@ import android.text.style.TypefaceSpan;
 
 import com.sophimp.are.AttachmentType;
 import com.sophimp.are.Constants;
+import com.sophimp.are.R;
 import com.sophimp.are.Util;
 import com.sophimp.are.models.AtItem;
-import com.sophimp.are.render.GlideResDrawable;
 import com.sophimp.are.spans.AtSpan;
 import com.sophimp.are.spans.BoldSpan;
 import com.sophimp.are.spans.EmojiSpan;
@@ -44,6 +43,7 @@ import com.sophimp.are.spans.TodoSpan;
 import com.sophimp.are.spans.UnderlineSpan2;
 import com.sophimp.are.spans.UrlSpan;
 import com.sophimp.are.spans.VideoSpan;
+import com.sophimp.are.style.ImageStyle;
 
 import org.ccil.cowan.tagsoup.Parser;
 import org.xml.sax.Attributes;
@@ -53,6 +53,7 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -838,9 +839,9 @@ class HtmlToSpannedConverter implements ContentHandler {
         String src = attributes.getValue("", "src");
         String width = attributes.getValue("", "width");
         String height = attributes.getValue("", "height");
-        String name = attributes.getValue("", "data-file-name");
-        String size = attributes.getValue("", "data-file-size");
-        String uploadTime = attributes.getValue("", "data-uploadtime");
+        String name = attributes.getValue("", "name");
+        String size = attributes.getValue("", "size");
+        String uploadTime = attributes.getValue("", "uploadTime");
         String dataType = attributes.getValue("", "data-type");
 
         if (width == null) {
@@ -849,45 +850,27 @@ class HtmlToSpannedConverter implements ContentHandler {
         if (height == null) {
             height = "0";
         }
-        int iwidth = 0, iheight = 0;
-        float density = Html.sContext.getResources().getDisplayMetrics().density;
 
-        ImageSpan2 imageSpan = null;
-        GlideResDrawable drawable = null;
-        if (img != null) {
-
-            drawable = img.getDrawable(src, String.valueOf(iwidth), String.valueOf(iheight), false);
-            imageSpan = new ImageSpan2(Html.sContext, drawable.drawable, src);
-
-        } else {
-            imageSpan = new ImageSpan2(Html.sContext, src);
-        }
-
-        imageSpan.setMImgName(name);
-        imageSpan.setMImgSize(size);
-        imageSpan.setMUploadTime(uploadTime);
-        imageSpan.setWidth(iwidth);
-        imageSpan.setHeight(iheight);
-
-        // 这里有在Glide有缓存的时候，返回是同步的，因此需要再次将drawable的宽高设计一次
-        if (drawable != null && drawable.hasReady) {
-            drawable.drawable.setBounds(new Rect(0, 0, drawable.w, drawable.h));
-        }
         int len = text.length();
         // obj符号 "\uFFFC"
-//        text.append("\uFFFC");
-        text.append(Constants.ZERO_WIDTH_SPACE_STR);
-        text.setSpan(imageSpan, len, text.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        text.append("\uFFFC");
         text.append("\n");
-        //多插个空格
-//            String endText = " ";
-//            text.insert(text.length() + 1, endText);
-//            text.append(endText);
 
-////        //图片均做居中处理
-//        text.append("\n");
-//        AlignmentSpan centerSpan = new AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER);
-//        text.setSpan(centerSpan, len, text.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        Drawable defDrawable = Html.sContext.getResources().getDrawable(R.mipmap.default_image);
+        defDrawable.setBounds(0, 0, defDrawable.getIntrinsicWidth(), defDrawable.getIntrinsicHeight());
+        String localPath = "", url = "";
+        if (!TextUtils.isEmpty(src)) {
+            if (new File(src).exists()) {
+                localPath = src;
+            } else {
+                url = src;
+            }
+        }
+        ImageSpan2 defSpan = new ImageSpan2(defDrawable, localPath, url);
+        defSpan.setName(name);
+        defSpan.setSize(size);
+        defSpan.setUploadTime(uploadTime);
+        ImageStyle.Companion.addImageSpanToEditable(Html.sContext, text, len, defSpan);
     }
 
     private static void startVideo(final Editable text, Attributes attributes, Html.ImageGetter imageGetter) {

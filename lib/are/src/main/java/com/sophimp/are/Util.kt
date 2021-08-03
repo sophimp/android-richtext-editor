@@ -534,22 +534,21 @@ object Util {
     }
 
     fun compressByScale(
-        src: Bitmap?,
+        src: Bitmap,
         newWidth: Int,
         newHeight: Int,
         recycle: Boolean
-    ): Bitmap? {
+    ): Bitmap {
         return scale(src, newWidth, newHeight, recycle)
     }
 
     fun scale(
-        src: Bitmap?,
+        src: Bitmap,
         newWidth: Int,
         newHeight: Int,
         recycle: Boolean
-    ): Bitmap? {
-        if (isEmptyBitmap(src)) return null
-        val ret = Bitmap.createScaledBitmap(src!!, newWidth, newHeight, true)
+    ): Bitmap {
+        val ret = Bitmap.createScaledBitmap(src, newWidth, newHeight, true)
         if (recycle && !src.isRecycled && ret != src) src.recycle()
         return ret
     }

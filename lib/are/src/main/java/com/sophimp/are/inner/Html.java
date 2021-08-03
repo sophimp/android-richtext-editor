@@ -43,7 +43,7 @@ import android.text.style.UnderlineSpan;
 
 import androidx.annotation.NonNull;
 
-import com.sophimp.are.render.GlideResDrawable;
+import com.sophimp.are.render.GlideResTarget;
 import com.sophimp.are.spans.FontBackgroundColorSpan;
 import com.sophimp.are.spans.FontForegroundColorSpan;
 import com.sophimp.are.spans.IListSpan;
@@ -110,7 +110,7 @@ public class Html {
          * setBounds() on your Drawable if it doesn't already have
          * its bounds set.
          */
-        public GlideResDrawable getDrawable(String source, String width, String height, boolean isVideoDrawable);
+        public GlideResTarget getDrawable(String source, String width, String height, boolean isVideoDrawable);
     }
 
     /**

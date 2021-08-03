@@ -40,7 +40,6 @@ abstract class BaseFreeStyle<T : ISpan>(editText: RichEditText) : BaseStyle<T>(e
         epStart: Int,
         epEnd: Int
     ) {
-
     }
 
     override fun handleInputNewLine(editable: Editable, beforeSelectionStart: Int) {}
