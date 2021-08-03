@@ -8,17 +8,17 @@ android-richtext-editor(ARE) 是基于Android原生Spannable架构实现，参�
 ### 已实现特性
 
 1. 段落级
-右缩进 (支持5级)
-左缩进
-左对齐 - Align left
-居中对齐 - Align center
-右对齐 - Align right
-引用
-有序列表 - Numeric list (支持多级缩进)
-无序列表 - Bullet list (支持多级缩进)
-TODO列表 - TODO list (支持多级缩进)
-增大行距
-缩小行距
+- 右缩进 (支持5级)
+- 左缩进
+- 左对齐 - Align left
+- 居中对齐 - Align center
+- 右对齐 - Align right
+- 引用
+- 有序列表 - Numeric list (支持多级缩进)
+- 无序列表 - Bullet list (支持多级缩进)
+- TODO列表 - TODO list (支持多级缩进)
+- 增大行距
+- 缩小行距
 
 2. 字符级
 - 文字颜色（前景色）
