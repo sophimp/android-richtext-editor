@@ -32,7 +32,7 @@ TODO列表 - TODO list (支持多级缩进)
 - 下角标
 - 插入超链接 - Hyper link (支持别名)
 
-![character_demo](https://github.com/sophimp/android-richtext-editor/art/character_demo.gif)
+![character_demo](https://github.com/sophimp/android-richtext-editor/blob/master/art/character_demo.gif)
 
 3. 个体块
 - 插入表情
