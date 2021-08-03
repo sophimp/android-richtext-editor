@@ -137,19 +137,18 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
             editable.getSpanStart(o1) - editable.getSpanStart(o2)
         }
         var i = 0
-        var tStart = -1
-        var tEnd = -1
+        var tStart = editable.getSpanStart(targetSpans[0])
+        var tEnd = editable.getSpanEnd(targetSpans[0])
         var tarSpan: ISpan? = null
         while (i < (targetSpans.size - 1)) {
             if (checkFeatureEqual(targetSpans[i], targetSpans[i + 1])) {
-                val curStart = editable.getSpanStart(targetSpans[i])
                 val curEnd = editable.getSpanEnd(targetSpans[i])
                 val nextStart = editable.getSpanStart(targetSpans[i + 1])
                 val nextEnd = editable.getSpanEnd(targetSpans[i + 1])
                 if (curEnd >= nextStart) {
                     // 同一个起点, 紧挨着或者相交, 都要合并成一个
-                    tStart = min(curStart, nextStart)
-                    tEnd = max(curEnd, nextEnd)
+                    tStart = min(tStart, nextStart)
+                    tEnd = max(tEnd, nextEnd)
                     editable.removeSpan(targetSpans[i])
                     if (i == targetSpans.size - 2) {
                         editable.removeSpan(targetSpans[i + 1])

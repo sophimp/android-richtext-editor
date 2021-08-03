@@ -6,7 +6,6 @@ android-richtext-editor(ARE) 是基于Android原生Spannable架构实现，参�
 由于`chinalwb/Android-Rich-text-Editor`不再维护，随着定制需求与BUG修改越来越多，便想着使用kotlin重新实现一番，完善了每个style的实现细节，新增了几种Style实现。
 
 ### 已实现特性
-<b>具体使用查看 DefaultToolbar 实现</b>
 
 1. 段落级
 右缩进 (支持5级)
@@ -43,3 +42,7 @@ TODO列表 - TODO list (支持多级缩进)
 - 段落样式的复制粘贴 (支持多段落)
 - 所有样式均支持导出HTML文件
 - 加载HTML内容并继续编辑或显示
+
+### 使用说明
+<b>具体使用查看 DefaultToolbar initDefaultToolItem </b>
+每一个style 对应一个 toolbar item
