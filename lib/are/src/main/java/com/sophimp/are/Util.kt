@@ -46,7 +46,9 @@ object Util {
     }
 
     fun log(s: String) {
-        Log.d("CAKE", s)
+        if (BuildConfig.DEBUG) {
+            Log.d("CAKE", s)
+        }
     }
 
     /**

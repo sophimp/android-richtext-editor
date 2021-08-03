@@ -141,10 +141,10 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
         var tEnd = editable.getSpanEnd(targetSpans[0])
         var tarSpan: ISpan? = null
         while (i < (targetSpans.size - 1)) {
+            val curEnd = editable.getSpanEnd(targetSpans[i])
+            val nextStart = editable.getSpanStart(targetSpans[i + 1])
+            val nextEnd = editable.getSpanEnd(targetSpans[i + 1])
             if (checkFeatureEqual(targetSpans[i], targetSpans[i + 1])) {
-                val curEnd = editable.getSpanEnd(targetSpans[i])
-                val nextStart = editable.getSpanStart(targetSpans[i + 1])
-                val nextEnd = editable.getSpanEnd(targetSpans[i + 1])
                 if (curEnd >= nextStart) {
                     // 同一个起点, 紧挨着或者相交, 都要合并成一个
                     tStart = min(tStart, nextStart)
@@ -158,6 +158,9 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
                     // 相离，不需要合并
                     break
                 }
+            } else {
+                tStart = nextStart
+                tEnd = nextEnd
             }
             i++
         }
