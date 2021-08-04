@@ -21,7 +21,7 @@ import android.text.style.SubscriptSpan;
 import android.text.style.SuperscriptSpan;
 import android.text.style.TypefaceSpan;
 
-import com.sophimp.are.AttachmentType;
+import com.sophimp.are.AttachFileType;
 import com.sophimp.are.Constants;
 import com.sophimp.are.R;
 import com.sophimp.are.Util;
@@ -332,9 +332,9 @@ class HtmlToSpannedConverter implements ContentHandler {
             startImg(mSpannableStringBuilder, attributes, mImageGetter);
         } else if (tag.equalsIgnoreCase("attachment")) {
             String data_type = attributes.getValue("", "data-type");
-            if (AttachmentType.VIDEO.getAttachmentValue().equalsIgnoreCase(data_type)) {
+            if (AttachFileType.VIDEO.getAttachmentValue().equalsIgnoreCase(data_type)) {
                 startVideo(mSpannableStringBuilder, attributes, mImageGetter);
-            } else if (AttachmentType.AUDIO.getAttachmentValue().equalsIgnoreCase(data_type)) {
+            } else if (AttachFileType.AUDIO.getAttachmentValue().equalsIgnoreCase(data_type)) {
                 startAudio(mSpannableStringBuilder, attributes);
             } else {
                 startAttachment(mSpannableStringBuilder, attributes);
@@ -924,7 +924,7 @@ class HtmlToSpannedConverter implements ContentHandler {
         String size = attributes.getValue("", "data-file-size");
         String uploadTime = attributes.getValue("", "data-uploadtime");
         String duration = attributes.getValue("", "data-duration");
-        AttachmentType attachmentType = AttachmentType.getAttachmentTypeByValue(type);
+        AttachFileType attachmentType = AttachFileType.getAttachmentTypeByValue(type);
 
     }
 
