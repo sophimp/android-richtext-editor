@@ -71,6 +71,13 @@ class LineSpaceReduceStyle(editText: RichEditText) : BaseParagraphStyle<LineSpac
         // 交由LineSpaceEnlargeStyle 处理， 相同逻辑
     }
 
+    override fun newSpan(inheritSpan: ISpan?): ISpan? {
+        if (inheritSpan is LineSpaceSpan) {
+            return LineSpaceSpan(inheritSpan.factor)
+        }
+        return LineSpaceSpan(1.0f)
+    }
+
     override fun targetClass(): Class<LineSpaceSpan> {
         return LineSpaceSpan::class.java
     }

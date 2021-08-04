@@ -195,6 +195,6 @@ abstract class BaseStyle<T : ISpan>(private var curEditText: RichEditText) : ISt
     }
 
     override fun newSpan(inheritSpan: ISpan?): ISpan? {
-        return null
+        return targetClass().newInstance()
     }
 }

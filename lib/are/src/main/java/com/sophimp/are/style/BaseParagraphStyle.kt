@@ -27,7 +27,7 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
             mEditText.editableText.getSpanStart(o1) - mEditText.editableText.getSpanStart(o2)
         }
         updateSpan(targets, curPStart, curPEnd)
-        mEditText.refresh(0)
+        mEditText.refresh(curPStart)
         return 0
     }
 
