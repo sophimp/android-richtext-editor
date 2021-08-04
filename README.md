@@ -20,6 +20,8 @@ android-richtext-editor(ARE) 是基于Android原生Spannable架构实现，参�
 - 增大行距
 - 缩小行距
 
+![character_demo](https://github.com/sophimp/android-richtext-editor/blob/master/art/paragraph_demo.gif)
+
 2. 字符级
 - 文字颜色（前景色）
 - 文字背景色 - Background color
