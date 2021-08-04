@@ -212,6 +212,9 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         uiHandler.postDelayed(runnable, delay);
     }
 
+    fun fromHtml(html: String) {
+    }
+
     var isChange: Boolean = false
 
 }
