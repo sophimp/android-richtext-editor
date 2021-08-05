@@ -165,14 +165,14 @@ public class Html {
     public static final int FROM_HTML_OPTION_USE_CSS_COLORS = 0x00000100;
 
     /**
-     * Flags for {@link #fromHtml(String, int, ImageGetter, TagHandler)}: Separate block-level
+     * Flags for {@link #fromHtml(Context, String, int, ImageGetter, TagHandler)}: Separate block-level
      * elements with blank lines (two newline characters) in between. This is the legacy behavior
      * prior to N.
      */
     public static final int FROM_HTML_MODE_LEGACY = 0x00000000;
 
     /**
-     * Flags for {@link #fromHtml(String, int, ImageGetter, TagHandler)}: Separate block-level
+     * Flags for {@link #fromHtml(Context, String, int, ImageGetter, TagHandler)}: Separate block-level
      * elements with line breaks (single newline character) in between. This inverts the
      * {@link Spanned} to HTML string conversion done with the option
      * {@link #TO_HTML_PARAGRAPH_LINES_INDIVIDUAL}.

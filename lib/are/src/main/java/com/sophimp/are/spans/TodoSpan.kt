@@ -127,6 +127,6 @@ class TodoSpan : IClickableSpan, IListSpan {
 
     val attributeStr: String
         get() {
-            return ""
+            return "check=\"$isCheck\""
         }
 }

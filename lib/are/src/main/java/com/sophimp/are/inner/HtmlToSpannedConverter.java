@@ -274,8 +274,8 @@ class HtmlToSpannedConverter implements ContentHandler {
             startBlockElement(mSpannableStringBuilder, attributes, 1);
             startCssStyle(mSpannableStringBuilder, attributes);
         } else if (Html.TODO_LIST.equals(tag)) {
-            String status = attributes.getValue("", "data-status");
-            startTodo(mSpannableStringBuilder, attributes, "done".equalsIgnoreCase(status));
+            String status = attributes.getValue("", "check");
+            startTodo(mSpannableStringBuilder, attributes, "true".equalsIgnoreCase(status));
         } else if (tag.equalsIgnoreCase("ol")) {
             startOL(mSpannableStringBuilder);
             startBlockElement(mSpannableStringBuilder, attributes, 1, false);
