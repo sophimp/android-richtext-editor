@@ -1,6 +1,8 @@
 package com.sophimp.demo
 
 import android.os.Bundle
+import android.text.TextUtils
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.sophimp.are.Util
 import com.sophimp.are.databinding.ActivityEditBinding
@@ -16,6 +18,9 @@ class EditActivity : AppCompatActivity() {
         binding = ActivityEditBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(false)
+
         binding.toolbar.initDefaultToolItem(binding.reRichtext)
         val id = intent.getLongExtra("id", -1L)
         if (id != -1L) {
@@ -24,10 +29,19 @@ class EditActivity : AppCompatActivity() {
         }
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> finish()
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     override fun onPause() {
         Util.log("edit onPause: ${binding.reRichtext.toHtml()}")
         memoInfo.richText = binding.reRichtext.toHtml()
-        memoDao.addMemo(memoInfo)
+        if (!TextUtils.isEmpty(memoInfo.richText)) {
+            memoDao.addMemo(memoInfo)
+        }
         super.onPause()
     }
 }
