@@ -1,6 +1,7 @@
 package com.sophimp.are.spans
 
 import android.graphics.drawable.Drawable
+import android.text.TextUtils
 import android.text.style.ImageSpan
 import java.io.File
 
@@ -13,7 +14,7 @@ class ImageSpan2(
     var localPath: String?,
     var url: String?,
     var name: String? = "",
-    var size: String? = "",
+    var size: Long? = 0,
     var width: Int = drawable.intrinsicWidth,
     var height: Int = drawable.intrinsicHeight
 ) : ImageSpan(drawable), IClickableSpan, IUploadSpan, ISpan {
@@ -24,39 +25,39 @@ class ImageSpan2(
     var uploadTime: String? = null
     var imageType: ImageType = ImageType.URI
 
-    val fileSize: Long
+    val fileSize: Int
         get() {
             if (size!!.toLong() == 0L) {
                 val file = File(localPath)
                 if (file.exists()) {
-                    size = file.length().toString()
+                    size = file.length()
                 }
             }
-            return size!!.toLong()
+            return size!!.toInt()
         }
 
     override fun uploadPath(): String? {
         return localPath
     }
 
-    override fun uploadFileSize(): String {
-        return fileSize.toString()
+    override fun uploadFileSize(): Int? {
+        return fileSize
     }
 
     override val html: String
         get() {
             val htmlBuffer = StringBuilder("<img src=\"")
-            htmlBuffer.append(url)
+            if (TextUtils.isEmpty(url)) {
+                htmlBuffer.append(localPath)
+            } else {
+                htmlBuffer.append(url)
+            }
             htmlBuffer.append("\" name=\"")
             htmlBuffer.append(name)
             htmlBuffer.append("\" width=\"")
             htmlBuffer.append(width)
             htmlBuffer.append("\" height=\"")
             htmlBuffer.append(height)
-            htmlBuffer.append("\"size=\"")
-            htmlBuffer.append(size)
-            htmlBuffer.append("\"uploadTime=\"")
-            htmlBuffer.append(uploadTime)
             htmlBuffer.append("\" />")
             return htmlBuffer.toString()
         }

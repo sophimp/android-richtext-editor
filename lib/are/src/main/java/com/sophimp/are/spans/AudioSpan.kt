@@ -16,7 +16,7 @@ class AudioSpan(
     val audioPath: String,
     var audioUrl: String,
     private val mAudioName: String,
-    private val mAudioSize: String,
+    private val mAudioSize: Int?,
     private val mAudioDuration: String
 ) : ImageSpan(mContext, bitmapDrawable!!), ISpan, IClickableSpan, IUploadSpan {
     private var mUploadTime: String? = null
@@ -27,18 +27,21 @@ class AudioSpan(
 
     override val html: String
         get() {
-            val htmlBuffer = StringBuilder("<attachment data-url=\"")
-            htmlBuffer.append(audioUrl)
-            htmlBuffer.append("\" data-type=\"02\"")
-            htmlBuffer.append(" data-file-name=\"")
+            val htmlBuffer = StringBuilder("<audio url=\"")
+            if (TextUtils.isEmpty(audioUrl)) {
+                htmlBuffer.append(audioPath)
+            } else {
+                htmlBuffer.append(audioUrl)
+            }
+            htmlBuffer.append(" name=\"")
             htmlBuffer.append(mAudioName)
-            htmlBuffer.append("\" data-file-size=\"")
+            htmlBuffer.append("\" size=\"")
             htmlBuffer.append(mAudioSize)
-            htmlBuffer.append("\" data-uploadtime=\"")
+            htmlBuffer.append("\" upload-time=\"")
             htmlBuffer.append(mUploadTime)
-            htmlBuffer.append("\" data-duration=\"")
+            htmlBuffer.append("\" duration=\"")
             htmlBuffer.append(mAudioDuration)
-            htmlBuffer.append("\" ></attachment>")
+            htmlBuffer.append("\" />")
             return htmlBuffer.toString()
         }
 
@@ -52,35 +55,12 @@ class AudioSpan(
             } else AudioType.UNKNOWN
         }
 
-    fun setUploadTime(uploadTime: String) {
-        mUploadTime = uploadTime
-    }
-
-    fun getmAudioUrl(): String {
-        return audioUrl
-    }
-
-    fun getmAudioName(): String {
-        return mAudioName
-    }
-
-    fun getmAudioSize(): String {
-        return mAudioSize
-    }
-
-    fun getmAudioDuration(): String {
-        return mAudioDuration
-    }
-
-    fun getmUploadTime(): String? {
-        return mUploadTime
-    }
 
     override fun uploadPath(): String {
         return audioPath
     }
 
-    override fun uploadFileSize(): String {
+    override fun uploadFileSize(): Int? {
         return mAudioSize
     }
 

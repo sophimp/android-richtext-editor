@@ -10,11 +10,11 @@ import android.text.style.ImageSpan
  */
 class VideoSpan(
     drawable: Drawable,
-    var localPath: String,
-    var videoUrl: String,
-    var videoName: String = "",
-    var videoSize: String = "0",
-    var videoDuration: String = ""
+    var localPath: String?,
+    var videoUrl: String?,
+    var videoName: String? = "",
+    var videoSize: Int? = 0,
+    var videoDuration: Int? = 0
 ) : ImageSpan(
     drawable), ISpan, IClickableSpan, IUploadSpan {
     var uploadTime: String? = ""
@@ -25,18 +25,15 @@ class VideoSpan(
 
     override val html: String
         get() {
-            val htmlBuffer = StringBuilder("<attachment data-url=\"")
-            htmlBuffer.append(videoUrl)
-            htmlBuffer.append("\" data-type=\"01\"")
-            htmlBuffer.append(" data-file-name=\"")
+            val htmlBuffer = StringBuilder("<video url=\"")
+            if (TextUtils.isEmpty(videoUrl)) {
+                htmlBuffer.append(localPath)
+            } else {
+                htmlBuffer.append(videoUrl)
+            }
+            htmlBuffer.append("\" name=\"")
             htmlBuffer.append(videoName)
-            htmlBuffer.append("\" data-file-size=\"")
-            htmlBuffer.append(videoSize)
-            htmlBuffer.append("\" data-uploadtime=\"")
-            htmlBuffer.append(uploadTime)
-            htmlBuffer.append("\" data-duration=\"")
-            htmlBuffer.append(videoDuration)
-            htmlBuffer.append("\" ></attachment>")
+            htmlBuffer.append("\" />")
             return htmlBuffer.toString()
         }
 
@@ -50,11 +47,11 @@ class VideoSpan(
             } else VideoType.UNKNOWN
         }
 
-    override fun uploadPath(): String {
+    override fun uploadPath(): String? {
         return localPath
     }
 
-    override fun uploadFileSize(): String {
+    override fun uploadFileSize(): Int? {
         return videoSize
     }
 }

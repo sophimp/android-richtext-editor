@@ -29,7 +29,7 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
     }
 
     companion object {
-        private lateinit var glideRequest: RequestManager
+        private var glideRequest: RequestManager? = null
         private var sWidth = 0
         private var sHeight = 0
 
@@ -65,10 +65,10 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
 
             if (!TextUtils.isEmpty(defaultSpan.localPath)) {
                 // local path
-                glideRequest.asBitmap().load(File(defaultSpan.localPath)).encodeQuality(10).into(resTarget)
+                glideRequest?.asBitmap()?.load(File(defaultSpan.localPath))?.encodeQuality(10)?.into(resTarget)
             } else {
                 // remote path
-                glideRequest.asBitmap().load(defaultSpan.url).encodeQuality(10).into(resTarget)
+                glideRequest?.asBitmap()?.load(defaultSpan.url)?.encodeQuality(10)?.into(resTarget)
             }
         }
     }

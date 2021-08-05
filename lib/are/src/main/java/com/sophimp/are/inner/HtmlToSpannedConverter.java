@@ -21,7 +21,6 @@ import android.text.style.SubscriptSpan;
 import android.text.style.SuperscriptSpan;
 import android.text.style.TypefaceSpan;
 
-import com.sophimp.are.AttachFileType;
 import com.sophimp.are.Constants;
 import com.sophimp.are.R;
 import com.sophimp.are.Util;
@@ -329,17 +328,9 @@ class HtmlToSpannedConverter implements ContentHandler {
                 tag.charAt(1) >= '1' && tag.charAt(1) <= '6') {
             startHeading(mSpannableStringBuilder, attributes, tag.charAt(1) - '1');
         } else if (tag.equalsIgnoreCase("img")) {
-            startImg(mSpannableStringBuilder, attributes, mImageGetter);
-        } else if (tag.equalsIgnoreCase("attachment")) {
-            String data_type = attributes.getValue("", "data-type");
-            if (AttachFileType.VIDEO.getAttachmentValue().equalsIgnoreCase(data_type)) {
-                startVideo(mSpannableStringBuilder, attributes, mImageGetter);
-            } else if (AttachFileType.AUDIO.getAttachmentValue().equalsIgnoreCase(data_type)) {
-                startAudio(mSpannableStringBuilder, attributes);
-            } else {
-                startAttachment(mSpannableStringBuilder, attributes);
-            }
-
+            startImg(mSpannableStringBuilder, attributes);
+        } else if (tag.equalsIgnoreCase("video")) {
+            startVideo(mSpannableStringBuilder, attributes);
         } else if (tag.equalsIgnoreCase("table")) {
             startTable(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("hr")) {
@@ -834,8 +825,7 @@ class HtmlToSpannedConverter implements ContentHandler {
         }
     }
 
-    private static void startImg(Editable text, Attributes attributes, Html.ImageGetter img) {
-        if (Html.sContext == null) return;
+    private static void startImg(Editable text, Attributes attributes) {
 
         String src = attributes.getValue("", "src");
         String width = attributes.getValue("", "width");
@@ -845,11 +835,14 @@ class HtmlToSpannedConverter implements ContentHandler {
         String uploadTime = attributes.getValue("", "uploadTime");
         String dataType = attributes.getValue("", "data-type");
 
-        if (width == null) {
+        if (width == null || !TextUtils.isDigitsOnly(width)) {
             width = "0";
         }
-        if (height == null) {
+        if (height == null || !TextUtils.isDigitsOnly(width)) {
             height = "0";
+        }
+        if (size == null || !TextUtils.isDigitsOnly(size)) {
+            size = "0";
         }
 
         int len = text.length();
@@ -867,21 +860,18 @@ class HtmlToSpannedConverter implements ContentHandler {
                 url = src;
             }
         }
-        ImageSpan2 defSpan = new ImageSpan2(defDrawable, localPath, url, name, size, Integer.parseInt(width), Integer.parseInt(height));
+        ImageSpan2 defSpan = new ImageSpan2(defDrawable, localPath, url, name, Long.parseLong(size), Integer.parseInt(width), Integer.parseInt(height));
         defSpan.setUploadTime(uploadTime);
         ImageStyle.Companion.addImageSpanToEditable(Html.sContext, text, len, defSpan);
     }
 
-    private static void startVideo(final Editable text, Attributes attributes, Html.ImageGetter imageGetter) {
+    private static void startVideo(final Editable text, Attributes attributes) {
 
-        if (Html.sContext == null) return;
-
-        String url = attributes.getValue("", "data-url");
-        String type = attributes.getValue("", "data-type");
-        final String name = attributes.getValue("", "data-file-name");
-        final String size = attributes.getValue("", "data-file-size");
-        String uploadTime = attributes.getValue("", "data-uploadtime");
-        final String duration = attributes.getValue("", "data-duration");
+        String url = attributes.getValue("", "url");
+        String name = attributes.getValue("", "name");
+        String size = attributes.getValue("", "size");
+        String uploadTime = attributes.getValue("", "upload-time");
+        String duration = attributes.getValue("", "duration");
 
         Drawable defDrawable = Html.sContext.getResources().getDrawable(R.mipmap.default_image);
         defDrawable.setBounds(0, 0, defDrawable.getIntrinsicWidth(), defDrawable.getIntrinsicHeight());
@@ -893,7 +883,13 @@ class HtmlToSpannedConverter implements ContentHandler {
                 videoUrl = url;
             }
         }
-        VideoSpan defSpan = new VideoSpan(defDrawable, localPath, videoUrl, name, size, duration);
+        if (size == null || !TextUtils.isDigitsOnly(size)) {
+            size = "0";
+        }
+        if (duration == null || !TextUtils.isDigitsOnly(duration)) {
+            duration = "0";
+        }
+        VideoSpan defSpan = new VideoSpan(defDrawable, localPath, videoUrl, name, Integer.parseInt(size), Integer.parseInt(duration));
         defSpan.setUploadTime(uploadTime);
         int len = text.length();
         // obj符号 "\uFFFC"
@@ -906,25 +902,11 @@ class HtmlToSpannedConverter implements ContentHandler {
 
         if (Html.sContext == null) return;
 
-        String url = attributes.getValue("", "data-url");
-        String type = attributes.getValue("", "data-type");
-        String name = attributes.getValue("", "data-file-name");
-        String size = attributes.getValue("", "data-file-size");
-        String uploadTime = attributes.getValue("", "data-uploadtime");
-        String duration = attributes.getValue("", "data-duration");
-
-    }
-
-    private static void startAttachment(Editable text, Attributes attributes) {
-        if (Html.sContext == null) return;
-
-        String url = attributes.getValue("", "data-url");
-        String type = attributes.getValue("", "data-type");
-        String name = attributes.getValue("", "data-file-name");
-        String size = attributes.getValue("", "data-file-size");
-        String uploadTime = attributes.getValue("", "data-uploadtime");
-        String duration = attributes.getValue("", "data-duration");
-        AttachFileType attachmentType = AttachFileType.getAttachmentTypeByValue(type);
+        String url = attributes.getValue("", "url");
+        String name = attributes.getValue("", "name");
+        String size = attributes.getValue("", "size");
+        String uploadTime = attributes.getValue("", "upload-time");
+        String duration = attributes.getValue("", "duration");
 
     }
 

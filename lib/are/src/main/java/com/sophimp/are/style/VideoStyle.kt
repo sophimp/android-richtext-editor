@@ -31,7 +31,7 @@ class VideoStyle(editText: RichEditText) : BaseFreeStyle<VideoSpan>(editText) {
     }
 
     companion object {
-        private lateinit var glideRequest: RequestManager
+        private var glideRequest: RequestManager? = null
         private var width = 0
         private var height = 0
 
@@ -73,10 +73,10 @@ class VideoStyle(editText: RichEditText) : BaseFreeStyle<VideoSpan>(editText) {
 
             if (!TextUtils.isEmpty(defaultSpan.localPath)) {
                 // local path
-                glideRequest.asBitmap().load(File(defaultSpan.localPath)).encodeQuality(10).into(resTarget)
+                glideRequest?.asBitmap()?.load(File(defaultSpan.localPath))?.encodeQuality(10)?.into(resTarget)
             } else {
                 // remote path
-                glideRequest.asBitmap().load(defaultSpan.videoUrl).encodeQuality(10).into(resTarget)
+                glideRequest?.asBitmap()?.load(defaultSpan.videoUrl)?.encodeQuality(10)?.into(resTarget)
             }
         }
     }
