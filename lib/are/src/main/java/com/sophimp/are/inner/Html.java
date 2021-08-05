@@ -211,7 +211,8 @@ public class Html {
      *
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
-    public static Spanned fromHtml(String source, int flags) {
+    public static Spanned fromHtml(Context context, String source, int flags) {
+        sContext = context.getApplicationContext();
         return fromHtml(source, flags, null, null);
     }
 
@@ -413,7 +414,7 @@ public class Html {
         }
 
         LineSpaceSpan[] lineSpaceSpans = text.getSpans(start, end, LineSpaceSpan.class);
-        if (lineSpaceSpans.length > 0) {
+        if (lineSpaceSpans.length > 0 && lineSpaceSpans[0].getFactor() > 1.0f) {
             DecimalFormat decimalFormat = new DecimalFormat(".00");
             String factor = decimalFormat.format(lineSpaceSpans[0].getFactor());
             lineHeight = String.format("line-height:%s;", factor);
@@ -434,6 +435,9 @@ public class Html {
             style.append(lineHeight);
         }
 
+        if (style.toString().equals(" style=\"")) {
+            return "";
+        }
         return style.append("\"").toString();
     }
 
@@ -480,7 +484,6 @@ public class Html {
                         } else if (paragraphStyle instanceof TodoSpan) {
                             closed = checkToClosePreviousList(out, listType, TODO_LIST);
                             listType = TODO_LIST;
-//                            out.append(((DRTodoSpan) paragraphStyle).getBeginHtml());
 
                             out.append("<" + listType).append(" ").append(((TodoSpan) paragraphStyle).getAttributeStr());
                         }
@@ -522,7 +525,7 @@ public class Html {
                     }
                 }
 
-                //为何会有这一堆判断呢？ WEB端把todo列表当成行内元素去处理了，不懂得怎么改，故替他们兼容了这个问题，所以TODO_LIST 还要单独处理，不能作为列表的形式处理。
+                // 默认以段落处理
                 String tagType = "p";
                 if ((OL.equals(listType) || UL.equals(listType))) {
                     tagType = "li";
@@ -618,9 +621,12 @@ public class Html {
 
             for (int j = 0; j < style.length; j++) {
                 if (style[j] instanceof ISpan) {
-                    out.append(((ISpan) style[j]).getHtml());
-                    i = next;
-                    continue;
+                    String spanLabel = ((ISpan) style[j]).getHtml();
+                    if (!TextUtils.isEmpty(spanLabel)) {
+                        out.append(spanLabel);
+                        i = next;
+                        continue;
+                    }
                 }
                 if (style[j] instanceof StyleSpan) {
                     int s = ((StyleSpan) style[j]).getStyle();
@@ -702,6 +708,7 @@ public class Html {
             withinStyle(out, text, i, next);
 
             for (int j = style.length - 1; j >= 0; j--) {
+
                 if (style[j] instanceof FontBackgroundColorSpan) {
                     out.append("</span>");
                 }

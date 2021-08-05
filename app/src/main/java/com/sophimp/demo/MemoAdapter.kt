@@ -31,7 +31,8 @@ class MemoAdapter(var data: List<MemoInfo>) : RecyclerView.Adapter<MemoAdapter.M
 
     override fun onBindViewHolder(holder: MemoHolder, position: Int) {
         holder.memoInfo = data[position]
-        holder.binding.richText.text = Html.fromHtml(data[position].richText, Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH)
+        holder.binding.richText.text =
+            Html.fromHtml(holder.binding.richText.context, data[position].richText, Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH)
     }
 
     inner class MemoHolder(view: View) : RecyclerView.ViewHolder(view) {

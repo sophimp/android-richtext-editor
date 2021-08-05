@@ -10,6 +10,8 @@ import androidx.room.PrimaryKey
  */
 @Entity
 data class MemoInfo(
-    @PrimaryKey val id: Long,
     var richText: String? = ""
-)
+) {
+    @PrimaryKey(autoGenerate = true)
+    var id: Long = 0
+}

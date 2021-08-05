@@ -217,8 +217,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
 
     fun fromHtml(html: String?): Spanned {
         if (html == null) return SpannableStringBuilder()
-        Html.sContext = context
-        val spannedFromHtml = Html.fromHtml(html, Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH)
+        val spannedFromHtml = Html.fromHtml(context, html, Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH)
         stopMonitor()
         setText(spannedFromHtml)
         startMonitor()

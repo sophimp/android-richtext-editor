@@ -10,7 +10,7 @@ import com.sophimp.demo.db.MemoInfo
 class EditActivity : AppCompatActivity() {
     lateinit var binding: ActivityEditBinding
     var memoDao = MemoDatabase.instance.getMemoDao()
-    var memoInfo = MemoInfo(0, "")
+    var memoInfo = MemoInfo("")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityEditBinding.inflate(layoutInflater)
