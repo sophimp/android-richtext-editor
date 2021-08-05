@@ -4,10 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.sophimp.are.RichEditText
+    <TextView
         android:id="@+id/rich_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
         android:layout_marginTop="10dp"
         android:maxLines="3"
         app:layout_constraintTop_toTopOf="parent" />

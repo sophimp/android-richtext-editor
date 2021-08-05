@@ -4,11 +4,14 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
+import android.text.SpannableStringBuilder
+import android.text.Spanned
 import android.text.TextWatcher
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
 import androidx.appcompat.widget.AppCompatEditText
+import com.sophimp.are.inner.Html
 import com.sophimp.are.spans.*
 import com.sophimp.are.style.IStyle
 import kotlin.math.min
@@ -160,7 +163,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                     }
                 }
 //                if (BuildConfig.DEBUG)
-//                    Util.log(("sgx cake before change selection: $beforeSelectionStart - $beforeSelectionEnd after change selection: $afterSelectionStart   \n textEvent: $textEvent start: $startPos end: $endPos changeText: $changedText"))
+//                    Util.log(("before change selection: $beforeSelectionStart - $beforeSelectionEnd after change selection: $afterSelectionStart   \n textEvent: $textEvent start: $startPos end: $endPos changeText: $changedText"))
                 stopMonitor()
 
                 for (style: IStyle in styleList) {
@@ -212,7 +215,25 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         uiHandler.postDelayed(runnable, delay);
     }
 
-    fun fromHtml(html: String) {
+    fun fromHtml(html: String?): Spanned {
+        if (html == null) return SpannableStringBuilder()
+        Html.sContext = context
+        val spannedFromHtml = Html.fromHtml(html, Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH)
+        stopMonitor()
+        setText(spannedFromHtml)
+        startMonitor()
+        return spannedFromHtml
+    }
+
+    fun toHtml(): String? {
+        stopMonitor()
+        Html.sContext = context
+        val html = StringBuffer()
+        val editTextHtml = Html.toHtml(editableText, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL)
+        html.append(editTextHtml)
+        val htmlContent = html.toString().replace(Constants.ZERO_WIDTH_SPACE_STR_ESCAPE.toRegex(), "")
+        startMonitor()
+        return htmlContent
     }
 
     var isChange: Boolean = false

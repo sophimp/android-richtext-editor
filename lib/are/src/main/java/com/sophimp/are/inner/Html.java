@@ -56,10 +56,11 @@ import com.sophimp.are.spans.TodoSpan;
 
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLReader;
 
 import java.text.DecimalFormat;
-import java.util.Observer;
 
 /**
  * This class processes HTML strings into displayable styled text.
@@ -77,30 +78,12 @@ public class Html {
 
     public static final String OL = "ol";
     public static final String UL = "ul";
-    public static final String TODO_LIST = "sgx-todolist";
-
-//    public static int sListNumber = -1;
-
-    /**
-     * discover版本解析
-     */
-    public static boolean isDiscoverVersion;
-
-    public static Observer videoThumbObserver;
-
-    /**
-     * 视频标签预览图有改变
-     */
-    public static Spanned fromHtml(String html, int fromHtmlSeparatorLineBreakParagraph, ImageGetter imageGetter, TagHandler tagHandler, boolean isNewVideoPreview) {
-        Html.isDiscoverVersion = isNewVideoPreview;
-
-        return fromHtml(html, fromHtmlSeparatorLineBreakParagraph, imageGetter, tagHandler);
-    }
+    public static final String TODO_LIST = "todo-list";
 
     /**
      * Retrieves images for HTML &lt;img&gt; tags.
      */
-    public static interface ImageGetter {
+    public interface ImageGetter {
         /**
          * This method is called when the HTML parser encounters an
          * &lt;img&gt; tag.  The <code>source</code> argument is the
@@ -110,7 +93,7 @@ public class Html {
          * setBounds() on your Drawable if it doesn't already have
          * its bounds set.
          */
-        public GlideResTarget getDrawable(String source, String width, String height, boolean isVideoDrawable);
+        GlideResTarget getDrawable(String source, String width, String height, boolean isVideoDrawable);
     }
 
     /**
@@ -260,18 +243,14 @@ public class Html {
      *
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
-    public static Spanned fromHtml(String source, int flags, ImageGetter imageGetter,
-                                   TagHandler tagHandler) {
+    public static Spanned fromHtml(String source, int flags, ImageGetter imageGetter, TagHandler tagHandler) {
         Parser parser = new Parser();
         try {
             HTMLSchema schema = HtmlParser.schema;
             schema.elementType(TODO_LIST, 1084794496, 288148, 0);
             schema.parent(TODO_LIST, "body");
             parser.setProperty(Parser.schemaProperty, schema);
-        } catch (org.xml.sax.SAXNotRecognizedException e) {
-            // Should not happen.
-            throw new RuntimeException(e);
-        } catch (org.xml.sax.SAXNotSupportedException e) {
+        } catch (SAXNotRecognizedException | SAXNotSupportedException e) {
             // Should not happen.
             throw new RuntimeException(e);
         }

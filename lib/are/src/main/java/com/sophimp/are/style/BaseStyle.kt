@@ -48,7 +48,7 @@ abstract class BaseStyle<T : ISpan>(private var curEditText: RichEditText) : ISt
                 // 最后一段换行符读不到
                 curPEnd = editable.length
             }
-            Util.log("sgx cake currentStart - end:$curPStart-$curPEnd")
+            Util.log("currentStart - end:$curPStart-$curPEnd")
             if (curPStart > curPEnd) {
                 // 这种情况理论上不存在， 但是之前的段落首尾算法有误， 后面修改就没有这种情况， 为了防止死循环，加上保险一点, 影响不了多少性能
                 index += 1

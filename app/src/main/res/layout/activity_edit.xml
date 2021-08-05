@@ -7,7 +7,7 @@
     android:fitsSystemWindows="true"
     android:paddingStart="12dp"
     android:paddingEnd="12dp"
-    tools:context=".EditActivity">
+    tools:context="com.sophimp.demo.EditActivity">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

@@ -117,7 +117,7 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
         if (lastPEnd <= lastPStart) return
         val preParagraphSpans = editable.getSpans(lastPEnd - 1, lastPEnd, targetClass())
         if (preParagraphSpans.isEmpty()) return
-        Util.log("sgx cake: 上一行: " + lastPStart + " - " + lastPEnd + " 当前行: " + mEditText.selectionStart + " - " + mEditText.selectionEnd)
+        Util.log("pre line: " + lastPStart + " - " + lastPEnd + " cur line: " + mEditText.selectionStart + " - " + mEditText.selectionEnd)
         val preSpanStart = editable.getSpanStart(preParagraphSpans[0]);
         // 先移除上一行的span
         removeSpans(editable, preParagraphSpans)
