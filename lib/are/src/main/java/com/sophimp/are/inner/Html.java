@@ -194,17 +194,6 @@ public class Html {
     }
 
     /**
-     * Returns displayable styled text from the provided HTML string with the legacy flags
-     * {@link #FROM_HTML_MODE_LEGACY}.
-     *
-     * @deprecated use {@link #fromHtml(String, int)} instead.
-     */
-    @Deprecated
-    public static Spanned fromHtml(String source) {
-        return fromHtml(source, FROM_HTML_MODE_LEGACY, null, null);
-    }
-
-    /**
      * Returns displayable styled text from the provided HTML string. Any &lt;img&gt; tags in the
      * HTML will display as a generic replacement image which your program can then go through and
      * replace with real images.
@@ -212,8 +201,7 @@ public class Html {
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
     public static Spanned fromHtml(Context context, String source, int flags) {
-        sContext = context.getApplicationContext();
-        return fromHtml(source, flags, null, null);
+        return fromHtml(context, source, flags, null, null);
     }
 
     /**
@@ -226,17 +214,6 @@ public class Html {
     }
 
     /**
-     * Returns displayable styled text from the provided HTML string with the legacy flags
-     * {@link #FROM_HTML_MODE_LEGACY}.
-     *
-     * @deprecated use {@link #fromHtml(String, int, ImageGetter, TagHandler)} instead.
-     */
-    @Deprecated
-    public static Spanned fromHtml(String source, ImageGetter imageGetter, TagHandler tagHandler) {
-        return fromHtml(source, FROM_HTML_MODE_LEGACY, imageGetter, tagHandler);
-    }
-
-    /**
      * Returns displayable styled text from the provided HTML string. Any &lt;img&gt; tags in the
      * HTML will use the specified ImageGetter to request a representation of the image (use null
      * if you don't want this) and the specified TagHandler to handle unknown tags (specify null if
@@ -244,7 +221,8 @@ public class Html {
      *
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
-    public static Spanned fromHtml(String source, int flags, ImageGetter imageGetter, TagHandler tagHandler) {
+    public static Spanned fromHtml(Context context, String source, int flags, ImageGetter imageGetter, TagHandler tagHandler) {
+        sContext = context.getApplicationContext();
         Parser parser = new Parser();
         try {
             HTMLSchema schema = HtmlParser.schema;
