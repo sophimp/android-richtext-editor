@@ -27,9 +27,9 @@ android-richtext-editor(ARE) 是基于Android原生Spannable架构实现，参�
 
 2. 操作特性
 
-- 段落样式的复制粘贴 (支持多段落)
-- 所有样式均支持导出HTML文件
+- 所有样式均支持导出HTML 文本
 - 加载HTML内容并继续编辑或显示
+![character_demo](https://github.com/sophimp/android-richtext-editor/blob/master/art/image_video.gif)
 
 ### 使用说明
 <b>具体使用查看 [DefaultToolbar#initDefaultToolItem](https://github.com/sophimp/android-richtext-editor/blob/master/lib/are/src/main/java/com/sophimp/are/toolbar/DefaultToolbar.kt) </b>
