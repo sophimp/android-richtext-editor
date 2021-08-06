@@ -271,7 +271,7 @@ class HtmlToSpannedConverter implements ContentHandler {
             // so we can safely emit the linebreaks when we handle the close tag.
         } else if (tag.equalsIgnoreCase("p")) {
             startBlockElement(mSpannableStringBuilder, attributes, 1);
-            startCssStyle(mSpannableStringBuilder, attributes);
+            startCssStyle(mSpannableStringBuilder, attributes, true);
         } else if (Html.TODO_LIST.equals(tag)) {
             String status = attributes.getValue("", "check");
             startTodo(mSpannableStringBuilder, attributes, "true".equalsIgnoreCase(status));
@@ -286,7 +286,7 @@ class HtmlToSpannedConverter implements ContentHandler {
         } else if (tag.equalsIgnoreCase("div")) {
             startBlockElement(mSpannableStringBuilder, attributes, 1);
         } else if (tag.equalsIgnoreCase("span")) {
-            startCssStyle(mSpannableStringBuilder, attributes);
+            startCssStyle(mSpannableStringBuilder, attributes, false);
         } else if (tag.equalsIgnoreCase("strong")) {
             start(mSpannableStringBuilder, new Bold());
         } else if (tag.equalsIgnoreCase("b")) {
@@ -356,7 +356,7 @@ class HtmlToSpannedConverter implements ContentHandler {
         if (tag.equalsIgnoreCase("br")) {
             handleBr(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("p")) {
-            endCssStyle(mSpannableStringBuilder);
+            endCssStyle(mSpannableStringBuilder, true);
             endBlockElement(mSpannableStringBuilder);
         } else if (Html.TODO_LIST.equalsIgnoreCase(tag)) {
             endTodo(mSpannableStringBuilder);
@@ -371,7 +371,7 @@ class HtmlToSpannedConverter implements ContentHandler {
         } else if (tag.equalsIgnoreCase("div")) {
             endBlockElement(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("span")) {
-            endCssStyle(mSpannableStringBuilder);
+            endCssStyle(mSpannableStringBuilder, false);
         } else if (tag.equalsIgnoreCase("strong")) {
             end(mSpannableStringBuilder, Bold.class, new BoldSpan());
         } else if (tag.equalsIgnoreCase("b")) {
@@ -562,11 +562,11 @@ class HtmlToSpannedConverter implements ContentHandler {
     private void startTodo(Editable text, Attributes attributes, boolean isCheck) {
         startBlockElement(text, attributes, getMarginListItem());
         start(text, new Todo(isCheck));
-        startCssStyle(text, attributes);
+        startCssStyle(text, attributes, true);
     }
 
     private static void endTodo(Editable text) {
-        endCssStyle(text);
+        endCssStyle(text, true);
         endBlockElement(text);
 //        end(text, Todo.class, new DRTodoSpan());
 
@@ -638,7 +638,7 @@ class HtmlToSpannedConverter implements ContentHandler {
 
     private void startLi(Editable text, Attributes attributes) {
         startBlockElement(text, attributes, getMarginListItem());
-        startCssStyle(text, attributes);
+        startCssStyle(text, attributes, true);
         Object peekEle = OL_UL_STACK.peek();
         int len = text.length();
         text.append(Constants.ZERO_WIDTH_SPACE_STR);
@@ -653,7 +653,7 @@ class HtmlToSpannedConverter implements ContentHandler {
 
 
     private static void endLi(Editable text) {
-        endCssStyle(text);
+        endCssStyle(text, true);
         endBlockElement(text);
         Object peekEle = OL_UL_STACK.peek();
         if (peekEle instanceof OL) {
@@ -730,7 +730,7 @@ class HtmlToSpannedConverter implements ContentHandler {
         }
     }
 
-    private void startCssStyle(Editable text, Attributes attributes) {
+    private void startCssStyle(Editable text, Attributes attributes, boolean isParagraph) {
         String style = attributes.getValue("", "style");
         if (style != null) {
             String[] split = style.split(";");
@@ -768,17 +768,19 @@ class HtmlToSpannedConverter implements ContentHandler {
                         int fontSize = getFontSize(m.group(1));
                         start(text, new FontSize(fontSize));
                     }
-                    m = getLineSpacePattern().matcher(s);
-                    if (m.find()) {
-                        float lineSpaceFactor = getLineSpaceFactor(m.group(1));
-                        start(text, new LineSpace(lineSpaceFactor));
-                    }
-                    m = getIndentPattern().matcher(s);
-                    if (m.find()) {
-                        String indentLength = m.group(1);
-                        int indentSize = getIndentSize(indentLength);
-                        if (indentSize > 0) {
-                            start(text, new Indent(indentSize));
+                    if (isParagraph) {
+                        m = getLineSpacePattern().matcher(s);
+                        if (m.find()) {
+                            float lineSpaceFactor = getLineSpaceFactor(m.group(1));
+                            start(text, new LineSpace(lineSpaceFactor));
+                        }
+                        m = getIndentPattern().matcher(s);
+                        if (m.find()) {
+                            String indentLength = m.group(1);
+                            int indentSize = getIndentSize(indentLength);
+                            if (indentSize > 0) {
+                                start(text, new Indent(indentSize));
+                            }
                         }
                     }
                 }
@@ -786,7 +788,7 @@ class HtmlToSpannedConverter implements ContentHandler {
         }
     }
 
-    private static void endCssStyle(Editable text) {
+    private static void endCssStyle(Editable text, boolean isParagraph) {
         Strikethrough s = getLast(text, Strikethrough.class);
         if (s != null) {
             setSpanFromMark(text, s, new StrikethroughSpan());
@@ -812,16 +814,18 @@ class HtmlToSpannedConverter implements ContentHandler {
             setSpanFromMark(text, fontSize, new FontSizeSpan(fontSize.mFontSize));
         }
 
-        LineSpace lineSpace = getLast(text, LineSpace.class);
-        if (lineSpace != null && lineSpace.factor > 1.0f) {
-            setSpanFromMark(text, lineSpace, new LineSpaceSpan(lineSpace.factor));
-        }
+        if (isParagraph) {
+            LineSpace lineSpace = getLast(text, LineSpace.class);
+            if (lineSpace != null && lineSpace.factor > 1.0f) {
+                setSpanFromMark(text, lineSpace, new LineSpaceSpan(lineSpace.factor));
+            }
 
-        Indent indent = getLast(text, Indent.class);
-        if (indent != null && indent.mIndentLength > 0) {
-            IndentSpan leadingMarginSpan = new IndentSpan(indent.mIndentLength / IndentSpan.LEADING_MARGIN);
+            Indent indent = getLast(text, Indent.class);
+            if (indent != null && indent.mIndentLength > 0) {
+                IndentSpan leadingMarginSpan = new IndentSpan(indent.mIndentLength / IndentSpan.LEADING_MARGIN);
 //            leadingMarginSpan.setLeadingMargin(indent.mIndentLength);
-            setSpanFromMark(text, indent, leadingMarginSpan);
+                setSpanFromMark(text, indent, leadingMarginSpan);
+            }
         }
     }
 
