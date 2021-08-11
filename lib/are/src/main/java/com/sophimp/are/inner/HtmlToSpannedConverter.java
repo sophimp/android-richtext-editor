@@ -685,8 +685,7 @@ class HtmlToSpannedConverter implements ContentHandler {
         // Their ranges should not include the newlines at the end
         Heading h = getLast(text, Heading.class);
         if (h != null) {
-            setSpanFromMark(text, h, new RelativeSizeSpan(HEADING_SIZES[h.mLevel]),
-                    new StyleSpan(Typeface.BOLD));
+            setSpanFromMark(text, h, new RelativeSizeSpan(HEADING_SIZES[h.mLevel]), new BoldSpan());
         }
 
         endBlockElement(text);
