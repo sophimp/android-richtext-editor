@@ -166,9 +166,9 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
 //                    Util.log(("before change selection: $beforeSelectionStart - $beforeSelectionEnd after change selection: $afterSelectionStart   \n textEvent: $textEvent start: $startPos end: $endPos changeText: $changedText"))
                 stopMonitor()
 
+                val epStart = Util.getParagraphStart(this@RichEditText, min(beforeSelectionStart, afterSelectionStart))
+                val epEnd = Util.getParagraphEnd(editableText, afterSelectionStart)
                 for (style: IStyle in styleList) {
-                    val epStart = Util.getParagraphStart(this@RichEditText, min(beforeSelectionStart, afterSelectionStart))
-                    val epEnd = Util.getParagraphEnd(editableText, afterSelectionStart)
                     style.applyStyle(s, textEvent, changedText, beforeSelectionStart, afterSelectionStart, epStart, epEnd)
                 }
                 refresh(0)
