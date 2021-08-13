@@ -164,6 +164,7 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
         }
         if (curTargetSpans.isEmpty()) return
 //        logAllSpans(editable, "即将删除的spans ", epStart, epEnd)
+        removeMutexSpans(epStart, epEnd)
         removeSpans(editable, curTargetSpans)
         setSpan(curTargetSpans[0], epStart, epEnd)
     }

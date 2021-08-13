@@ -129,6 +129,11 @@ abstract class BaseListStyle<B : IListSpan>(editText: RichEditText) : BaseParagr
         Util.renumberAllListItemSpans(editable)
     }
 
+    override fun removeMutexSpans(curPStart: Int, curPEnd: Int) {
+        val listSpans = mEditText.editableText.getSpans(curPStart, curPEnd, IListSpan::class.java)
+        removeSpans(mEditText.editableText, listSpans)
+    }
+
     /**
      * 处理删除事件
      */
