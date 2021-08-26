@@ -128,20 +128,17 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
             editable.delete(max(0, mEditText.selectionStart - 1), mEditText.selectionStart)
         } else {
             // case 1: 有内容换行,
-            var nSpan = newSpan()
-            if (preParagraphSpans.isNotEmpty()) {
-                // 前一行添加span
-                setSpan(preParagraphSpans[0], lastPStart, lastPEnd)
+            // 前一行添加span
+            setSpan(preParagraphSpans[0], lastPStart, lastPEnd)
 
-                nSpan = newSpan(preParagraphSpans[0])
-                // 当前行添加span
-                if (nSpan != null) {
-                    val curStart = lastPEnd + 1
-                    if (curStart >= editable.length || editable[curStart].toInt() != Constants.ZERO_WIDTH_SPACE_INT) {
-                        editable.insert(curStart, Constants.ZERO_WIDTH_SPACE_STR)
-                    }
-                    setSpan(nSpan, curStart, min(curStart + 1, editable.length))
+            val nSpan: ISpan? = newSpan(preParagraphSpans[0])
+            // 当前行添加span
+            if (nSpan != null) {
+                val curStart = lastPEnd + 1
+                if (curStart >= editable.length || editable[curStart].toInt() != Constants.ZERO_WIDTH_SPACE_INT) {
+                    editable.insert(curStart, Constants.ZERO_WIDTH_SPACE_STR)
                 }
+                setSpan(nSpan, curStart, min(curStart + 1, editable.length))
             }
         }
     }
