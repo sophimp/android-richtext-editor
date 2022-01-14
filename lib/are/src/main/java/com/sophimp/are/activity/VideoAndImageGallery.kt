@@ -347,7 +347,6 @@ class VideoAndImageGallery : AppCompatActivity(), View.OnClickListener {
                 mediaInfo.bucketDisplayName = bucketDisplayName
                 mediaInfo.bookmark = bookmark
 
-//                LogUtils.d("sfx mediaInfo = " + mediaInfo.toString());
                 mQueryMediaInfos.add(mediaInfo)
             } while (cursor.moveToNext())
             cursor.close()
@@ -380,7 +379,6 @@ class VideoAndImageGallery : AppCompatActivity(), View.OnClickListener {
                 mediaInfo.displayName = displayName
                 mediaInfo.dateAdded = dateAdded
                 mQueryMediaInfos.add(mediaInfo)
-                //                LogUtils.d("sfx mediaInfo = " + mediaInfo.toString());
             } while (cursor.moveToNext())
             cursor.close()
         }

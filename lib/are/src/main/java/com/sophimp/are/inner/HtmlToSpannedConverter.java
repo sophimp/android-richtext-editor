@@ -161,7 +161,7 @@ class HtmlToSpannedConverter implements ContentHandler {
                                   Html.TagHandler tagHandler, Parser parser, int flags) {
         // 先过滤表格，将内容缓存， 将所有表格标签及内容替换成<table/> 空标签，
         // 后续再解析此标签时，直接添加DRTableSpan，
-        // 在解析完html后，最后由 DREditText 渲染前， 再将DRTableSpan 反显成有内容的图片
+        // 在解析完html后，最后由 RichEditText 渲染前， 再将DRTableSpan 反显成有内容的图片
         StringBuilder tableFilter = new StringBuilder();
         int index = 0;
         richTableStrs.clear();

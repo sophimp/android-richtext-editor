@@ -22,7 +22,7 @@ import kotlin.math.min
  * @since: 2021/7/20
  */
 class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(context, attr) {
-    private var canMonitor: Boolean = true
+    var canMonitor: Boolean = true
     private val uiHandler = Handler(Looper.getMainLooper())
 
     private var styleList: MutableList<IStyle> = arrayListOf()

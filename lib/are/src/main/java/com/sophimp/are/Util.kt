@@ -26,13 +26,16 @@ import android.widget.TextView
 import android.widget.Toast
 import com.sophimp.are.spans.IndentSpan
 import com.sophimp.are.spans.ListNumberSpan
+import com.sophimp.are.table.TableCellInfo
 import java.io.File
 import java.util.*
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 import kotlin.math.max
 import kotlin.math.min
 
 object Util {
-
+    val textAlignPattern = Pattern.compile("(?:\\s+|\\A)text-align\\s*:\\s*(\\S*)\\b")
     var values = intArrayOf(1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1)
     var symbols = arrayOf("m", "cm", "d", "cd", "c", "xc", "l", "xl", "x", "ix", "v", "iv", "i")
 
@@ -49,6 +52,25 @@ object Util {
         if (BuildConfig.DEBUG) {
             Log.d("CAKE", s)
         }
+    }
+
+    /**
+     * 获取屏幕宽度(px)
+     */
+    @JvmStatic
+    fun getScreenWidth(context: Context?): Int {
+        return if (context == null || context.resources == null || context.resources.displayMetrics == null) {
+            480
+        } else context.resources.displayMetrics.widthPixels
+    }
+
+    /**
+     * dip 转 px
+     */
+    @JvmStatic
+    fun dip2px(context: Context, dpValue: Float): Int {
+        val scale = context.resources.displayMetrics.density
+        return (dpValue * scale + 0.5f).toInt()
     }
 
     /**
@@ -454,8 +476,6 @@ object Util {
         cv.drawBitmap(background, 0f, 0f, null)
         val fgLeft = (bgWidth - foreground.width) / 2
         val fgTop = (bgHeight - foreground.height) / 2
-
-//        LogUtils.d("sfx bgwdith: " + bgWidth + " bgheight: " + bgHeight + " fgwidth: " + foreground.getWidth() + " fgheight: " + foreground.getHeight());
 
         //draw fg into
         val src = Rect(
@@ -881,5 +901,88 @@ object Util {
         val layout: Layout = widget.layout
         val line: Int = layout.getLineForVertical(y)
         return layout.getOffsetForHorizontal(line, x.toFloat())
+    }
+
+    /**
+     * 解析表格数据，只适用单个表格，不适合嵌套表格
+     */
+    @JvmStatic
+    fun parseTableCell(html: String): List<List<TableCellInfo>> {
+        val tableData: MutableList<List<TableCellInfo>> = LinkedList<List<TableCellInfo>>()
+        if (TextUtils.isEmpty(html)) return tableData
+        var rowIndex = 0
+        while (rowIndex < html.length) {
+            val startTrStart = html.indexOf("<tr", rowIndex)
+            rowIndex = if (startTrStart >= 0) {
+                // 解析行
+                val startTrEnd = html.indexOf(">", startTrStart + 1)
+                if (startTrEnd > startTrStart) {
+                    val endTrStart = html.indexOf("</tr>", startTrEnd + 1)
+                    if (endTrStart > startTrEnd) {
+                        // 解析row
+                        tableData.add(parseRowCell(html.substring(startTrEnd + 1, endTrStart)))
+                        endTrStart + "</tr>".length
+                    } else {
+                        // 标签有误，跳过，继续后续的表格过滤
+                        startTrEnd + 1
+                    }
+                } else {
+                    // 标签有误， 跳过, 继续后续的表格过滤
+                    startTrStart + 1
+                }
+            } else {
+                // 没有了 tr
+                break
+            }
+        }
+        return tableData
+    }
+
+    private fun parseRowCell(rowHtml: String): List<TableCellInfo> {
+        val cellInfos: MutableList<TableCellInfo> = LinkedList()
+        var colIndex = 0
+        while (colIndex < rowHtml.length) {
+            val startTdStart = rowHtml.indexOf("<td", colIndex)
+            if (startTdStart >= 0) {
+                // 解析行
+                val startTdEnd = rowHtml.indexOf(">", startTdStart + 1)
+                if (startTdEnd > startTdStart) {
+                    val endTdStart = rowHtml.indexOf("</td>", startTdEnd + 1)
+                    if (endTdStart > startTdEnd) {
+                        val cellInfo = TableCellInfo(rowHtml.substring(startTdEnd + 1, endTdStart))
+                        // 解析cell
+                        cellInfos.add(cellInfo)
+                        // 解析 cell属性
+                        if (startTdEnd - startTdStart > "<td style=".length) {
+                            val style = rowHtml.substring(startTdStart + "<td ".length, startTdEnd)
+                            if (!TextUtils.isEmpty(style) && style.contains("style")) {
+                                val m: Matcher = textAlignPattern.matcher(style)
+                                if (m.find()) {
+                                    val alignment = m.group(1)
+                                    if (alignment.equals("start", ignoreCase = true) || alignment.equals("left", ignoreCase = true)) {
+                                        cellInfo.alignment = Layout.Alignment.ALIGN_NORMAL
+                                    } else if (alignment.equals("center", ignoreCase = true)) {
+                                        cellInfo.alignment = Layout.Alignment.ALIGN_CENTER
+                                    } else if (alignment.equals("end", ignoreCase = true) || alignment.equals("right", ignoreCase = true)) {
+                                        cellInfo.alignment = Layout.Alignment.ALIGN_OPPOSITE
+                                    }
+                                }
+                            }
+                        }
+                        colIndex = endTdStart + "</td>".length
+                    } else {
+                        // 标签有误，跳过，继续后续的表格过滤
+                        colIndex = startTdEnd + 1
+                    }
+                } else {
+                    // 标签有误， 跳过, 继续后续的表格过滤
+                    colIndex = startTdStart + 1
+                }
+            } else {
+                // 没有了 tr
+                break
+            }
+        }
+        return cellInfos
     }
 }

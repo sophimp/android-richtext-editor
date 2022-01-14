@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<com.sophimp.are.RichEditText xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/are_item"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:paddingStart="3dp"
+    android:paddingEnd="3dp"
+    android:textColor="#232323"
+    android:hint=""
+    android:minWidth="80dp" />

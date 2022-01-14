@@ -1,9 +1,7 @@
 
 ## Android 富文本编辑器
 
-android-richtext-editor(ARE) 是基于Android原生Spannable架构实现，参考了 [chinalwb/Android-Rich-text-Editor](https://github.com/chinalwb/Android-Rich-text-Editor)
-
-由于`chinalwb/Android-Rich-text-Editor`不再维护，随着定制需求与BUG修改越来越多，便想着使用kotlin重新实现一番，完善了每个style的实现细节，新增了几种Style实现。
+android-richtext-editor 是基于Android原生Spannable架构， 实现了常见的富文本样式
 
 ### 特性
 
@@ -31,6 +29,9 @@ android-richtext-editor(ARE) 是基于Android原生Spannable架构实现，参�
 - 加载HTML内容并继续编辑或显示
 
 ![image_video](https://github.com/sophimp/android-richtext-editor/blob/master/art/image_video.gif)
+
+### 感谢
+- [chinalwb/Android-Rich-text-Editor](https://github.com/chinalwb/Android-Rich-text-Editor)
 
 ### 使用说明
 <b>具体使用查看 [DefaultToolbar#initDefaultToolItem](https://github.com/sophimp/android-richtext-editor/blob/master/lib/are/src/main/java/com/sophimp/are/toolbar/DefaultToolbar.kt) </b>
