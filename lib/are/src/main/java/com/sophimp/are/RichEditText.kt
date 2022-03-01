@@ -202,13 +202,15 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
     }
 
     fun refresh(start: Int) {
-        stopMonitor()
-        editableText.insert(0, " ")
-        editableText.delete(0, 1)
-
-        editableText.insert(start, " ")
-        editableText.delete(start, start + 1)
-        startMonitor()
+        requestLayout()
+        invalidate()
+//        stopMonitor()
+//        editableText.insert(0, " ")
+//        editableText.delete(0, 1)
+//
+//        editableText.insert(start, " ")
+//        editableText.delete(start, start + 1)
+//        startMonitor()
     }
 
     fun postDelayUIRun(runnable: Runnable, delay: Long) {
