@@ -24,6 +24,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import com.sophimp.are.inner.Html
 import com.sophimp.are.spans.IndentSpan
 import com.sophimp.are.spans.ListNumberSpan
 import com.sophimp.are.table.TableCellInfo
@@ -34,7 +35,20 @@ import java.util.regex.Pattern
 import kotlin.math.max
 import kotlin.math.min
 
+/**
+ * 使用富文本前首需需要调用此方法
+ * 建议，在application调用
+ */
 object Util {
+    /**
+     * 使用富文本前首需需要调用此方法
+     * 建议，在application调用
+     */
+    fun initEnv(context: Context, server: IOssServer?) {
+        Html.sContext = context.applicationContext
+        Html.ossServer = server
+    }
+
     val textAlignPattern = Pattern.compile("(?:\\s+|\\A)text-align\\s*:\\s*(\\S*)\\b")
     var values = intArrayOf(1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1)
     var symbols = arrayOf("m", "cm", "d", "cd", "c", "xc", "l", "xl", "x", "ix", "v", "iv", "i")
@@ -48,6 +62,7 @@ object Util {
         Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
     }
 
+    @JvmStatic
     fun log(s: String) {
         if (BuildConfig.DEBUG) {
             Log.d("CAKE", s)
@@ -256,6 +271,7 @@ object Util {
         return getParagraphEnd(editText.editableText, lineEnd - 1)
     }
 
+    @JvmStatic
     fun renumberAllListItemSpans(editable: Editable) {
         // 所有的段落重新排序, 同级的段落
         Arrays.fill(levelCache, 1)
@@ -697,6 +713,7 @@ object Util {
     }
 
 
+    @JvmStatic
     fun view2Bitmap(view: View?): Bitmap? {
         if (view == null) return null
         val dm = view.context.resources.displayMetrics
@@ -985,4 +1002,43 @@ object Util {
         }
         return cellInfos
     }
+
+    @JvmStatic
+    fun getTimeDurationDesc(timeDuration: Long): String {
+        var timeDesc = "00:00"
+        if (timeDuration >= 1) {
+            timeDesc = if (timeDuration < 60) {   //小于60
+                "00:" + if (timeDuration < 10) "0" + timeDuration.toInt() else timeDuration.toInt()
+            } else {
+                val minute = (timeDuration / 60).toInt()
+                val seconds = (timeDuration % 60).toInt()
+                if (minute > 10) {
+                    minute.toString() + ":" + if (seconds < 10) "0" + seconds else seconds
+                } else {
+                    "0" + minute + ":" + if (seconds < 10) "0" + seconds else seconds
+                }
+            }
+        }
+        return timeDesc
+    }
+
+    fun getFileSizeDesc(fileSize: Long): String? {
+        return byte2FitMemorySize(fileSize, 2)
+    }
+
+    fun byte2FitMemorySize(byteSize: Long, precision: Int): String? {
+        require(precision >= 0) { "precision shouldn't be less than zero!" }
+        return if (byteSize <= 0) {
+            "0B"
+        } else if (byteSize < Constants.KB) {
+            String.format("%." + precision + "fB", byteSize.toDouble())
+        } else if (byteSize < Constants.MB) {
+            String.format("%." + precision + "fKB", byteSize.toDouble() / Constants.KB)
+        } else if (byteSize < Constants.GB) {
+            String.format("%." + precision + "fMB", byteSize.toDouble() / Constants.MB)
+        } else {
+            String.format("%." + precision + "fGB", byteSize.toDouble() / Constants.GB)
+        }
+    }
+
 }

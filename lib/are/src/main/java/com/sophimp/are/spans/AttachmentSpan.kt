@@ -10,13 +10,13 @@ import com.sophimp.are.inner.Html
  * @author: sfx
  * @since: 2021/7/20
  */
-class AudioSpan(
+class AttachmentSpan(
     bitmapDrawable: BitmapDrawable,
     var localPath: String?,
     var serverUrl: String?,
-    var mAudioName: String?,
-    var mAudioSize: Int,
-    var mAudioDuration: String
+    var audioName: String?,
+    var audioSize: Int,
+    var attachType: String
 ) : ImageSpan(bitmapDrawable), ISpan, IClickableSpan, IUploadSpan {
     private var mUploadTime: String? = null
 
@@ -28,15 +28,16 @@ class AudioSpan(
             } else {
                 htmlBuffer.append(Html.ossServer.getMemoAndDiaryImageUrl(serverUrl))
             }
-            htmlBuffer.append("\" data-type=\"02\"")
-            htmlBuffer.append(" data-file-name=\"")
-            htmlBuffer.append(mAudioName)
+            htmlBuffer.append("\" data-type=\"")
+            htmlBuffer.append(attachType)
+            htmlBuffer.append("\" data-file-name=\"")
+            htmlBuffer.append(audioName)
             htmlBuffer.append("\" data-file-size=\"")
-            htmlBuffer.append(mAudioSize)
+            htmlBuffer.append(audioSize)
             htmlBuffer.append("\" data-uploadtime=\"")
             htmlBuffer.append(mUploadTime)
             htmlBuffer.append("\" data-duration=\"")
-            htmlBuffer.append(mAudioDuration)
+            htmlBuffer.append("0")
             htmlBuffer.append("\" ></attachment>")
             return htmlBuffer.toString()
         }
@@ -46,7 +47,7 @@ class AudioSpan(
     }
 
     override fun uploadFileSize(): Int {
-        return mAudioSize
+        return audioSize
     }
 
 }

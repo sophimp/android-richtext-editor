@@ -2,6 +2,8 @@ package com.sophimp.demo
 
 import android.app.Application
 import android.content.Context
+import com.sophimp.are.IOssServer
+import com.sophimp.are.Util
 
 /**
  *
@@ -16,5 +18,19 @@ class AppApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         context = applicationContext
+        Util.initEnv(applicationContext, object : IOssServer {
+            override fun isServerPath(path: String?): Boolean {
+                return false
+            }
+
+            override fun getMemoAndDiaryImageUrl(url: String?): String {
+                return ""
+            }
+
+            override fun obtainOssPrefixByType(type: String): String {
+                return ""
+            }
+
+        })
     }
 }

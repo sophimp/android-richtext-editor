@@ -20,7 +20,12 @@ import android.text.style.StyleSpan;
 import android.text.style.SubscriptSpan;
 import android.text.style.SuperscriptSpan;
 import android.text.style.TypefaceSpan;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.sophimp.are.AttachFileType;
 import com.sophimp.are.Constants;
 import com.sophimp.are.R;
 import com.sophimp.are.Util;
@@ -32,18 +37,17 @@ import com.sophimp.are.spans.FontBackgroundColorSpan;
 import com.sophimp.are.spans.FontForegroundColorSpan;
 import com.sophimp.are.spans.FontSizeSpan;
 import com.sophimp.are.spans.HrSpan;
-import com.sophimp.are.spans.ImageSpan2;
 import com.sophimp.are.spans.IndentSpan;
 import com.sophimp.are.spans.LineSpaceSpan;
 import com.sophimp.are.spans.ListBulletSpan;
 import com.sophimp.are.spans.ListNumberSpan;
 import com.sophimp.are.spans.QuoteSpan2;
+import com.sophimp.are.spans.TableSpan;
 import com.sophimp.are.spans.TodoSpan;
 import com.sophimp.are.spans.UnderlineSpan2;
 import com.sophimp.are.spans.UrlSpan;
-import com.sophimp.are.spans.VideoSpan;
 import com.sophimp.are.style.ImageStyle;
-import com.sophimp.are.style.VideoStyle;
+import com.sophimp.are.style.MediaStyleHelper;
 
 import org.ccil.cowan.tagsoup.Parser;
 import org.xml.sax.Attributes;
@@ -53,7 +57,6 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -104,6 +107,7 @@ class HtmlToSpannedConverter implements ContentHandler {
     }
 
     private Bitmap defTableBitmap;
+    private boolean hasLastParagraph;
 
     private static Pattern getTextAlignPattern() {
         if (sTextAlignPattern == null) {
@@ -159,51 +163,62 @@ class HtmlToSpannedConverter implements ContentHandler {
 
     public HtmlToSpannedConverter(String source, Html.ImageGetter imageGetter,
                                   Html.TagHandler tagHandler, Parser parser, int flags) {
+        initDefaultTableDrawable();
         // 先过滤表格，将内容缓存， 将所有表格标签及内容替换成<table/> 空标签，
         // 后续再解析此标签时，直接添加DRTableSpan，
-        // 在解析完html后，最后由 RichEditText 渲染前， 再将DRTableSpan 反显成有内容的图片
+        // 在解析完html后，最后由 DREditText 渲染前， 再将DRTableSpan 反显成有内容的图片
         StringBuilder tableFilter = new StringBuilder();
         int index = 0;
         richTableStrs.clear();
-        while (index < source.length()) {
-            int startElementStart = source.indexOf("<table", index);
-            if (startElementStart >= 0) {
-                if (startElementStart > index) {
-                    tableFilter.append(source.substring(index, startElementStart));
-                }// else 相等，不必处理
-                // 查找<table> 结尾
-                int startElementEnd = source.indexOf(">", startElementStart + 1);
-                if (startElementEnd > startElementStart) {
-                    int endElementStart = source.indexOf("</table>", startElementEnd + 1);
-                    if (endElementStart > startElementEnd) {
-                        // 缓存表格
-                        index = endElementStart + "</table>".length();
-                        richTableStrs.add(source.substring(startElementStart, index));
-                        // 将此表格替换成 <table/> 标签
-                        tableFilter.append("<table/>");
+        if (!TextUtils.isEmpty(source)) {
+            while (index < source.length()) {
+                int startElementStart = source.indexOf("<table", index);
+                if (startElementStart >= 0) {
+                    if (startElementStart > index) {
+                        tableFilter.append(source.substring(index, startElementStart));
+                    }// else 相等，不必处理
+                    // 查找<table> 结尾
+                    int startElementEnd = source.indexOf(">", startElementStart + 1);
+                    if (startElementEnd > startElementStart) {
+                        int endElementStart = source.indexOf("</table>", startElementEnd + 1);
+                        if (endElementStart > startElementEnd) {
+                            // 缓存表格
+                            index = endElementStart + "</table>".length();
+                            richTableStrs.add(source.substring(startElementStart, index));
+                            // 将此表格替换成 <table/> 标签
+                            tableFilter.append("<table/>");
+                        } else {
+                            // 标签有误，跳过，继续后续的表格过滤
+                            index = startElementEnd + 1;
+                        }
                     } else {
-                        // 标签有误，跳过，继续后续的表格过滤
-                        index = startElementEnd + 1;
+                        // 标签有误， 跳过, 继续后续的表格过滤
+                        index = startElementStart + 1;
+                        continue;
                     }
                 } else {
-                    // 标签有误， 跳过, 继续后续的表格过滤
-                    index = startElementStart + 1;
-                    continue;
+                    // 没有了table
+                    tableFilter.append(source.substring(index));
+                    break;
                 }
-            } else {
-                // 没有了table
-                tableFilter.append(source.substring(index));
-                break;
             }
         }
-
         mSource = tableFilter.toString();
-
         mSpannableStringBuilder = new SpannableStringBuilder();
         mImageGetter = imageGetter;
         mTagHandler = tagHandler;
         mReader = parser;
         mFlags = flags;
+    }
+
+    private void initDefaultTableDrawable() {
+        if (defTableBitmap == null && Html.sContext != null) {
+            View view = LayoutInflater.from(Html.sContext).inflate(R.layout.layout_view_rich_media_preview, null);
+            ((ImageView) view.findViewById(R.id.edit_annex_icon_iv)).setImageResource(R.mipmap.icon_file_excel);
+            ((TextView) view.findViewById(R.id.edit_annex_title_tv)).setText("表格");
+            ((TextView) view.findViewById(R.id.edit_annex_subtitle_tv)).setText("点击查看");
+            defTableBitmap = Util.view2Bitmap(view);
+        }
     }
 
     public Spanned convert() {
@@ -235,7 +250,7 @@ class HtmlToSpannedConverter implements ContentHandler {
 
             if (end == start) {
                 mSpannableStringBuilder.removeSpan(obj[i]);
-            } else {
+            } else if (start < end) {
                 if (obj[i] instanceof LeadingMarginSpan) {
                     if (mSpannableStringBuilder.charAt(start) == '\n') {
                         start = start + 1;
@@ -247,7 +262,9 @@ class HtmlToSpannedConverter implements ContentHandler {
                     if (mSpannableStringBuilder.charAt(end - 1) == '\n') {
                         end = end - 1;
                     }
-                    mSpannableStringBuilder.setSpan(obj[i], start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                    if (start < end) {
+                        mSpannableStringBuilder.setSpan(obj[i], start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                    }
                 } else {
                     try {
                         mSpannableStringBuilder.setSpan(obj[i], start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
@@ -260,7 +277,7 @@ class HtmlToSpannedConverter implements ContentHandler {
 
         // 重新将 ListNumberSpan 排序
 //        Util.reNumberBehindListItemSpans(0, mSpannableStringBuilder);
-        Util.INSTANCE.renumberAllListItemSpans(mSpannableStringBuilder);
+        Util.renumberAllListItemSpans(mSpannableStringBuilder);
 
         return mSpannableStringBuilder;
     }
@@ -270,11 +287,12 @@ class HtmlToSpannedConverter implements ContentHandler {
             // We don't need to handle this. TagSoup will ensure that there's a </br> for each <br>
             // so we can safely emit the linebreaks when we handle the close tag.
         } else if (tag.equalsIgnoreCase("p")) {
+            hasLastParagraph = true;
             startBlockElement(mSpannableStringBuilder, attributes, 1);
             startCssStyle(mSpannableStringBuilder, attributes, true);
         } else if (Html.TODO_LIST.equals(tag)) {
-            String status = attributes.getValue("", "check");
-            startTodo(mSpannableStringBuilder, attributes, "true".equalsIgnoreCase(status));
+            String status = attributes.getValue("", "data-status");
+            startTodo(mSpannableStringBuilder, attributes, "done".equalsIgnoreCase(status));
         } else if (tag.equalsIgnoreCase("ol")) {
             startOL(mSpannableStringBuilder);
             startBlockElement(mSpannableStringBuilder, attributes, 1, false);
@@ -328,9 +346,17 @@ class HtmlToSpannedConverter implements ContentHandler {
                 tag.charAt(1) >= '1' && tag.charAt(1) <= '6') {
             startHeading(mSpannableStringBuilder, attributes, tag.charAt(1) - '1');
         } else if (tag.equalsIgnoreCase("img")) {
-            startImg(mSpannableStringBuilder, attributes);
-        } else if (tag.equalsIgnoreCase("video")) {
-            startVideo(mSpannableStringBuilder, attributes);
+            startImg(mSpannableStringBuilder, attributes, mImageGetter);
+        } else if (tag.equalsIgnoreCase("attachment")) {
+            String data_type = attributes.getValue("", "data-type");
+            if (AttachFileType.VIDEO.getAttachmentValue().equalsIgnoreCase(data_type)) {
+                startVideo(mSpannableStringBuilder, attributes, mImageGetter);
+            } else if (AttachFileType.AUDIO.getAttachmentValue().equalsIgnoreCase(data_type)) {
+                startAudio(mSpannableStringBuilder, attributes);
+            } else {
+                startAttachment(mSpannableStringBuilder, attributes);
+            }
+
         } else if (tag.equalsIgnoreCase("table")) {
             startTable(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("hr")) {
@@ -343,13 +369,13 @@ class HtmlToSpannedConverter implements ContentHandler {
     }
 
     private void startTable(SpannableStringBuilder text) {
-//        if (richTableStrs.size() > 0){
+        if (richTableStrs.size() > 0) {
 //            text.append("\n");
 //            text.append(" ");
-//            int len = text.length();
-//            text.append(Constants.ZERO_WIDTH_SPACE_STR);
-//            text.setSpan(new DRTableSpan(Html.sContext, defTableBitmap, richTableStrs.remove(0)), len, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-//        }
+            int len = text.length();
+            text.append(Constants.ZERO_WIDTH_SPACE_STR);
+            text.setSpan(new TableSpan(Html.sContext, richTableStrs.remove(0), defTableBitmap), len, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
     }
 
     private void handleEndTag(String tag) {
@@ -422,8 +448,8 @@ class HtmlToSpannedConverter implements ContentHandler {
     }
 
     private void endTable(SpannableStringBuilder text) {
-        text.append("\n");
-        text.append(" ");
+//        text.append("\n");
+//        text.append(" ");
     }
 
 
@@ -503,7 +529,7 @@ class HtmlToSpannedConverter implements ContentHandler {
     @SuppressLint("NewApi")
     private static void startBlockElement(Editable text, Attributes attributes, int margin, boolean parseIndent) {
         if (margin > 0) {
-            appendNewlines(text, margin);
+//            appendNewlines(text, margin);
             start(text, new Newline(margin));
         }
 
@@ -705,15 +731,19 @@ class HtmlToSpannedConverter implements ContentHandler {
         }
     }
 
-    private static void setSpanFromMark(Spannable text, Object mark, Object... spans) {
+    private static void setSpanFromMark(Spannable text, Object mark, int flag, Object... spans) {
         int where = text.getSpanStart(mark);
         text.removeSpan(mark);
         int len = text.length();
         if (where != len) {
             for (Object span : spans) {
-                text.setSpan(span, where, len, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                text.setSpan(span, where, len, flag);
             }
         }
+    }
+
+    private static void setSpanFromMark(Spannable text, Object mark, Object... span) {
+        setSpanFromMark(text, mark, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE, span);
     }
 
     private static void start(Editable text, Object mark) {
@@ -738,9 +768,12 @@ class HtmlToSpannedConverter implements ContentHandler {
 
                     Matcher m = getForegroundColorPattern().matcher(s);
                     if (m.find()) {
-                        int c = getHtmlColor(m.group(1));
-                        if (c != -1) {
-                            start(text, new Foreground(c | 0xFF000000));
+                        String colorStr = m.group(1);
+                        if (!"#232323".equals(colorStr)) {
+                            int c = getHtmlColor(colorStr);
+                            if (c != -1) {
+                                start(text, new Foreground(c | 0xFF000000, m.group(1)));
+                            }
                         }
                     }
 
@@ -748,7 +781,7 @@ class HtmlToSpannedConverter implements ContentHandler {
                     if (m.find()) {
                         int c = getHtmlColor(m.group(1));
                         if (c != -1) {
-                            start(text, new Background(c | 0xFF000000));
+                            start(text, new Background(c | 0xFF000000, m.group(1)));
                         }
                     }
 
@@ -765,7 +798,9 @@ class HtmlToSpannedConverter implements ContentHandler {
                     m = getFontSizePattern().matcher(s);
                     if (m.find()) {
                         int fontSize = getFontSize(m.group(1));
-                        start(text, new FontSize(fontSize));
+                        if (fontSize != Constants.DEFAULT_FONT_SIZE) {
+                            start(text, new FontSize(fontSize));
+                        }
                     }
                     if (isParagraph) {
                         m = getLineSpacePattern().matcher(s);
@@ -800,12 +835,12 @@ class HtmlToSpannedConverter implements ContentHandler {
 
         Background b = getLast(text, Background.class);
         if (b != null) {
-            setSpanFromMark(text, b, new FontBackgroundColorSpan(b.mBackgroundColor));
+            setSpanFromMark(text, b, new FontBackgroundColorSpan(b.colorStr));
         }
 
         Foreground f = getLast(text, Foreground.class);
         if (f != null) {
-            setSpanFromMark(text, f, new FontForegroundColorSpan(f.mForegroundColor));
+            setSpanFromMark(text, f, new FontForegroundColorSpan(f.colorStr));
         }
 
         FontSize fontSize = getLast(text, FontSize.class);
@@ -828,89 +863,130 @@ class HtmlToSpannedConverter implements ContentHandler {
         }
     }
 
-    private static void startImg(Editable text, Attributes attributes) {
+    private static void startImg(Editable text, Attributes attributes, Html.ImageGetter img) {
 
-        String src = attributes.getValue("", "src");
+        String src = Html.ossServer.getMemoAndDiaryImageUrl(attributes.getValue("", "src"));
         String width = attributes.getValue("", "width");
         String height = attributes.getValue("", "height");
-        String name = attributes.getValue("", "name");
-        String size = attributes.getValue("", "size");
-        String uploadTime = attributes.getValue("", "uploadTime");
+        String name = attributes.getValue("", "data-file-name");
+        String size = attributes.getValue("", "data-file-size");
+        String uploadTime = attributes.getValue("", "data-uploadtime");
         String dataType = attributes.getValue("", "data-type");
 
-        if (width == null || !TextUtils.isDigitsOnly(width)) {
+        if (width == null) {
             width = "0";
         }
-        if (height == null || !TextUtils.isDigitsOnly(width)) {
+        if (height == null) {
             height = "0";
         }
-        if (size == null || !TextUtils.isDigitsOnly(size)) {
-            size = "0";
-        }
-
-        int len = text.length();
-        // obj符号 "\uFFFC"
-        text.append("\uFFFC");
-        text.append("\n");
-
-        Drawable defDrawable = Html.sContext.getResources().getDrawable(R.mipmap.default_image);
-        defDrawable.setBounds(0, 0, defDrawable.getIntrinsicWidth(), defDrawable.getIntrinsicHeight());
-        String localPath = "", url = "";
-        if (!TextUtils.isEmpty(src)) {
-            if (new File(src).exists()) {
-                localPath = src;
+        int iwidth = 0, iheight = 0;
+        float density = Html.sContext.getResources().getDisplayMetrics().density;
+        if (TextUtils.isDigitsOnly(width)) {
+            if (dataType != null && dataType.equalsIgnoreCase(AttachFileType.STICKER.getAttachmentValue())) {
+                iwidth = Integer.parseInt(width);
             } else {
-                url = src;
+                iwidth = (int) (Integer.parseInt(width) * density + 0.5f);
             }
         }
-        ImageSpan2 defSpan = new ImageSpan2(defDrawable, localPath, url, name, Long.parseLong(size), Integer.parseInt(width), Integer.parseInt(height));
-        defSpan.setUploadTime(uploadTime);
-        ImageStyle.Companion.addImageSpanToEditable(Html.sContext, text, len, defSpan);
+        if (TextUtils.isDigitsOnly(height)) {
+            if (dataType != null && dataType.equalsIgnoreCase(AttachFileType.STICKER.getAttachmentValue())) {
+                iheight = Integer.parseInt(height);
+            } else {
+                iheight = (int) (Integer.parseInt(height) * density + 0.5f);
+            }
+        }
+
+
+        int len = text.length();
+        ImageStyle.Companion.addImageSpanToEditable(Html.sContext, text, len, iwidth, iheight, src, "");
+
+        if (dataType == null || dataType.equalsIgnoreCase(AttachFileType.IMG.getAttachmentValue())) {
+            // 非贴纸才再换行符
+            text.append("\n");
+        }
     }
 
-    private static void startVideo(final Editable text, Attributes attributes) {
+    private static void startVideo(final Editable text, Attributes attributes, Html.ImageGetter imageGetter) {
 
-        String url = attributes.getValue("", "url");
-        String name = attributes.getValue("", "name");
-        String size = attributes.getValue("", "size");
-        String uploadTime = attributes.getValue("", "upload-time");
-        String duration = attributes.getValue("", "duration");
-
-        Drawable defDrawable = Html.sContext.getResources().getDrawable(R.mipmap.default_image);
-        defDrawable.setBounds(0, 0, defDrawable.getIntrinsicWidth(), defDrawable.getIntrinsicHeight());
-        String localPath = "", videoUrl = "";
+        String url = attributes.getValue("", "data-url");
+        String localPath = "";
         if (!TextUtils.isEmpty(url)) {
-            if (new File(url).exists()) {
-                localPath = url;
+            // 新增了离线数据，需要将本地路径与服务端路径分清
+            String tmpUrl = Html.ossServer.getMemoAndDiaryImageUrl(url);
+            if (!Html.ossServer.isServerPath(tmpUrl)) {
+                localPath = tmpUrl;
+                url = "";
             } else {
-                videoUrl = url;
+                url = tmpUrl;
             }
         }
-        if (size == null || !TextUtils.isDigitsOnly(size)) {
-            size = "0";
-        }
-        if (duration == null || !TextUtils.isDigitsOnly(duration)) {
-            duration = "0";
-        }
-        VideoSpan defSpan = new VideoSpan(defDrawable, localPath, videoUrl, name, Integer.parseInt(size), Integer.parseInt(duration));
-        defSpan.setUploadTime(uploadTime);
-        int len = text.length();
-        // obj符号 "\uFFFC"
-        text.append("\uFFFC\n");
-        VideoStyle.Companion.addVideoSpanToEditable(Html.sContext, text, len, defSpan);
+        String type = attributes.getValue("", "data-type");
+        final String name = attributes.getValue("", "data-file-name");
+        final String size = attributes.getValue("", "data-file-size");
+        String uploadTime = attributes.getValue("", "data-uploadtime");
+        final String duration = attributes.getValue("", "data-duration");
 
+
+        if (Html.isDiscoverVersion) {
+            int sw = Util.getScreenWidth(Html.sContext);
+            int height = sw * 9 / 16;
+            String previewUrl = Html.ossServer.getMemoAndDiaryImageUrl(url);
+            if (previewUrl.contains("livelihood/uservideo")) {
+                previewUrl += "?x-oss-process=video/snapshot,t_100,f_jpg,w_800,h_0,m_fast,ar_auto";
+            }
+            Util.log("preview video url: " + previewUrl);
+            MediaStyleHelper.Companion.addFashionVideoSpanToEditable(Html.sContext, text, text.length(), sw, height, url, localPath, previewUrl);
+        } else {
+            MediaStyleHelper.Companion.addDetailVideoSpanToEditable(Html.sContext, text, text.length(), url, localPath, name, TextUtils.isEmpty(size) ? "0" : size, TextUtils.isEmpty(duration) ? "0" : "");
+        }
     }
 
     private static void startAudio(Editable text, Attributes attributes) {
 
-        if (Html.sContext == null) return;
+        String url = attributes.getValue("", "data-url");
+        String localPath = "";
+        if (!TextUtils.isEmpty(url)) {
+            // 新增了离线数据，需要将本地路径与服务端路径分清
+            String tmpUrl = Html.ossServer.getMemoAndDiaryImageUrl(url);
+            if (!Html.ossServer.isServerPath(tmpUrl)) {
+                localPath = tmpUrl;
+                url = "";
+            } else {
+                url = tmpUrl;
+            }
+        }
+        String type = attributes.getValue("", "data-type");
+        String name = attributes.getValue("", "data-file-name");
+        String size = attributes.getValue("", "data-file-size");
+        String uploadTime = attributes.getValue("", "data-uploadtime");
+        String duration = attributes.getValue("", "data-duration");
 
-        String url = attributes.getValue("", "url");
-        String name = attributes.getValue("", "name");
-        String size = attributes.getValue("", "size");
-        String uploadTime = attributes.getValue("", "upload-time");
-        String duration = attributes.getValue("", "duration");
+        MediaStyleHelper.Companion.addDetailAudioSpanToEditable(Html.sContext, text, text.length(), url, localPath, name, size, duration);
+    }
 
+    private static void startAttachment(Editable text, Attributes attributes) {
+
+        String url = attributes.getValue("", "data-url");
+        String localPath = "";
+        if (!TextUtils.isEmpty(url)) {
+            // 新增了离线数据，需要将本地路径与服务端路径分清
+            String tmpUrl = Html.ossServer.getMemoAndDiaryImageUrl(url);
+            if (!Html.ossServer.isServerPath(tmpUrl)) {
+                localPath = tmpUrl;
+                url = "";
+            } else {
+                url = tmpUrl;
+            }
+        }
+        String type = attributes.getValue("", "data-type");
+        String name = attributes.getValue("", "data-file-name");
+        String size = attributes.getValue("", "data-file-size");
+        String uploadTime = attributes.getValue("", "data-uploadtime");
+        String duration = attributes.getValue("", "data-duration");
+
+        AttachFileType attachmentType = AttachFileType.getAttachmentTypeByValue(type);
+
+        MediaStyleHelper.Companion.addDetailAttachmentSpanToEditable(Html.sContext, text, text.length(), url, localPath, name, size, attachmentType.getAttachmentValue());
     }
 
 
@@ -939,7 +1015,7 @@ class HtmlToSpannedConverter implements ContentHandler {
         if (!TextUtils.isEmpty(color)) {
             int c = getHtmlColor(color);
             if (c != -1) {
-                start(text, new Foreground(c | 0xFF000000));
+                start(text, new Foreground(c | 0xFF000000, color));
             }
         }
 
@@ -958,7 +1034,7 @@ class HtmlToSpannedConverter implements ContentHandler {
         Foreground foreground = getLast(text, Foreground.class);
         if (foreground != null) {
             setSpanFromMark(text, foreground,
-                    new FontForegroundColorSpan(foreground.mForegroundColor));
+                    new FontForegroundColorSpan(foreground.colorStr));
         }
     }
 
@@ -1019,6 +1095,15 @@ class HtmlToSpannedConverter implements ContentHandler {
 
     @Override
     public void endDocument() throws SAXException {
+//        LogUtils.d("sgx endDocument");
+        int len = mSpannableStringBuilder.length();
+        if (hasLastParagraph && len > 0 && mSpannableStringBuilder.charAt(len - 1) == '\n') {
+            // 删掉最后一段自动添加的一行换行
+            int start = Math.max(0, len - 1);
+            if (start < len) {
+                mSpannableStringBuilder.delete(start, len);
+            }
+        }
     }
 
     @Override
@@ -1157,17 +1242,21 @@ class HtmlToSpannedConverter implements ContentHandler {
 
     private static class Foreground {
         private int mForegroundColor;
+        private String colorStr;
 
-        public Foreground(int foregroundColor) {
+        public Foreground(int foregroundColor, String cStr) {
             mForegroundColor = foregroundColor;
+            colorStr = cStr;
         }
     }
 
     private static class Background {
         private int mBackgroundColor;
+        private String colorStr;
 
-        public Background(int backgroundColor) {
+        public Background(int backgroundColor, String cStr) {
             mBackgroundColor = backgroundColor;
+            colorStr = cStr;
         }
     }
 

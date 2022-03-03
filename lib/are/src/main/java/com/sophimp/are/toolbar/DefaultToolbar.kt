@@ -1,6 +1,7 @@
 package com.sophimp.are.toolbar
 
 import android.content.Context
+import android.graphics.Color
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
@@ -59,10 +60,10 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
 
         colorWindow = ColorPickerWindow(context)
         colorWindow.pickerListener = object : PickerListener {
-            override fun onPickValue(feature: Int) {
+            override fun onPickValue(feature: String) {
                 curPopItem?.iconView?.background = null
-                curPopItem?.iconView?.setMarkVisible(if (feature == Constants.DEFAULT_FEATURE) View.GONE else View.VISIBLE)
-                curPopItem?.iconView?.setMarkBackgroundColor(feature)
+                curPopItem?.iconView?.setMarkVisible(if (feature == Constants.DEFAULT_FONT_COLOR) View.GONE else View.VISIBLE)
+                curPopItem?.iconView?.setMarkBackgroundColor(Color.parseColor(feature))
                 (curPopItem?.mStyle as DynamicCharacterStyle<*>).onFeatureChanged(feature)
                 colorWindow.dismiss()
             }
@@ -70,9 +71,9 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
 
         fontWindow = FontSizeWindow(context)
         fontWindow.pickerListener = object : PickerListener {
-            override fun onPickValue(feature: Int) {
+            override fun onPickValue(feature: String) {
                 curPopItem?.iconView?.background = null
-                curPopItem?.iconView?.setMarkVisible(if (feature == Constants.DEFAULT_FEATURE) View.GONE else View.VISIBLE)
+                curPopItem?.iconView?.setMarkVisible(if (feature == Constants.DEFAULT_FONT_COLOR) View.GONE else View.VISIBLE)
                 curPopItem?.iconView?.setMarkText("$feature")
                 (curPopItem?.mStyle as DynamicCharacterStyle<*>).onFeatureChanged(feature)
                 fontWindow.dismiss()
@@ -97,7 +98,7 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
                     override fun onMediaChoose(mediaInfos: List<MediaInfo>) {
                         (item.mStyle as ImageStyle).apply {
                             for (info in mediaInfos) {
-                                addImageSpan(info.data!!)
+                                addImageSpan(info.data!!, "")
                             }
                         }
                     }
@@ -105,19 +106,7 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
             }
         }), true)
 
-        addToolbarItem(VideoToolItem(VideoStyle(editText), object : IToolbarItemClickAction {
-            override fun onItemClick(item: IToolbarItem) {
-                VideoAndImageGallery.startActivity(context, VideoAndImageGallery.QueryType.VIDEO, object : IMediaChooseListener {
-                    override fun onMediaChoose(mediaInfos: List<MediaInfo>) {
-                        (item.mStyle as VideoStyle).apply {
-                            for (info in mediaInfos) {
-                                addVideoSpan(info.data!!)
-                            }
-                        }
-                    }
-                })
-            }
-        }), true)
+        addToolbarItem(VideoToolItem(ImageStyle(editText)), true)
 
         // 可自行替换定制颜色选择器
         val dynamicItemClickAction = object : IToolbarItemClickAction {

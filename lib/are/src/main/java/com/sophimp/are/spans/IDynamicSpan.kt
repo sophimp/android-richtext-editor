@@ -6,5 +6,5 @@ package com.sophimp.are.spans
  * @since: 2021/7/20
  */
 interface IDynamicSpan : ISpan {
-    val dynamicFeature: Int
+    val dynamicFeature: String
 }

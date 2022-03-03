@@ -9,6 +9,7 @@ import android.text.Layout
 import android.text.Spannable
 import android.text.Spanned
 import android.text.style.AlignmentSpan
+import androidx.core.content.ContextCompat
 import com.sophimp.are.R
 import com.sophimp.are.RichEditText
 import kotlin.math.max
@@ -28,9 +29,9 @@ class TodoSpan : IClickableSpan, IListSpan {
     constructor(ctx: Context, isCheck: Boolean) {
         this.isCheck = isCheck
         drawable = if (isCheck) {
-            ctx.resources.getDrawable(R.mipmap.icon_checkbox_checked)
+            ContextCompat.getDrawable(ctx, R.mipmap.icon_checkbox_checked)!!
         } else {
-            ctx.resources.getDrawable(R.mipmap.icon_checkbox_unchecked)
+            ContextCompat.getDrawable(ctx, R.mipmap.icon_checkbox_unchecked)!!
         }
     }
 

@@ -6,10 +6,14 @@ import android.graphics.drawable.BitmapDrawable
 import android.text.Editable
 import android.text.Spannable
 import android.text.TextUtils
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
+import com.sophimp.are.AttachFileType
+import com.sophimp.are.Constants
 import com.sophimp.are.R
 import com.sophimp.are.RichEditText
+import com.sophimp.are.inner.Html
 import com.sophimp.are.render.GlideResTarget
 import com.sophimp.are.spans.ISpan
 import com.sophimp.are.spans.ImageSpan2
@@ -18,17 +22,16 @@ import kotlin.math.max
 import kotlin.math.min
 
 class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
-    val defaultDrawable = context.resources.getDrawable(R.mipmap.default_image)
 
     init {
         glideRequest = Glide.with(editText.context)
         val displayMetrics = editText.context.resources.displayMetrics
         sWidth = (displayMetrics.widthPixels - displayMetrics.density * 32).toInt()
         sHeight = displayMetrics.heightPixels
-        defaultDrawable.setBounds(0, 0, defaultDrawable.intrinsicWidth, defaultDrawable.intrinsicHeight)
     }
 
     companion object {
+        val defaultDrawable = ContextCompat.getDrawable(Html.sContext, R.mipmap.default_image)
         private var glideRequest: RequestManager? = null
         private var sWidth = 0
         private var sHeight = 0
@@ -37,23 +40,33 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
         /**
          * loadImage for html parse
          */
-        fun addImageSpanToEditable(context: Context, editable: Editable, start: Int, defaultSpan: ImageSpan2) {
+        fun addImageSpanToEditable(context: Context, editable: Editable, start: Int, width: Int, height: Int, url: String, localPath: String) {
+            defaultDrawable?.intrinsicWidth?.let { defaultDrawable.setBounds(0, 0, it, defaultDrawable.intrinsicHeight) }
+            val defaultSpan = ImageSpan2(defaultDrawable!!, localPath, url, "", AttachFileType.IMG.attachmentValue, 0, width, height)
+            editable.insert(start, Constants.ZERO_WIDTH_SPACE_STR)
             editable.setSpan(defaultSpan, start, start + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
             val resTarget = object : GlideResTarget(context,
                 defaultSpan.width,
                 defaultSpan.height,
-                if (TextUtils.isEmpty(defaultSpan.localPath)) defaultSpan.url else defaultSpan.localPath) {
+                if (TextUtils.isEmpty(defaultSpan.localPath)) defaultSpan.serverUrl else defaultSpan.localPath) {
                 override fun handleLoadedBitmap(compressBitmap: Bitmap, w: Int, h: Int, path: String?) {
                     val imageSpans = editable.getSpans(0, editable.length, ImageSpan2::class.java)
                     for (image in imageSpans) {
-                        if (TextUtils.equals(image.localPath, path) || TextUtils.equals(image.url, path)) {
+                        if (TextUtils.equals(image.localPath, path) || TextUtils.equals(image.serverUrl, path)) {
                             val spanStart = editable.getSpanStart(image)
                             val spanEnd = editable.getSpanEnd(image)
                             editable.removeSpan(image)
                             val loadedDrawable = BitmapDrawable(context.resources, compressBitmap)
                             loadedDrawable.setBounds(0, 0, w, h)
-                            val loadedImageSpan = ImageSpan2(loadedDrawable, defaultSpan.localPath, defaultSpan.url)
+                            val loadedImageSpan = ImageSpan2(loadedDrawable,
+                                defaultSpan.localPath,
+                                defaultSpan.serverUrl,
+                                defaultSpan.name,
+                                AttachFileType.IMG.attachmentValue,
+                                defaultSpan.size,
+                                defaultSpan.width,
+                                defaultSpan.height)
                             loadedImageSpan.size = defaultSpan.size
                             loadedImageSpan.name = defaultSpan.name
                             loadedImageSpan.uploadTime = defaultSpan.uploadTime
@@ -68,24 +81,25 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
                 glideRequest?.asBitmap()?.load(File(defaultSpan.localPath))?.encodeQuality(10)?.into(resTarget)
             } else {
                 // remote path
-                glideRequest?.asBitmap()?.load(defaultSpan.url)?.encodeQuality(10)?.into(resTarget)
+                glideRequest?.asBitmap()?.load(defaultSpan.serverUrl)?.encodeQuality(10)?.into(resTarget)
             }
         }
     }
 
     /**
      * insert ImageSpan
-     * if image width > screen width, will scale to screen width ratio to origin "width : height"
+     * if image width > screen width, will scale to screen width by ratio of origin "width : height"
      */
-    fun addImageSpan(path: String) {
+    fun addImageSpan(localPath: String, url: String) {
         val start = max(min(mEditText.selectionStart, mEditText.length()), 0)
         mEditText.editableText.replace(start, mEditText.selectionEnd, "\uFFFc\n")
-        val file = File(path)
-        val defaultImage = ImageSpan2(defaultDrawable, if (file.exists()) path else "", if (file.exists()) "" else path).apply {
-            this.width = defaultDrawable.intrinsicWidth
-            this.height = defaultDrawable.intrinsicHeight
-        }
-        addImageSpanToEditable(context, mEditText.editableText, start, defaultImage)
+        addImageSpanToEditable(context,
+            mEditText.editableText,
+            start,
+            defaultDrawable!!.intrinsicWidth,
+            defaultDrawable.intrinsicHeight,
+            url,
+            localPath)
     }
 
 

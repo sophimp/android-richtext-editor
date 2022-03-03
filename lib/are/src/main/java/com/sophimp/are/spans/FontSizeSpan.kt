@@ -10,7 +10,7 @@ import android.text.style.AbsoluteSizeSpan
  */
 class FontSizeSpan(size: Int) : AbsoluteSizeSpan(size, true), IDynamicSpan {
     private var mFontSize = size
-    override val dynamicFeature: Int
-        get() = mFontSize
+    override val dynamicFeature: String
+        get() = "$mFontSize"
 
 }

@@ -9,12 +9,7 @@ import kotlin.math.roundToInt
  * @author: sfx
  * @since: 2021/7/20
  */
-class LineSpaceSpan(factor: Float) : LineHeightSpan, ISpan {
-    var factor = factor
-        set(value) {
-            delta = -1f
-            field = value
-        }
+class LineSpaceSpan(var factor: Float) : LineHeightSpan, ISpan {
     private var targetDescent = -1
     var delta = -1f
     var originHeight = 0

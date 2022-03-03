@@ -9,22 +9,26 @@ import com.sophimp.are.spans.ISpan
 class FontSizeStyle(editText: RichEditText) :
     DynamicCharacterStyle<FontSizeSpan>(editText) {
 
-    private var mSize = Constants.DEFAULT_FEATURE
+    init {
+        mFeature = "${Constants.DEFAULT_FONT_SIZE}"
+    }
+
+    private var mSize = Constants.DEFAULT_FONT_SIZE
 
     override fun newSpan(inheritSpan: ISpan?): FontSizeSpan? {
         return when {
             inheritSpan != null ->
-                FontSizeSpan((inheritSpan as IDynamicSpan).dynamicFeature)
-            (mSize == Constants.DEFAULT_FEATURE) ->
+                FontSizeSpan((inheritSpan as IDynamicSpan).dynamicFeature.toInt())
+            (mSize == 0) ->
                 null
             else ->
                 FontSizeSpan(mSize)
         }
     }
 
-    override fun onFeatureChanged(feature: Int) {
-        mSize = feature
-        checkState = mSize != Constants.DEFAULT_FEATURE
+    override fun onFeatureChanged(feature: String) {
+        mSize = feature.toInt()
+        checkState = mSize != Constants.DEFAULT_FONT_SIZE
         handleAbsButtonClick(mEditText.selectionStart, mEditText.selectionEnd)
     }
 

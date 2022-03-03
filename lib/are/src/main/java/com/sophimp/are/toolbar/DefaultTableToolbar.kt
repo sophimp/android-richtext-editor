@@ -1,6 +1,7 @@
 package com.sophimp.are.toolbar
 
 import android.content.Context
+import android.graphics.Color
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
@@ -58,10 +59,10 @@ class DefaultTableToolbar(context: Context, attrs: AttributeSet?) :
 
         colorWindow = ColorPickerWindow(context)
         colorWindow.pickerListener = object : PickerListener {
-            override fun onPickValue(feature: Int) {
+            override fun onPickValue(feature: String) {
                 curPopItem?.iconView?.background = null
-                curPopItem?.iconView?.setMarkVisible(if (feature == Constants.DEFAULT_FEATURE) View.GONE else View.VISIBLE)
-                curPopItem?.iconView?.setMarkBackgroundColor(feature)
+                curPopItem?.iconView?.setMarkVisible(if (feature == Constants.DEFAULT_FONT_COLOR) View.GONE else View.VISIBLE)
+                curPopItem?.iconView?.setMarkBackgroundColor(Color.parseColor(feature))
                 (curPopItem?.mStyle as DynamicCharacterStyle<*>).onFeatureChanged(feature)
                 colorWindow.dismiss()
             }
@@ -69,10 +70,10 @@ class DefaultTableToolbar(context: Context, attrs: AttributeSet?) :
 
         fontWindow = FontSizeWindow(context)
         fontWindow.pickerListener = object : PickerListener {
-            override fun onPickValue(feature: Int) {
+            override fun onPickValue(feature: String) {
                 curPopItem?.iconView?.background = null
-                curPopItem?.iconView?.setMarkVisible(if (feature == Constants.DEFAULT_FEATURE) View.GONE else View.VISIBLE)
-                curPopItem?.iconView?.setMarkText("$feature")
+                curPopItem?.iconView?.setMarkVisible(if (feature == Constants.DEFAULT_FONT_COLOR) View.GONE else View.VISIBLE)
+                curPopItem?.iconView?.setMarkText(feature)
                 (curPopItem?.mStyle as DynamicCharacterStyle<*>).onFeatureChanged(feature)
                 fontWindow.dismiss()
             }
@@ -96,7 +97,7 @@ class DefaultTableToolbar(context: Context, attrs: AttributeSet?) :
                     override fun onMediaChoose(mediaInfos: List<MediaInfo>) {
                         (item.mStyle as ImageStyle).apply {
                             for (info in mediaInfos) {
-                                addImageSpan(info.data!!)
+                                addImageSpan(info.data!!, "")
                             }
                         }
                     }
@@ -104,13 +105,20 @@ class DefaultTableToolbar(context: Context, attrs: AttributeSet?) :
             }
         }), true)
 
-        addToolbarItem(VideoToolItem(VideoStyle(editText), object : IToolbarItemClickAction {
+        addToolbarItem(VideoToolItem(ImageStyle(editText), object : IToolbarItemClickAction {
             override fun onItemClick(item: IToolbarItem) {
                 VideoAndImageGallery.startActivity(context, VideoAndImageGallery.QueryType.VIDEO, object : IMediaChooseListener {
                     override fun onMediaChoose(mediaInfos: List<MediaInfo>) {
-                        (item.mStyle as VideoStyle).apply {
+                        (item.mStyle as MediaStyleHelper).apply {
                             for (info in mediaInfos) {
-                                addVideoSpan(info.data!!)
+                                MediaStyleHelper.addFashionVideoSpanToEditable(context,
+                                    editText.editableText,
+                                    editText.length(),
+                                    0,
+                                    0,
+                                    "",
+                                    info.data!!,
+                                    "")
                             }
                         }
                     }

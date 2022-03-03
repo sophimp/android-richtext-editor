@@ -1,16 +1,16 @@
 package com.sophimp.are.spans
 
+import android.graphics.Color
 import android.text.style.ForegroundColorSpan
-import androidx.annotation.ColorInt
 
 /**
  *
  * @author: sfx
  * @since: 2021/7/20
  */
-class FontForegroundColorSpan(@ColorInt color: Int) : ForegroundColorSpan(color), IDynamicSpan {
-    private var mColor = color
-    override val dynamicFeature: Int
-        get() = mColor
+class FontForegroundColorSpan(var colorString: String) : ForegroundColorSpan(Color.parseColor(colorString)), IDynamicSpan {
+    private var mColor = Color.parseColor(colorString)
+    override val dynamicFeature: String
+        get() = colorString
 
 }

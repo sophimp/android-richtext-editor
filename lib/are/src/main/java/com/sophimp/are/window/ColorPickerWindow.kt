@@ -18,7 +18,7 @@ import com.sophimp.are.databinding.PopupWindowColorBinding
  * @since: 2021/7/29
  */
 class ColorPickerWindow(context: Context) : PopupWindow(context) {
-    lateinit var colors: IntArray
+    lateinit var colors: Array<String>
 
     var pickerListener: PickerListener? = null
 
@@ -29,7 +29,7 @@ class ColorPickerWindow(context: Context) : PopupWindow(context) {
     private fun initView(context: Context) {
         width = WindowManager.LayoutParams.MATCH_PARENT
         height = WindowManager.LayoutParams.WRAP_CONTENT
-        colors = context.resources.getIntArray(R.array.colorPickerColors)
+        colors = context.resources.getStringArray(R.array.colorPickerColors)
         val binding = PopupWindowColorBinding.inflate(LayoutInflater.from(context))
         contentView = binding.root
         binding.rvPalette.layoutManager = GridLayoutManager(context, 2, GridLayoutManager.HORIZONTAL, false)
@@ -67,7 +67,8 @@ class ColorPickerWindow(context: Context) : PopupWindow(context) {
                     val bg = GradientDrawable()
                     bg.cornerRadius = holder.itemView.context.resources.displayMetrics.density * 40
                     val color = this@ColorPickerWindow.colors[position]
-                    bg.colors = intArrayOf(color, color)
+                    val colorInt = Color.parseColor(color)
+                    bg.colors = intArrayOf(colorInt, colorInt)
                     (holder.itemView as TextView).apply {
                         text = ""
                         background = bg
@@ -80,7 +81,7 @@ class ColorPickerWindow(context: Context) : PopupWindow(context) {
             init {
                 view.setOnClickListener {
                     if (adapterPosition == 0) {
-                        this@ColorPickerWindow.pickerListener?.onPickValue(Constants.DEFAULT_FEATURE)
+                        this@ColorPickerWindow.pickerListener?.onPickValue(Constants.DEFAULT_FONT_COLOR)
                     } else {
                         this@ColorPickerWindow.pickerListener?.onPickValue(this@ColorPickerWindow.colors[adapterPosition])
                     }

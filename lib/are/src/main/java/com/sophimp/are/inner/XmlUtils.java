@@ -115,10 +115,11 @@ public class XmlUtils {
      * Flatten a List into an XmlSerializer.  The list can later be read back
      * with readThisListXml().
      *
-     * @param val  The list to be flattened.
+     * @param val The list to be flattened.
      * @param name Name attribute to include with this list's tag, or null for
      *             none.
-     * @param out  XmlSerializer to write the list into.
+     * @param out XmlSerializer to write the list into.
+     *
      * @see #writeMapXml
      * @see #writeValueXml
      */
@@ -169,16 +170,17 @@ public class XmlUtils {
      * Flatten a byte[] into an XmlSerializer.  The list can later be read back
      * with readThisByteArrayXml().
      *
-     * @param val  The byte array to be flattened.
+     * @param val The byte array to be flattened.
      * @param name Name attribute to include with this array's tag, or null for
      *             none.
-     * @param out  XmlSerializer to write the array into.
+     * @param out XmlSerializer to write the array into.
+     *
      * @see #writeMapXml
      * @see #writeValueXml
      */
     public static final void writeByteArrayXml(byte[] val, String name,
                                                XmlSerializer out)
-            throws XmlPullParserException, java.io.IOException {
+    throws XmlPullParserException, java.io.IOException {
 
         if (val == null) {
             out.startTag(null, "null");
@@ -212,17 +214,18 @@ public class XmlUtils {
      * Flatten an int[] into an XmlSerializer.  The list can later be read back
      * with readThisIntArrayXml().
      *
-     * @param val  The int array to be flattened.
+     * @param val The int array to be flattened.
      * @param name Name attribute to include with this array's tag, or null for
      *             none.
-     * @param out  XmlSerializer to write the array into.
+     * @param out XmlSerializer to write the array into.
+     *
      * @see #writeMapXml
      * @see #writeValueXml
      * @see #readThisIntArrayXml
      */
     public static final void writeIntArrayXml(int[] val, String name,
                                               XmlSerializer out)
-            throws XmlPullParserException, java.io.IOException {
+    throws XmlPullParserException, java.io.IOException {
 
         if (val == null) {
             out.startTag(null, "null");
@@ -250,14 +253,15 @@ public class XmlUtils {
     /**
      * Flatten an object's value into an XmlSerializer.  The value can later
      * be read back with readThisValueXml().
-     * <p>
+     *
      * Currently supported value types are: null, String, Integer, Long,
      * Float, Double Boolean, Map, List.
      *
-     * @param v    The object to be flattened.
+     * @param v The object to be flattened.
      * @param name Name attribute to include with this value's tag, or null
      *             for none.
-     * @param out  XmlSerializer to write the object into.
+     * @param out XmlSerializer to write the object into.
+     *
      * @see #writeMapXml
      * @see #writeListXml
      */
@@ -334,9 +338,11 @@ public class XmlUtils {
      *
      * @param parser The XmlPullParser from which to read the map data.
      * @param endTag Name of the tag that will end the map, usually "map".
-     * @param name   An array of one string, used to return the name attribute
-     *               of the map's tag.
+     * @param name An array of one string, used to return the name attribute
+     *             of the map's tag.
+     *
      * @return HashMap The newly generated map.
+     *
      */
     public static final HashMap<String, ?> readThisMapXml(XmlPullParser parser, String endTag,
                                                           String[] name) throws XmlPullParserException, java.io.IOException {
@@ -368,9 +374,11 @@ public class XmlUtils {
      *
      * @param parser The XmlPullParser from which to read the list data.
      * @param endTag Name of the tag that will end the list, usually "list".
-     * @param name   An array of one string, used to return the name attribute
-     *               of the list's tag.
+     * @param name An array of one string, used to return the name attribute
+     *             of the list's tag.
+     *
      * @return HashMap The newly generated list.
+     *
      */
     public static final ArrayList readThisListXml(XmlPullParser parser, String endTag, String[] name)
             throws XmlPullParserException, java.io.IOException {
@@ -412,7 +420,7 @@ public class XmlUtils {
     public static final HashSet readThisSetXml(XmlPullParser parser, String endTag, String[] name)
             throws XmlPullParserException, java.io.IOException {
         HashSet set = new HashSet();
-
+        
         int eventType = parser.getEventType();
         do {
             if (eventType == parser.START_TAG) {
@@ -428,7 +436,7 @@ public class XmlUtils {
             }
             eventType = parser.next();
         } while (eventType != parser.END_DOCUMENT);
-
+        
         throw new XmlPullParserException(
                 "Document ended before " + endTag + " end tag");
     }
@@ -440,9 +448,11 @@ public class XmlUtils {
      *
      * @param parser The XmlPullParser from which to read the list data.
      * @param endTag Name of the tag that will end the list, usually "list".
-     * @param name   An array of one string, used to return the name attribute
-     *               of the list's tag.
+     * @param name An array of one string, used to return the name attribute
+     *             of the list's tag.
+     *
      * @return Returns a newly generated int[].
+     *
      */
     public static final int[] readThisIntArrayXml(XmlPullParser parser,
                                                   String endTag, String[] name)
@@ -592,9 +602,9 @@ public class XmlUtils {
             } else if ("long".equals(tagName)) {
                 return Long.parseLong(parser.getAttributeValue(null, "value"));
             } else if ("float".equals(tagName)) {
-                return new Float(parser.getAttributeValue(null, "value"));
+                return Float.parseFloat(parser.getAttributeValue(null, "value"));
             } else if ("double".equals(tagName)) {
-                return new Double(parser.getAttributeValue(null, "value"));
+                return Double.parseDouble(parser.getAttributeValue(null, "value"));
             } else if ("boolean".equals(tagName)) {
                 return Boolean.valueOf(parser.getAttributeValue(null, "value"));
             } else {

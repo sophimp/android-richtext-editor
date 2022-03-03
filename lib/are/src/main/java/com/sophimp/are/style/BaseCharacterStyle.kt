@@ -2,7 +2,6 @@ package com.sophimp.are.style
 
 import android.text.Editable
 import android.text.Spanned
-import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
 import com.sophimp.are.Util
 import com.sophimp.are.Util.getParagraphEnd
@@ -14,10 +13,7 @@ import kotlin.math.min
 abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
     BaseStyle<E>(editText) {
 
-    /**
-     * 0 -> [Constants.DEFAULT_FEATURE], 不需要设置新的span
-     */
-    protected var mFeature: Int = Constants.DEFAULT_FEATURE
+    protected var mFeature = ""
 
     override fun itemClickOnNonEmptyParagraph(curPStart: Int, curPEnd: Int): Int {
         handleAbsButtonClick(mEditText.selectionStart, mEditText.selectionEnd)

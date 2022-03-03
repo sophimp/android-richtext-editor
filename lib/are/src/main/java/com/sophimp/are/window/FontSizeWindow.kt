@@ -70,9 +70,9 @@ class FontSizeWindow(context: Context) : PopupWindow(context) {
             init {
                 view.setOnClickListener {
                     if (adapterPosition == 0) {
-                        this@FontSizeWindow.pickerListener?.onPickValue(Constants.DEFAULT_FEATURE)
+                        this@FontSizeWindow.pickerListener?.onPickValue("${Constants.DEFAULT_FONT_SIZE}")
                     } else {
-                        this@FontSizeWindow.pickerListener?.onPickValue(this@FontSizeWindow.fontSizes[adapterPosition])
+                        this@FontSizeWindow.pickerListener?.onPickValue("${this@FontSizeWindow.fontSizes[adapterPosition]}")
                     }
                 }
             }

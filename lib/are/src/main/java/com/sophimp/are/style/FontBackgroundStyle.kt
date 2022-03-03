@@ -8,21 +8,24 @@ import com.sophimp.are.spans.ISpan
 
 class FontBackgroundStyle(editText: RichEditText) :
     DynamicCharacterStyle<FontBackgroundColorSpan>(editText) {
+    init {
+        mFeature = Constants.DEFAULT_FONT_COLOR
+    }
 
     override fun newSpan(inheritSpan: ISpan?): FontBackgroundColorSpan? {
         return when {
             inheritSpan != null ->
                 FontBackgroundColorSpan((inheritSpan as IDynamicSpan).dynamicFeature)
-            mFeature == Constants.DEFAULT_FEATURE ->
+            mFeature.isNotEmpty() ->
                 null
             else ->
                 FontBackgroundColorSpan(mFeature)
         }
     }
 
-    override fun onFeatureChanged(feature: Int) {
+    override fun onFeatureChanged(feature: String) {
         this.mFeature = feature
-        checkState = this.mFeature != Constants.DEFAULT_FEATURE
+        checkState = this.mFeature.isNotEmpty()
         handleAbsButtonClick(mEditText.selectionStart, mEditText.selectionEnd)
     }
 

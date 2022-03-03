@@ -23,6 +23,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.Editable;
 import android.text.Layout;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
@@ -41,12 +42,9 @@ import android.text.style.TypefaceSpan;
 import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
 
-import androidx.annotation.NonNull;
-
-import com.sophimp.are.render.GlideResTarget;
+import com.sophimp.are.IOssServer;
 import com.sophimp.are.spans.FontBackgroundColorSpan;
 import com.sophimp.are.spans.FontForegroundColorSpan;
-import com.sophimp.are.spans.IListSpan;
 import com.sophimp.are.spans.ISpan;
 import com.sophimp.are.spans.IndentSpan;
 import com.sophimp.are.spans.LineSpaceSpan;
@@ -56,11 +54,10 @@ import com.sophimp.are.spans.TodoSpan;
 
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLReader;
 
 import java.text.DecimalFormat;
+import java.util.Observer;
 
 /**
  * This class processes HTML strings into displayable styled text.
@@ -70,20 +67,34 @@ public class Html {
 
     public static boolean escapeCJK = false;
 
-    /**
-     * should set value before use html
-     */
-    public static @NonNull
-    Context sContext;
+    public static Context sContext;
 
     public static final String OL = "ol";
     public static final String UL = "ul";
-    public static final String TODO_LIST = "todo-list";
+    public static final String TODO_LIST = "sgx-todolist";
+
+    public static IOssServer ossServer;
+
+    /**
+     * discover版本解析
+     */
+    public static boolean isDiscoverVersion;
+
+    public static Observer videoThumbObserver;
+
+    /**
+     * 视频标签预览图有改变
+     */
+    public static Spanned fromHtml(String html, int fromHtmlSeparatorLineBreakParagraph, ImageGetter imageGetter, TagHandler tagHandler, boolean isNewVideoPreview) {
+        Html.isDiscoverVersion = isNewVideoPreview;
+
+        return fromHtml(html, fromHtmlSeparatorLineBreakParagraph, imageGetter, tagHandler);
+    }
 
     /**
      * Retrieves images for HTML &lt;img&gt; tags.
      */
-    public interface ImageGetter {
+    public static interface ImageGetter {
         /**
          * This method is called when the HTML parser encounters an
          * &lt;img&gt; tag.  The <code>source</code> argument is the
@@ -93,7 +104,7 @@ public class Html {
          * setBounds() on your Drawable if it doesn't already have
          * its bounds set.
          */
-        GlideResTarget getDrawable(String source, String width, String height, boolean isVideoDrawable);
+//        public GlideResDrawable getDrawable(String source, String width, String height, boolean isVideoDrawable);
     }
 
     /**
@@ -165,14 +176,14 @@ public class Html {
     public static final int FROM_HTML_OPTION_USE_CSS_COLORS = 0x00000100;
 
     /**
-     * Flags for {@link #fromHtml(Context, String, int, ImageGetter, TagHandler)}: Separate block-level
+     * Flags for {@link #fromHtml(String, int, ImageGetter, TagHandler)}: Separate block-level
      * elements with blank lines (two newline characters) in between. This is the legacy behavior
      * prior to N.
      */
     public static final int FROM_HTML_MODE_LEGACY = 0x00000000;
 
     /**
-     * Flags for {@link #fromHtml(Context, String, int, ImageGetter, TagHandler)}: Separate block-level
+     * Flags for {@link #fromHtml(String, int, ImageGetter, TagHandler)}: Separate block-level
      * elements with line breaks (single newline character) in between. This inverts the
      * {@link Spanned} to HTML string conversion done with the option
      * {@link #TO_HTML_PARAGRAPH_LINES_INDIVIDUAL}.
@@ -194,14 +205,25 @@ public class Html {
     }
 
     /**
+     * Returns displayable styled text from the provided HTML string with the legacy flags
+     * {@link #FROM_HTML_MODE_LEGACY}.
+     *
+     * @deprecated use {@link #fromHtml(String, int)} instead.
+     */
+    @Deprecated
+    public static Spanned fromHtml(String source) {
+        return fromHtml(source, FROM_HTML_MODE_LEGACY, null, null);
+    }
+
+    /**
      * Returns displayable styled text from the provided HTML string. Any &lt;img&gt; tags in the
      * HTML will display as a generic replacement image which your program can then go through and
      * replace with real images.
      *
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
-    public static Spanned fromHtml(Context context, String source, int flags) {
-        return fromHtml(context, source, flags, null, null);
+    public static Spanned fromHtml(String source, int flags) {
+        return fromHtml(source, flags, null, null);
     }
 
     /**
@@ -214,6 +236,17 @@ public class Html {
     }
 
     /**
+     * Returns displayable styled text from the provided HTML string with the legacy flags
+     * {@link #FROM_HTML_MODE_LEGACY}.
+     *
+     * @deprecated use {@link #fromHtml(String, int, ImageGetter, TagHandler)} instead.
+     */
+    @Deprecated
+    public static Spanned fromHtml(String source, ImageGetter imageGetter, TagHandler tagHandler) {
+        return fromHtml(source, FROM_HTML_MODE_LEGACY, imageGetter, tagHandler);
+    }
+
+    /**
      * Returns displayable styled text from the provided HTML string. Any &lt;img&gt; tags in the
      * HTML will use the specified ImageGetter to request a representation of the image (use null
      * if you don't want this) and the specified TagHandler to handle unknown tags (specify null if
@@ -221,15 +254,19 @@ public class Html {
      *
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
-    public static Spanned fromHtml(Context context, String source, int flags, ImageGetter imageGetter, TagHandler tagHandler) {
-        sContext = context.getApplicationContext();
+    public static Spanned fromHtml(String source, int flags, ImageGetter imageGetter,
+                                   TagHandler tagHandler) {
+        if (TextUtils.isEmpty(source)) return new SpannableStringBuilder();
         Parser parser = new Parser();
         try {
             HTMLSchema schema = HtmlParser.schema;
             schema.elementType(TODO_LIST, 1084794496, 288148, 0);
             schema.parent(TODO_LIST, "body");
             parser.setProperty(Parser.schemaProperty, schema);
-        } catch (SAXNotRecognizedException | SAXNotSupportedException e) {
+        } catch (org.xml.sax.SAXNotRecognizedException e) {
+            // Should not happen.
+            throw new RuntimeException(e);
+        } catch (org.xml.sax.SAXNotSupportedException e) {
             // Should not happen.
             throw new RuntimeException(e);
         }
@@ -398,9 +435,9 @@ public class Html {
             lineHeight = String.format("line-height:%s;", factor);
         }
 
-//        if (margin == null && textAlign == null && lineHeight == null) {
-//            return "";
-//        }
+        if (margin == null && textAlign == null && lineHeight == null) {
+            return "";
+        }
 
         final StringBuilder style = new StringBuilder(" style=\"");
         if (margin != null && textAlign != null) {
@@ -413,9 +450,6 @@ public class Html {
             style.append(lineHeight);
         }
 
-        if (style.toString().equals(" style=\"")) {
-            return "";
-        }
         return style.append("\"").toString();
     }
 
@@ -445,13 +479,13 @@ public class Html {
                     out.append("</" + listType + ">");
                     listType = "";
                 } else {
-                    out.append("<br>");
+                    out.append("<br/>");
                 }
             } else {
                 boolean isListItem = false;
                 ParagraphStyle[] paragraphStyles = text.getSpans(i, next, ParagraphStyle.class);
                 for (ParagraphStyle paragraphStyle : paragraphStyles) {
-                    if (paragraphStyle instanceof IListSpan) {
+                    if (paragraphStyle instanceof ListNumberSpan) {
                         boolean closed = false;
                         if (paragraphStyle instanceof ListNumberSpan) {
                             closed = checkToClosePreviousList(out, listType, OL);
@@ -462,6 +496,7 @@ public class Html {
                         } else if (paragraphStyle instanceof TodoSpan) {
                             closed = checkToClosePreviousList(out, listType, TODO_LIST);
                             listType = TODO_LIST;
+//                            out.append(((DRTodoSpan) paragraphStyle).getBeginHtml());
 
                             out.append("<" + listType).append(" ").append(((TodoSpan) paragraphStyle).getAttributeStr());
                         }
@@ -503,7 +538,7 @@ public class Html {
                     }
                 }
 
-                // 默认以段落处理
+                //为何会有这一堆判断呢？ WEB端把todo列表当成行内元素去处理了，不懂得怎么改，故替他们兼容了这个问题，所以TODO_LIST 还要单独处理，不能作为列表的形式处理。
                 String tagType = "p";
                 if ((OL.equals(listType) || UL.equals(listType))) {
                     tagType = "li";
@@ -575,10 +610,10 @@ public class Html {
             withinParagraph(out, text, i, next - nl);
 
             if (nl == 1) {
-                out.append("<br>");
+                out.append("<br/>");
             } else {
                 for (int j = 2; j < nl; j++) {
-                    out.append("<br>");
+                    out.append("<br/>");
                 }
                 if (next != end) {
                     /* Paragraph should be closed and reopened */
@@ -599,12 +634,9 @@ public class Html {
 
             for (int j = 0; j < style.length; j++) {
                 if (style[j] instanceof ISpan) {
-                    String spanLabel = ((ISpan) style[j]).getHtml();
-                    if (!TextUtils.isEmpty(spanLabel)) {
-                        out.append(spanLabel);
-                        i = next;
-                        continue;
-                    }
+                    out.append(((ISpan) style[j]).getHtml());
+                    i = next;
+                    continue;
                 }
                 if (style[j] instanceof StyleSpan) {
                     int s = ((StyleSpan) style[j]).getStyle();
@@ -672,13 +704,15 @@ public class Html {
                     out.append(String.format("<span style=\"font-size:%.2fem;\">", sizeEm));
                 }
                 if (style[j] instanceof FontForegroundColorSpan) {
-                    int color = ((FontForegroundColorSpan) style[j]).getForegroundColor();
-                    out.append(String.format("<span style=\"color:#%06X;\">", 0xFFFFFF & color));
+                    String color = ((FontForegroundColorSpan) style[j]).getDynamicFeature();
+//                    out.append(String.format("<span style=\"color:#%06X;\">", 0xFFFFFF & color));
+                    out.append(String.format("<span style=\"color:%s;\">", color));
                 }
                 if (style[j] instanceof FontBackgroundColorSpan) {
-                    int color = ((FontBackgroundColorSpan) style[j]).getBackgroundColor();
-                    if (color != 0) {
-                        out.append(String.format("<span style=\"background-color:#%06X;\">", 0xFFFFFF & color));
+                    String color = ((FontBackgroundColorSpan) style[j]).getDynamicFeature();
+                    if (!TextUtils.isEmpty(color) && !"0".equals(color)) {
+//                        out.append(String.format("<span style=\"background-color:#%06X;\">", 0xFFFFFF & color));
+                        out.append(String.format("<span style=\"background-color:%s;\">", color));
                     }
                 }
             }
@@ -686,7 +720,6 @@ public class Html {
             withinStyle(out, text, i, next);
 
             for (int j = style.length - 1; j >= 0; j--) {
-
                 if (style[j] instanceof FontBackgroundColorSpan) {
                     out.append("</span>");
                 }

@@ -7,7 +7,7 @@ enum class AttachFileType(
     val attachmentValue: String,
     val dataType: String,
     @param:DrawableRes val resId: Int,
-    var suffixs: List<String>
+    var suffixs: List<String> = mutableListOf()
 ) {
     VIDEO("01", "video/*", R.mipmap.icon_video_play, listOf("m4a", "mp4", "avi", "mpg", "mov", "dat", "swf", "rm", "rmvb", "3gp", "mpeg", "mkv")),
     AUDIO("02", "audio/*", R.mipmap.icon_file_audio, listOf<String>("wav", "aif", "au", "mp3", "ram", "wma", "mmf", "amr", "aac", "flac")),
@@ -17,8 +17,10 @@ enum class AttachFileType(
     PDF("06", "application/pdf", R.mipmap.icon_file_pdf, listOf("pdf")),
     ZIP("07", "*/*", R.mipmap.icon_file_zip, listOf("rar", "zip", "arj", "gz", "tar", "tar.gz", "7z")),
     TXT("08", "text/plain", R.mipmap.icon_file_txt, listOf("txt")),
+    OTHER("09", "*/*", R.mipmap.icon_file_other, listOf()),
     IMG("10", "image/*", 0, listOf("bmp", "gif", "jpg", "jpeg", "tif", "png")),
-    OTHER("09", "*/*", R.mipmap.icon_file_other, listOf());
+    STICKER("11", "image/*", 0),
+    EMOJI("12", "image/*", 0);
 
     companion object {
         fun getAttachmentTypeBySuffix(suffix: String): AttachFileType {
@@ -85,6 +87,10 @@ enum class AttachFileType(
                 return TXT
             } else if (IMG.attachmentValue.equals(attachmentValue, ignoreCase = true)) {
                 return IMG
+            } else if (STICKER.attachmentValue.equals(attachmentValue, ignoreCase = true)) {
+                return STICKER
+            } else if (EMOJI.attachmentValue.equals(attachmentValue, ignoreCase = true)) {
+                return EMOJI
             }
             return OTHER
         }

@@ -26,5 +26,5 @@ abstract class DynamicCharacterStyle<E : IDynamicSpan>(editText: RichEditText) :
         return (span1 as IDynamicSpan).dynamicFeature == (span2 as IDynamicSpan).dynamicFeature
     }
 
-    abstract fun onFeatureChanged(feature: Int)
+    abstract fun onFeatureChanged(feature: String)
 }
