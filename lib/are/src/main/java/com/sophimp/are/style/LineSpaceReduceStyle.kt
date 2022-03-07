@@ -2,9 +2,9 @@ package com.sophimp.are.style
 
 import android.text.Editable
 import com.sophimp.are.RichEditText
-import com.sophimp.are.Util
 import com.sophimp.are.spans.ISpan
 import com.sophimp.are.spans.LineSpaceSpan
+import com.sophimp.are.utils.Util
 import kotlin.math.abs
 
 /**

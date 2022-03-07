@@ -15,7 +15,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.sophimp.are.R;
 import com.sophimp.are.RichEditText;
 import com.sophimp.are.databinding.ItemRichTableCellBinding;
+import com.sophimp.are.models.StyleChangedListener;
 import com.sophimp.are.toolbar.DefaultTableToolbar;
+import com.sophimp.are.utils.UndoRedoActionTypeEnum;
+import com.sophimp.are.utils.UndoRedoHelper;
 
 /**
  * @des: EditText的监听
@@ -28,6 +31,7 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
     private final DefaultTableToolbar richToolBar;
     private EditTableViewModel tableViewModel;
     private OnCellFocusListener cellFocusChangeListener;
+    private OnCellChangeListener cellChangeListener;
     private boolean shouldClearEmpty = true;
     private TableCellInfo lastFocusCell = null;
 
@@ -50,7 +54,7 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
         }
         helper.updateCellSize(position);
         if (helper.cellInfo.requestFocus) {
-            helper.binding.areItem.requestFocus();
+//            helper.binding.areItem.requestFocus();
             int selectionStart = Math.max(0, Math.min(helper.cellInfo.cursorSelectionStart, helper.binding.areItem.length()));
             int selectionEnd = Math.max(0, Math.min(helper.cellInfo.cursorSelectionEnd, helper.binding.areItem.length()));
             if (selectionStart < selectionEnd) {
@@ -67,6 +71,10 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
 
     public void setOnCellFocusListener(OnCellFocusListener onFocusChangeListener) {
         this.cellFocusChangeListener = onFocusChangeListener;
+    }
+
+    public void setCellChangeListener(OnCellChangeListener cellChangeListener) {
+        this.cellChangeListener = cellChangeListener;
     }
 
     @NonNull
@@ -98,10 +106,17 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                     if (!binding.areItem.getCanMonitor()) return;
+                    if (cellChangeListener != null) {
+                        cellChangeListener.beforeCellChange(
+                                new UndoRedoHelper.Action(cellInfo.richText, binding.areItem.getSelectionStart(), binding.areItem.getSelectionEnd(), UndoRedoActionTypeEnum.CHANGE, getAbsoluteAdapterPosition(), 0),
+                                getAbsoluteAdapterPosition() / tableViewModel.getCol(), getAbsoluteAdapterPosition() % tableViewModel.getCol()
+                        );
+                    }
                 }
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                    LogUtils.d("sgx table cell changed: " + s + " count: " + count);
                 }
 
                 @Override
@@ -113,7 +128,14 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
                     cellInfo.alignment = null;
                     cellInfo.cursorSelectionStart = binding.areItem.getSelectionStart();
                     cellInfo.cursorSelectionEnd = binding.areItem.getSelectionEnd();
+                    if (cellChangeListener != null) {
+                        cellChangeListener.afterCellChange(
+                                new UndoRedoHelper.Action(cellInfo.richText, cellInfo.cursorSelectionStart, cellInfo.cursorSelectionEnd, UndoRedoActionTypeEnum.CHANGE, getAbsoluteAdapterPosition(), 0),
+                                getAbsoluteAdapterPosition() / tableViewModel.getCol(), getAbsoluteAdapterPosition() % tableViewModel.getCol()
+                        );
+                    }
                     if (binding.areItem.getLayout() != null) {
+//                        LogUtils.d("sgx height: " + binding.areItem.getLayout().getHeight());
                         cellInfo.cellHeight = binding.areItem.getLayout().getHeight();
                         // 更新当前cell高度
                         tableViewModel.updateCellSize(getLayoutPosition(), cellInfo.cellHeight);
@@ -123,19 +145,19 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
             if (richToolBar != null && binding.areItem.hasFocus()) {
                 richToolBar.setCurEditText(binding.areItem);
             }
-//            binding.areItem.setStyleChangedListener(new StyleChangedListener() {
-//                @Override
-//                public void onStyleChanged(RichEditText RichEditText) {
-//                    cellInfo.richText = RichEditText.getHtml();
-//                    cellInfo.cursorSelectionStart = binding.areItem.getSelectionStart();
-//                    cellInfo.cursorSelectionEnd = binding.areItem.getSelectionEnd();
-//                    if (binding.areItem.getLayout() != null) {
-//                        cellInfo.cellHeight = binding.areItem.getLayout().getHeight();
-//                        // 更新当前cell高度
-//                        tableViewModel.updateCellSize(getAbsoluteAdapterPosition(), cellInfo.cellHeight);
-//                    }
-//                }
-//            });
+            binding.areItem.setStyleChangedListener(new StyleChangedListener() {
+                @Override
+                public void onStyleChanged(RichEditText arEdit) {
+                    cellInfo.richText = arEdit.toHtml();
+                    cellInfo.cursorSelectionStart = binding.areItem.getSelectionStart();
+                    cellInfo.cursorSelectionEnd = binding.areItem.getSelectionEnd();
+                    if (binding.areItem.getLayout() != null) {
+                        cellInfo.cellHeight = binding.areItem.getLayout().getHeight();
+                        // 更新当前cell高度
+                        tableViewModel.updateCellSize(getAbsoluteAdapterPosition(), cellInfo.cellHeight);
+                    }
+                }
+            });
             binding.areItem.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {

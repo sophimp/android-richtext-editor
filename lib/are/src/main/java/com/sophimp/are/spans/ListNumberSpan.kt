@@ -7,8 +7,7 @@ import android.text.Layout
 import android.text.Spanned
 import android.text.style.AlignmentSpan
 import androidx.annotation.RequiresApi
-import com.sophimp.are.Util
-import com.sophimp.are.spans.IndentSpan
+import com.sophimp.are.utils.Util
 
 /**
  * number list, with indent

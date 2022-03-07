@@ -5,7 +5,7 @@ import android.graphics.Paint
 import android.text.Layout
 import android.text.style.LeadingMarginSpan
 import com.sophimp.are.Constants
-import com.sophimp.are.Util.log
+import com.sophimp.are.utils.Util.log
 
 /**
  * indent

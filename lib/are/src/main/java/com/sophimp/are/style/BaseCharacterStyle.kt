@@ -3,9 +3,9 @@ package com.sophimp.are.style
 import android.text.Editable
 import android.text.Spanned
 import com.sophimp.are.RichEditText
-import com.sophimp.are.Util
-import com.sophimp.are.Util.getParagraphEnd
 import com.sophimp.are.spans.ISpan
+import com.sophimp.are.utils.Util
+import com.sophimp.are.utils.Util.getParagraphEnd
 import java.util.*
 import kotlin.math.max
 import kotlin.math.min

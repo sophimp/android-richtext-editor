@@ -2,10 +2,11 @@ package com.sophimp.demo
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.SpannableStringBuilder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.sophimp.are.Util
 import com.sophimp.are.demo.databinding.ActivityMainBinding
+import com.sophimp.are.utils.Util
 import com.sophimp.demo.db.MemoDao
 import com.sophimp.demo.db.MemoDatabase
 
@@ -28,6 +29,14 @@ class MainActivity : AppCompatActivity() {
 
         binding.rvMemoList.layoutManager = LinearLayoutManager(this)
         binding.rvMemoList.adapter = MemoAdapter(memoDao.queryMemoAll())
+
+        binding.btnGenerateRandom.setOnClickListener {
+            val spb = SpannableStringBuilder()
+            for (i in 0..10000) {
+
+            }
+//            val memoInfo = MemoInfo()
+        }
     }
 
     override fun onResume() {

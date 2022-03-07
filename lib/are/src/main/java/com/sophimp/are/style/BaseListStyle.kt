@@ -4,9 +4,9 @@ import android.text.Editable
 import android.text.Spanned
 import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
-import com.sophimp.are.Util
 import com.sophimp.are.spans.IListSpan
 import com.sophimp.are.spans.ISpan
+import com.sophimp.are.utils.Util
 
 /**
  * Abstract for ListBullet, ListTodo, ListNumber

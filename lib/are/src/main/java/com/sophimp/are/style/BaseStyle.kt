@@ -3,8 +3,8 @@ package com.sophimp.are.style
 import android.text.Editable
 import com.sophimp.are.BuildConfig
 import com.sophimp.are.RichEditText
-import com.sophimp.are.Util
 import com.sophimp.are.spans.ISpan
+import com.sophimp.are.utils.Util
 import java.util.*
 import kotlin.math.max
 

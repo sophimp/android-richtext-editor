@@ -15,14 +15,14 @@ import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.sophimp.are.Constants
 import com.sophimp.are.R
-import com.sophimp.are.Util
-import com.sophimp.are.Util.mergeBitMapWithLimit
-import com.sophimp.are.Util.view2Bitmap
 import com.sophimp.are.inner.Html
 import com.sophimp.are.render.GlideResTarget
 import com.sophimp.are.spans.AttachmentSpan
 import com.sophimp.are.spans.AudioSpan
 import com.sophimp.are.spans.VideoSpan
+import com.sophimp.are.utils.Util
+import com.sophimp.are.utils.Util.mergeBitMapWithLimit
+import com.sophimp.are.utils.Util.view2Bitmap
 
 /**
  * 视频，音频，附件辅助类

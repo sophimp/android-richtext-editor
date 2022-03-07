@@ -1,4 +1,4 @@
-package com.sophimp.are
+package com.sophimp.are.utils
 
 import android.annotation.SuppressLint
 import android.content.ContentUris
@@ -24,6 +24,9 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import com.sophimp.are.BuildConfig
+import com.sophimp.are.Constants
+import com.sophimp.are.IOssServer
 import com.sophimp.are.inner.Html
 import com.sophimp.are.spans.IndentSpan
 import com.sophimp.are.spans.ListNumberSpan
@@ -94,6 +97,7 @@ object Util {
      * @param editText
      * @return
      */
+    @JvmStatic
     fun getCurrentCursorLine(editText: EditText): Int {
         val selectionStart = Selection.getSelectionStart(editText.text)
         val layout = editText.layout ?: return -1
@@ -108,6 +112,7 @@ object Util {
      * @param editText
      * @return
      */
+    @JvmStatic
     fun getCurrentSelectionLines(editText: EditText): IntArray {
         val editable = editText.text
         val selectionStart = Selection.getSelectionStart(editable)
@@ -125,6 +130,7 @@ object Util {
         return lines
     }
 
+    @JvmStatic
     fun getAllSelectionLines(editText: EditText): List<AbstractMap.SimpleEntry<Int, Int>> {
         var selectionStart = editText.selectionStart
         var selectionEnd = editText.selectionEnd
@@ -156,6 +162,7 @@ object Util {
      * @param editText
      * @return
      */
+    @JvmStatic
     fun getThisLineStart(editText: EditText, currentLine: Int): Int {
         val layout = editText.layout
         var start = 0
@@ -172,6 +179,7 @@ object Util {
      * @param editText
      * @return
      */
+    @JvmStatic
     fun getThisLineEnd(editText: EditText, currentLine: Int): Int {
         val layout = editText.layout
         return if (-1 != currentLine) {

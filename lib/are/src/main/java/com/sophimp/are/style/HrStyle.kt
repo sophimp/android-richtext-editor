@@ -5,12 +5,12 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned
 import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
-import com.sophimp.are.Util.getParagraphEnd
-import com.sophimp.are.Util.getParagraphStart
 import com.sophimp.are.spans.HrSpan
 import com.sophimp.are.spans.IListSpan
 import com.sophimp.are.spans.ISpan
 import com.sophimp.are.spans.IndentSpan
+import com.sophimp.are.utils.Util.getParagraphEnd
+import com.sophimp.are.utils.Util.getParagraphStart
 
 class HrStyle(mEditText: RichEditText) : BaseFreeStyle<HrSpan>(mEditText) {
     override fun newSpan(inheritSpan: ISpan?): ISpan? {

@@ -24,8 +24,14 @@ public class TableCellInfo {
      */
     public int rowHeight;
 
+    /**
+     * 用于undo, redo
+     */
     public boolean requestFocus;
 
+    /**
+     * 用于undo, redo
+     */
     public int cursorSelectionStart;
     public int cursorSelectionEnd;
 

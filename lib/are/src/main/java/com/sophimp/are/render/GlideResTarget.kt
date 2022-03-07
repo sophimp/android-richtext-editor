@@ -6,7 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
-import com.sophimp.are.Util.compressByScale
+import com.sophimp.are.utils.Util.compressByScale
 
 abstract class GlideResTarget(ctx: Context, width: Int, height: Int, var path: String?) : CustomTarget<Bitmap?>() {
     private val res: Resources = ctx.resources

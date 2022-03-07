@@ -21,8 +21,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.sophimp.are.R;
 import com.sophimp.are.RichEditText;
-import com.sophimp.are.Util;
 import com.sophimp.are.databinding.DialogFragmentEditTableBinding;
+import com.sophimp.are.utils.Util;
 
 import java.util.List;
 

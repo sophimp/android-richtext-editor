@@ -19,8 +19,8 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.sophimp.are.R
-import com.sophimp.are.Util.toast
 import com.sophimp.are.models.MediaInfo
+import com.sophimp.are.utils.Util.toast
 import java.io.File
 import java.util.*
 

@@ -12,8 +12,11 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import androidx.appcompat.widget.AppCompatEditText
 import com.sophimp.are.inner.Html
+import com.sophimp.are.models.StyleChangedListener
 import com.sophimp.are.spans.*
 import com.sophimp.are.style.IStyle
+import com.sophimp.are.utils.UndoRedoHelper
+import com.sophimp.are.utils.Util
 import kotlin.math.min
 
 /**
@@ -22,6 +25,9 @@ import kotlin.math.min
  * @since: 2021/7/20
  */
 class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(context, attr) {
+
+    var styleChangedListener: StyleChangedListener? = null
+
     var canMonitor: Boolean = true
     private val uiHandler = Handler(Looper.getMainLooper())
 
@@ -67,6 +73,16 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         beforeSelectionEnd = selectionEnd
         gestureDetector.onTouchEvent(event)
         return super.onTouchEvent(event)
+    }
+
+    /**
+     * 标记内容(文字, style)发生了改变
+     */
+    fun setChanged() {
+        isChange = true
+        if (styleChangedListener != null) {
+            styleChangedListener!!.onStyleChanged(this)
+        }
     }
 
     /**
@@ -235,6 +251,10 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         val htmlContent = html.toString().replace(Constants.ZERO_WIDTH_SPACE_STR_ESCAPE.toRegex(), "")
         startMonitor()
         return htmlContent
+    }
+
+    fun registerToggleStyleObserver(toggleStyleObserver: UndoRedoHelper.ToggleStyleObserver) {
+
     }
 
     var isChange: Boolean = false

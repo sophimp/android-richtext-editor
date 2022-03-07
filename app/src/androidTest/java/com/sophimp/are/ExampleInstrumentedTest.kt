@@ -17,6 +17,12 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.sophimp.are", appContext.packageName)
+        assertEquals("com.sophimp.are.demo", appContext.packageName)
+    }
+
+    @Test
+    fun generateTestHtml() {
+        // 万字内样式不卡
+
     }
 }

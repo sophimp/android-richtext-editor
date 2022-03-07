@@ -28,7 +28,6 @@ import android.widget.TextView;
 import com.sophimp.are.AttachFileType;
 import com.sophimp.are.Constants;
 import com.sophimp.are.R;
-import com.sophimp.are.Util;
 import com.sophimp.are.models.AtItem;
 import com.sophimp.are.spans.AtSpan;
 import com.sophimp.are.spans.BoldSpan;
@@ -48,6 +47,7 @@ import com.sophimp.are.spans.UnderlineSpan2;
 import com.sophimp.are.spans.UrlSpan;
 import com.sophimp.are.style.ImageStyle;
 import com.sophimp.are.style.MediaStyleHelper;
+import com.sophimp.are.utils.Util;
 
 import org.ccil.cowan.tagsoup.Parser;
 import org.xml.sax.Attributes;

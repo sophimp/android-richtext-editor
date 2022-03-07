@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import com.sophimp.are.Util
 import com.sophimp.are.demo.databinding.ActivityEditBinding
+import com.sophimp.are.utils.Util
 import com.sophimp.demo.db.MemoDatabase
 import com.sophimp.demo.db.MemoInfo
 

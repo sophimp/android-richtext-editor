@@ -5,7 +5,9 @@ import android.content.Context;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.sophimp.are.Util;
+import com.sophimp.are.utils.UndoRedoActionTypeEnum;
+import com.sophimp.are.utils.UndoRedoHelper;
+import com.sophimp.are.utils.Util;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -272,6 +274,30 @@ public class EditTableViewModel extends ViewModel implements IEditTableView {
         col = parseTableCell.get(0).size();
         updateCellWidth(col);
         refreshRow.postValue(new int[]{RefreshEvent.ADD_OR_DELETE_COL, 0, 0});
+    }
+
+    @Override
+    public void notifyItemChanged(UndoRedoHelper.Action action) {
+        List<List<TableCellInfo>> datas = dataSource;
+        List<TableCellInfo> rowDatas = datas.get(Math.min(action.row, datas.size() - 1));
+        TableCellInfo cellInfo = rowDatas.get(Math.min(action.col, rowDatas.size() - 1));
+        cellInfo.requestFocus = true;
+        cellInfo.richText = action.actionTarget.toString();
+        cellInfo.cursorSelectionStart = action.startCursor;
+        cellInfo.cursorSelectionEnd = action.endCursor;
+        switch (action.actionType) {
+            case UndoRedoActionTypeEnum.ADD_COL:
+            case UndoRedoActionTypeEnum.DEL_COL:
+                refreshRow.postValue(new int[]{RefreshEvent.ADD_OR_DELETE_COL, -1, action.col});
+                break;
+            case UndoRedoActionTypeEnum.ADD_ROW:
+            case UndoRedoActionTypeEnum.DEL_ROW:
+                refreshRow.postValue(new int[]{RefreshEvent.ADD_OR_DELETE_ROW, action.row, -1});
+                break;
+            default:
+                refreshRow.postValue(new int[]{RefreshEvent.REFRESH_ROW, action.row, action.col});
+                break;
+        }
     }
 
 }

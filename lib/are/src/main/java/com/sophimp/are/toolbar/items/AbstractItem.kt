@@ -1,10 +1,10 @@
 package com.sophimp.are.toolbar.items
 
 import android.content.Context
-import com.sophimp.are.Util.log
 import com.sophimp.are.style.IStyle
 import com.sophimp.are.toolbar.IToolbarItemClickAction
 import com.sophimp.are.toolbar.ItemView
+import com.sophimp.are.utils.Util.log
 
 /**
  * @author: sfx

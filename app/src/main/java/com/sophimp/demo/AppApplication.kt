@@ -3,7 +3,7 @@ package com.sophimp.demo
 import android.app.Application
 import android.content.Context
 import com.sophimp.are.IOssServer
-import com.sophimp.are.Util
+import com.sophimp.are.utils.Util
 
 /**
  *
