@@ -56,10 +56,6 @@
 
     <color name="black_overlay">#66000000</color>
 
-    <array name="colors">
-        <item>#000000</item>
-        <item>#0000FF</item>
-    </array>
     <color name="table_view_default_separator_color">#E7E7E7</color>
     <color name="table_view_default_unselected_background_color">#ffffff</color>
     <color name="table_view_default_selected_background_color">#fada65</color>

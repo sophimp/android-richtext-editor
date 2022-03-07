@@ -49,7 +49,7 @@ afterEvaluate { project ->
                     authentication(userName: "hcll", password: "pass1234")
                 }
 
-                pom.version = "0.0.1"
+                pom.version = "0.0.3"
                 pom.artifactId = "android-are"
                 pom.groupId = "com.sophimp.are"
             }
