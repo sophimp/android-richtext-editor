@@ -29,7 +29,7 @@ class ColorPickerWindow(context: Context) : PopupWindow(context) {
     private fun initView(context: Context) {
         width = WindowManager.LayoutParams.MATCH_PARENT
         height = WindowManager.LayoutParams.WRAP_CONTENT
-        colors = context.resources.getStringArray(R.array.colorPickerColors)
+        colors = context.resources.getStringArray(R.array.pickerColors)
         val binding = PopupWindowColorBinding.inflate(LayoutInflater.from(context))
         contentView = binding.root
         binding.rvPalette.layoutManager = GridLayoutManager(context, 2, GridLayoutManager.HORIZONTAL, false)

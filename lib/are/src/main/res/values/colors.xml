@@ -3,7 +3,7 @@
     <!--<color name="colorPrimaryX">#3F51B5</color>-->
     <!--<color name="colorPrimaryDarkX">#303F9F</color>-->
     <!--<color name="colorAccentX">#FF4081</color>-->
-    <string-array name="colorPickerColors">
+    <string-array name="pickerColors">
         <item>#232323</item>
         <item>#9D9DA1</item>
         <item>#F9C35B</item>

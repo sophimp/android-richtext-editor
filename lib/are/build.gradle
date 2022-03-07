@@ -36,8 +36,11 @@ android {
     viewBinding {
         enabled true
     }
-}
 
+//    packagingOptions {
+//        exclude 'libs/tagsoup-1.2.1.jar'
+//    }
+}
 afterEvaluate { project ->
     uploadArchives {
         repositories {
