@@ -5,8 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.sophimp.are.R
-import com.sophimp.are.databinding.ItemMemoBinding
+import com.sophimp.are.demo.R
+import com.sophimp.are.demo.databinding.ItemMemoBinding
 import com.sophimp.are.inner.Html
 import com.sophimp.demo.db.MemoInfo
 

@@ -45,7 +45,9 @@ import android.text.style.UnderlineSpan;
 import com.sophimp.are.IOssServer;
 import com.sophimp.are.spans.FontBackgroundColorSpan;
 import com.sophimp.are.spans.FontForegroundColorSpan;
+import com.sophimp.are.spans.IListSpan;
 import com.sophimp.are.spans.ISpan;
+import com.sophimp.are.spans.IUploadSpan;
 import com.sophimp.are.spans.IndentSpan;
 import com.sophimp.are.spans.LineSpaceSpan;
 import com.sophimp.are.spans.ListBulletSpan;
@@ -483,35 +485,31 @@ public class Html {
                 }
             } else {
                 boolean isListItem = false;
-                ParagraphStyle[] paragraphStyles = text.getSpans(i, next, ParagraphStyle.class);
-                for (ParagraphStyle paragraphStyle : paragraphStyles) {
-                    if (paragraphStyle instanceof ListNumberSpan) {
-                        boolean closed = false;
-                        if (paragraphStyle instanceof ListNumberSpan) {
-                            closed = checkToClosePreviousList(out, listType, OL);
-                            listType = OL;
-                        } else if (paragraphStyle instanceof ListBulletSpan) {
-                            closed = checkToClosePreviousList(out, listType, UL);
-                            listType = UL;
-                        } else if (paragraphStyle instanceof TodoSpan) {
-                            closed = checkToClosePreviousList(out, listType, TODO_LIST);
-                            listType = TODO_LIST;
-//                            out.append(((DRTodoSpan) paragraphStyle).getBeginHtml());
+                IListSpan[] listSpans = text.getSpans(i, next, IListSpan.class);
+                for (IListSpan listSpan : listSpans) {
+                    boolean closed = false;
+                    if (listSpan instanceof ListNumberSpan) {
+                        closed = checkToClosePreviousList(out, listType, OL);
+                        listType = OL;
+                    } else if (listSpan instanceof ListBulletSpan) {
+                        closed = checkToClosePreviousList(out, listType, UL);
+                        listType = UL;
+                    } else if (listSpan instanceof TodoSpan) {
+                        closed = checkToClosePreviousList(out, listType, TODO_LIST);
+                        listType = TODO_LIST;
 
-                            out.append("<" + listType).append(" ").append(((TodoSpan) paragraphStyle).getAttributeStr());
-                        }
-
-                        if (closed) {
-                            // If the list item has been closed,
-                            // It will no longer be in list.
-                            // So set it as false then the following
-                            // logic can start a new list item again
-                            isInList = false;
-                        }
-
-                        isListItem = true;
-                        break;
+                        out.append("<" + listType).append(" ").append(((TodoSpan) listSpan).getAttributeStr());
                     }
+
+                    if (closed) {
+//                        // If the list item has been closed,
+//                        // It will no longer be in list.
+//                        // So set it as false then the following
+//                        // logic can start a new list item again
+                        isInList = false;
+                    }
+                    isListItem = true;
+                    break;
                 }
 
                 if (isListItem && !isInList) {
@@ -633,7 +631,7 @@ public class Html {
             CharacterStyle[] style = text.getSpans(i, next, CharacterStyle.class);
 
             for (int j = 0; j < style.length; j++) {
-                if (style[j] instanceof ISpan) {
+                if (style[j] instanceof IUploadSpan) {
                     out.append(((ISpan) style[j]).getHtml());
                     i = next;
                     continue;

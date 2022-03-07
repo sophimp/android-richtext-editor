@@ -5,7 +5,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.sophimp.are.Util
-import com.sophimp.are.databinding.ActivityMainBinding
+import com.sophimp.are.demo.databinding.ActivityMainBinding
 import com.sophimp.demo.db.MemoDao
 import com.sophimp.demo.db.MemoDatabase
 

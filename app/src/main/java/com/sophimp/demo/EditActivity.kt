@@ -5,7 +5,7 @@ import android.text.TextUtils
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.sophimp.are.Util
-import com.sophimp.are.databinding.ActivityEditBinding
+import com.sophimp.are.demo.databinding.ActivityEditBinding
 import com.sophimp.demo.db.MemoDatabase
 import com.sophimp.demo.db.MemoInfo
 

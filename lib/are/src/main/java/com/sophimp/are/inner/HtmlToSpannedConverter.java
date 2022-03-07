@@ -253,7 +253,7 @@ class HtmlToSpannedConverter implements ContentHandler {
             } else if (start < end) {
                 if (obj[i] instanceof LeadingMarginSpan) {
                     if (mSpannableStringBuilder.charAt(start) == '\n') {
-                        start = start + 1;
+                        start = Math.min(start + 1, mSpannableStringBuilder.length() - 1);
                     }
                     if (mSpannableStringBuilder.charAt(start) != Constants.ZERO_WIDTH_SPACE_INT) {
                         mSpannableStringBuilder.insert(start, Constants.ZERO_WIDTH_SPACE_STR);

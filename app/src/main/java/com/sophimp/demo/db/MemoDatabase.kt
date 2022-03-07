@@ -10,7 +10,7 @@ import com.sophimp.demo.AppApplication
  * @author: sfx
  * @since: 2021/8/5
  */
-@Database(entities = [MemoInfo::class], version = 1)
+@Database(entities = [MemoInfo::class], version = 1, exportSchema = false)
 abstract class MemoDatabase : RoomDatabase() {
 
     companion object {
