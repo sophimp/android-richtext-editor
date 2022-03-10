@@ -10,6 +10,7 @@ import androidx.room.PrimaryKey
  */
 @Entity
 data class MemoInfo(
+    var title: String?,
     var richText: String?
 ) {
     @PrimaryKey(autoGenerate = true)

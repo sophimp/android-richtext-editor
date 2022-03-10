@@ -50,12 +50,6 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
     var clickStrategy: IEditorClickStrategy? = DefaultClickStrategyImpl()
 
     /**
-     * true refresh from [HtmlToSpannedConverter] async picture load
-     * false from edit and update style refresh
-     */
-    var isFromHtmlRefresh = false
-
-    /**
      * 所有需上传的附件总大小
      */
     val allUploadFileSize: Long
@@ -340,13 +334,13 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
     }
 
     fun refresh(start: Int) {
-        stopMonitor()
-        editableText.insert(0, " ")
-        editableText.delete(0, 1)
-
-        editableText.insert(start, " ")
-        editableText.delete(start, start + 1)
-        startMonitor()
+//        stopMonitor()
+//        editableText.insert(0, " ")
+//        editableText.delete(0, 1)
+//
+//        editableText.insert(start, " ")
+//        editableText.delete(start, start + 1)
+//        startMonitor()
     }
 
     fun postDelayUIRun(runnable: Runnable, delay: Long) {
@@ -369,6 +363,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         stopMonitor()
         Html.sContext = context
         val html = StringBuffer()
+//        val editTextHtml = Html.toHtml(editableText, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL)
         val editTextHtml = Html.toHtml(editableText, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL)
         html.append(editTextHtml)
         val htmlContent =

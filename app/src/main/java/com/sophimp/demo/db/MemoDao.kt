@@ -17,7 +17,7 @@ interface MemoDao {
     fun deleteMemo(memoInfo: MemoInfo)
 
     @Query("select * from MemoInfo")
-    fun queryMemoAll(): List<MemoInfo>
+    fun queryMemoAll(): MutableList<MemoInfo>
 
     @Query("select * from MemoInfo where id = :id")
     fun queryMemoById(id: Long): MemoInfo

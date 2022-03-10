@@ -1,6 +1,7 @@
 package com.sophimp.demo
 
 import android.content.Intent
+import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,14 +10,20 @@ import com.sophimp.are.demo.R
 import com.sophimp.are.demo.databinding.ItemMemoBinding
 import com.sophimp.are.inner.Html
 import com.sophimp.demo.db.MemoInfo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * @author: sfx
  * @since: 2021/8/4
  */
-class MemoAdapter(var data: List<MemoInfo>) : RecyclerView.Adapter<MemoAdapter.MemoHolder>() {
+class MemoAdapter(var data: MutableList<MemoInfo>) : RecyclerView.Adapter<MemoAdapter.MemoHolder>() {
 
-    fun setNewData(d: List<MemoInfo>) {
+    val jobScope = CoroutineScope(Dispatchers.IO)
+
+    fun setNewData(d: MutableList<MemoInfo>) {
         data = d
         notifyDataSetChanged()
     }
@@ -31,8 +38,13 @@ class MemoAdapter(var data: List<MemoInfo>) : RecyclerView.Adapter<MemoAdapter.M
 
     override fun onBindViewHolder(holder: MemoHolder, position: Int) {
         holder.memoInfo = data[position]
-        holder.binding.richText.text =
-            Html.fromHtml(data[position].richText, Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH)
+        var spannableStringBuilder: SpannableStringBuilder
+        val parseJob = jobScope.launch {
+            spannableStringBuilder = Html.fromHtml(data[position].title, Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH) as SpannableStringBuilder
+            withContext(Dispatchers.Main) {
+                holder.binding.richText.text = spannableStringBuilder
+            }
+        }
     }
 
     inner class MemoHolder(view: View) : RecyclerView.ViewHolder(view) {
