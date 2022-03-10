@@ -137,7 +137,7 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
                                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                             )
                             editable.removeSpan(imgSpan)
-                            Html.imageLoadedListener?.onImageLoaded(spanStart, spanEnd)
+                            Html.imageLoadedListener?.onImageLoaded(editable, spanStart, spanEnd)
                         }
                     }
                 }

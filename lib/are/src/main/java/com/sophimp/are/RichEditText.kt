@@ -32,7 +32,7 @@ import kotlin.math.min
 class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(context, attr) {
 
     @JvmField
-    var spannedFromHtml: SpannableStringBuilder? = null
+    var spannedFromHtml: Spanned? = null
 
     var styleChangedListener: StyleChangedListener? = null
 
@@ -91,9 +91,9 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
     init {
         setupTextWatcher()
         Util.initEnv(context, IOssServerImpl(), object : ImageLoadedListener {
-            override fun onImageLoaded(start: Int, end: Int) {
+            override fun onImageLoaded(spanned: Spanned, start: Int, end: Int) {
                 uiHandler.removeCallbacks(refreshRunnable)
-                isFromHtmlRefresh = true
+                spannedFromHtml = spanned
                 uiHandler.postDelayed(refreshRunnable, 500)
 //                refresh(start)
             }
@@ -335,7 +335,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
 
     val refreshRunnable = {
         stopMonitor()
-        text = if (isFromHtmlRefresh) spannedFromHtml else editableText
+        text = spannedFromHtml as Editable?
         startMonitor()
     }
 
