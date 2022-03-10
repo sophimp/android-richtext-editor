@@ -1,7 +1,6 @@
 package com.sophimp.are.inner;
 
 import android.annotation.SuppressLint;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -20,14 +19,9 @@ import android.text.style.StyleSpan;
 import android.text.style.SubscriptSpan;
 import android.text.style.SuperscriptSpan;
 import android.text.style.TypefaceSpan;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.sophimp.are.AttachFileType;
 import com.sophimp.are.Constants;
-import com.sophimp.are.R;
 import com.sophimp.are.models.AtItem;
 import com.sophimp.are.spans.AtSpan;
 import com.sophimp.are.spans.BoldSpan;
@@ -41,7 +35,6 @@ import com.sophimp.are.spans.LineSpaceSpan;
 import com.sophimp.are.spans.ListBulletSpan;
 import com.sophimp.are.spans.ListNumberSpan;
 import com.sophimp.are.spans.QuoteSpan2;
-import com.sophimp.are.spans.TableSpan;
 import com.sophimp.are.spans.TodoSpan;
 import com.sophimp.are.spans.UnderlineSpan2;
 import com.sophimp.are.spans.UrlSpan;
@@ -106,7 +99,6 @@ class HtmlToSpannedConverter implements ContentHandler {
         sColorMap.put("green", 0xFF008000);
     }
 
-    private Bitmap defTableBitmap;
     private boolean hasLastParagraph;
 
     private static Pattern getTextAlignPattern() {
@@ -163,7 +155,6 @@ class HtmlToSpannedConverter implements ContentHandler {
 
     public HtmlToSpannedConverter(String source, Html.ImageGetter imageGetter,
                                   Html.TagHandler tagHandler, Parser parser, int flags) {
-        initDefaultTableDrawable();
         // 先过滤表格，将内容缓存， 将所有表格标签及内容替换成<table/> 空标签，
         // 后续再解析此标签时，直接添加DRTableSpan，
         // 在解析完html后，最后由 DREditText 渲染前， 再将DRTableSpan 反显成有内容的图片
@@ -209,16 +200,6 @@ class HtmlToSpannedConverter implements ContentHandler {
         mTagHandler = tagHandler;
         mReader = parser;
         mFlags = flags;
-    }
-
-    private void initDefaultTableDrawable() {
-        if (defTableBitmap == null && Html.sContext != null) {
-            View view = LayoutInflater.from(Html.sContext).inflate(R.layout.layout_view_rich_media_preview, null);
-            ((ImageView) view.findViewById(R.id.edit_annex_icon_iv)).setImageResource(R.mipmap.icon_file_excel);
-            ((TextView) view.findViewById(R.id.edit_annex_title_tv)).setText("表格");
-            ((TextView) view.findViewById(R.id.edit_annex_subtitle_tv)).setText("点击查看");
-            defTableBitmap = Util.view2Bitmap(view);
-        }
     }
 
     public Spanned convert() {
@@ -374,7 +355,7 @@ class HtmlToSpannedConverter implements ContentHandler {
 //            text.append(" ");
             int len = text.length();
             text.append(Constants.ZERO_WIDTH_SPACE_STR);
-            text.setSpan(new TableSpan(Html.sContext, richTableStrs.remove(0), defTableBitmap), len, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            MediaStyleHelper.insertTableSpan(text, richTableStrs.remove(0), len, text.length());
         }
     }
 
@@ -616,7 +597,7 @@ class HtmlToSpannedConverter implements ContentHandler {
             text.removeSpan(todo);
             int len = text.length();
             if (where != len) {
-                text.setSpan(new TodoSpan(Html.sContext, todo.isCheck), where, len, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                text.setSpan(new TodoSpan(todo.isCheck), where, len, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
             }
 
         }
@@ -937,7 +918,7 @@ class HtmlToSpannedConverter implements ContentHandler {
             Util.log("preview video url: " + previewUrl);
             MediaStyleHelper.Companion.addFashionVideoSpanToEditable(Html.sContext, text, text.length(), sw, height, url, localPath, previewUrl);
         } else {
-            MediaStyleHelper.Companion.addDetailVideoSpanToEditable(Html.sContext, text, text.length(), url, localPath, name, TextUtils.isEmpty(size) ? "0" : size, TextUtils.isEmpty(duration) ? "0" : "");
+            MediaStyleHelper.Companion.addDetailVideoSpanToEditable(Html.sContext, text, text.length(), url, localPath, name, TextUtils.isEmpty(size) ? "0" : size, TextUtils.isEmpty(duration) ? "0" : duration);
         }
     }
 

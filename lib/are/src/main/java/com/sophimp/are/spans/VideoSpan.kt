@@ -3,6 +3,7 @@ package com.sophimp.are.spans
 import android.graphics.drawable.Drawable
 import android.text.TextUtils
 import android.text.style.ImageSpan
+import com.sophimp.are.inner.Html
 
 /**
  * @author: sfx
@@ -11,10 +12,10 @@ import android.text.style.ImageSpan
 class VideoSpan(
     drawable: Drawable,
     var localPath: String?,
-    var videoUrl: String?,
+    var serverUrl: String?,
     var videoName: String? = "",
-    var videoSize: Int? = 0,
-    var videoDuration: Int? = 0
+    var videoSize: Int = 0,
+    var videoDuration: Int = 0
 ) : ImageSpan(
     drawable), ISpan, IClickableSpan, IUploadSpan {
     var uploadTime: String? = ""
@@ -25,21 +26,29 @@ class VideoSpan(
 
     override val html: String
         get() {
-            val htmlBuffer = StringBuilder("<video url=\"")
-            if (TextUtils.isEmpty(videoUrl)) {
-                htmlBuffer.append(localPath)
+            val htmlBuffer = StringBuilder("<attachment data-url=\"")
+            if (TextUtils.isEmpty(serverUrl)) {
+                htmlBuffer.append(Html.ossServer.getMemoAndDiaryImageUrl(localPath))
             } else {
-                htmlBuffer.append(videoUrl)
+                htmlBuffer.append(Html.ossServer.getMemoAndDiaryImageUrl(serverUrl))
             }
-            htmlBuffer.append("\" name=\"")
+
+            htmlBuffer.append("\" data-type=\"01\"")
+            htmlBuffer.append(" data-file-name=\"")
             htmlBuffer.append(videoName)
-            htmlBuffer.append("\" />")
+            htmlBuffer.append("\" data-file-size=\"")
+            htmlBuffer.append(videoSize)
+            htmlBuffer.append("\" data-uploadtime=\"")
+            htmlBuffer.append(uploadTime)
+            htmlBuffer.append("\" data-duration=\"")
+            htmlBuffer.append(videoDuration)
+            htmlBuffer.append("\" ></attachment>")
             return htmlBuffer.toString()
         }
 
     val videoType: VideoType
         get() {
-            if (!TextUtils.isEmpty(videoUrl)) {
+            if (!TextUtils.isEmpty(serverUrl)) {
                 return VideoType.SERVER
             }
             return if (!TextUtils.isEmpty(localPath)) {
@@ -51,7 +60,7 @@ class VideoSpan(
         return localPath
     }
 
-    override fun uploadFileSize(): Int? {
+    override fun uploadFileSize(): Int {
         return videoSize
     }
 }

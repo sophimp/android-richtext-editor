@@ -3,20 +3,25 @@ package com.sophimp.are
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.text.Editable
-import android.text.SpannableStringBuilder
-import android.text.Spanned
-import android.text.TextWatcher
+import android.text.*
+import android.text.style.ImageSpan
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
+import android.widget.EditText
 import androidx.appcompat.widget.AppCompatEditText
 import com.sophimp.are.inner.Html
+import com.sophimp.are.listener.ImageLoadedListener
 import com.sophimp.are.models.StyleChangedListener
 import com.sophimp.are.spans.*
 import com.sophimp.are.style.IStyle
+import com.sophimp.are.toolbar.DefaultToolbar
+import com.sophimp.are.toolbar.items.IToolbarItem
 import com.sophimp.are.utils.UndoRedoHelper
 import com.sophimp.are.utils.Util
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kotlin.math.min
 
 /**
@@ -26,6 +31,9 @@ import kotlin.math.min
  */
 class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(context, attr) {
 
+    @JvmField
+    var spannedFromHtml: SpannableStringBuilder? = null
+
     var styleChangedListener: StyleChangedListener? = null
 
     var canMonitor: Boolean = true
@@ -33,40 +41,126 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
 
     private var styleList: MutableList<IStyle> = arrayListOf()
 
-    private var isEditMode = true
-
     var beforeSelectionStart = 0
     var beforeSelectionEnd = 0
 
+    /**
+     * 富文本点击事件处理
+     */
     var clickStrategy: IEditorClickStrategy? = DefaultClickStrategyImpl()
+
+    /**
+     * true refresh from [HtmlToSpannedConverter] async picture load
+     * false from edit and update style refresh
+     */
+    var isFromHtmlRefresh = false
+
+    /**
+     * 所有需上传的附件总大小
+     */
+    val allUploadFileSize: Long
+        get() {
+            val uploadSpans = editableText.getSpans(0, length(), IUploadSpan::class.java)
+            var fileSize = 0L
+            uploadSpans.forEach {
+                fileSize += it.uploadFileSize()
+            }
+            return fileSize
+        }
+
+    /**
+     * 所有上传路径
+     */
+    val uploadAnnexList: MutableList<String>
+        get() {
+            val list = mutableListOf<String>()
+            if (text == null) return list
+
+            val spans = editableText.getSpans(0, length(), IUploadSpan::class.java)
+            if (spans == null || spans.isEmpty()) {
+                return list
+            }
+            for (span in spans) {
+                if (!TextUtils.isEmpty(span.uploadPath())) {
+                    list.add(span.uploadPath()!!)
+                }
+            }
+            return list
+        }
 
     init {
         setupTextWatcher()
+        Util.initEnv(context, IOssServerImpl(), object : ImageLoadedListener {
+            override fun onImageLoaded(start: Int, end: Int) {
+                uiHandler.removeCallbacks(refreshRunnable)
+                isFromHtmlRefresh = true
+                uiHandler.postDelayed(refreshRunnable, 500)
+//                refresh(start)
+            }
+        })
     }
 
-    private val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-        override fun onSingleTapUp(e: MotionEvent?): Boolean {
-            if (!isEditMode) return false
-            val offset = Util.getTextOffset(this@RichEditText, e!!)
-            val clickSpans = editableText.getSpans(offset, offset, IClickableSpan::class.java)
-            if (clickSpans.isEmpty()) return false
-            when {
-                clickSpans[0] is UrlSpan -> {
-                    clickStrategy?.onClickUrl(context, clickSpans[0] as UrlSpan)
+    private val gestureDetector =
+        GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onSingleTapUp(e: MotionEvent?): Boolean {
+                val offset = Util.getTextOffset(this@RichEditText, e!!)
+                if (offset < 0) {
+                    if (!editMode) {
+                        editMode = true
+                        setSelection(Math.min(Math.max(offset, 0), length()))
+                    }
+                    return false
                 }
-                clickSpans[0] is ImageSpan2 -> {
-                    clickStrategy?.onClickImage(context, clickSpans[0] as ImageSpan2)
+//                if (selectionEnd.toLong() != lastTapSelectionEnd) {
+//                    handleSelectionChanged(selectionStart, selectionEnd)
+//                    lastTapSelectionEnd = selectionEnd.toLong()
+//                }
+                val clickSpans = editableText.getSpans(offset, offset, IClickableSpan::class.java)
+                if (clickSpans.isEmpty()) {
+                    if (!editMode) {
+                        editMode = true
+                        setSelection(Math.min(Math.max(offset, 0), length()))
+                    }
+                    return false
                 }
-                clickSpans[0] is VideoSpan -> {
-                    clickStrategy?.onClickVideo(context, clickSpans[0] as VideoSpan)
+                when {
+                    clickSpans[0] is UrlSpan -> {
+                        clickStrategy?.onClickUrl(this@RichEditText, clickSpans[0] as UrlSpan)
+                    }
+                    clickSpans[0] is ImageSpan2 -> {
+                        clickStrategy?.onClickImage(this@RichEditText, clickSpans[0] as ImageSpan2)
+                    }
+                    clickSpans[0] is AudioSpan -> {
+                        clickStrategy?.onClickAudio(this@RichEditText, clickSpans[0] as AudioSpan)
+                    }
+                    clickSpans[0] is VideoSpan -> {
+                        clickStrategy?.onClickVideo(this@RichEditText, clickSpans[0] as VideoSpan)
+                    }
+                    clickSpans[0] is TodoSpan -> {
+                        if (e.x <= (clickSpans[0] as TodoSpan).drawableRectf.right) {
+                            (clickSpans[0] as TodoSpan).onClick(
+                                this@RichEditText,
+                                e.x,
+                                beforeSelectionEnd
+                            )
+                            editMode = false
+                        } else {
+                            if (!editMode) {
+                                editMode = true
+                                setSelection(Math.min(Math.max(offset, 0), length()))
+                            }
+                        }
+                    }
+                    clickSpans[0] is AttachmentSpan -> {
+                        clickStrategy?.onClickAttachment(
+                            this@RichEditText,
+                            clickSpans[0] as AttachmentSpan
+                        )
+                    }
                 }
-                clickSpans[0] is TodoSpan -> {
-                    (clickSpans[0] as TodoSpan).onClick(this@RichEditText, e.x, beforeSelectionEnd)
-                }
+                return false
             }
-            return false
-        }
-    })
+        })
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         beforeSelectionStart = selectionStart
@@ -78,7 +172,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
     /**
      * 标记内容(文字, style)发生了改变
      */
-    fun setChanged() {
+    fun markChanged() {
         isChange = true
         if (styleChangedListener != null) {
             styleChangedListener!!.onStyleChanged(this)
@@ -180,15 +274,34 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                 }
 //                if (BuildConfig.DEBUG)
 //                    Util.log(("before change selection: $beforeSelectionStart - $beforeSelectionEnd after change selection: $afterSelectionStart   \n textEvent: $textEvent start: $startPos end: $endPos changeText: $changedText"))
-                stopMonitor()
-
-                val epStart = Util.getParagraphStart(this@RichEditText, min(beforeSelectionStart, afterSelectionStart))
-                val epEnd = Util.getParagraphEnd(editableText, afterSelectionStart)
-                for (style: IStyle in styleList) {
-                    style.applyStyle(s, textEvent, changedText, beforeSelectionStart, afterSelectionStart, epStart, epEnd)
+                MainScope().launch {
+                    stopMonitor()
+                    val job = async {
+                        val epStart = Util.getParagraphStart(
+                            this@RichEditText,
+                            min(beforeSelectionStart, afterSelectionStart)
+                        )
+                        val epEnd = Util.getParagraphEnd(editableText, afterSelectionStart)
+                        for (style: IStyle in styleList) {
+                            launch {
+                                style.applyStyle(
+                                    s,
+                                    textEvent,
+                                    changedText,
+                                    beforeSelectionStart,
+                                    afterSelectionStart,
+                                    epStart,
+                                    epEnd
+                                )
+                            }
+                        }
+                    }
+                    job.await()
+                    refresh(0)
+                    startMonitor()
                 }
-                refresh(0)
-                startMonitor()
+//                isFromHtmlRefresh = false
+//                uiHandler.postDelayed(refreshRunnable, 500)
             }
         }
         addTextChangedListener(mTextWatcher)
@@ -198,15 +311,18 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
      * 编辑时需要作用的style
      */
     fun addStyle(style: IStyle) {
-        styleList.add(style)
+        if (!styleList.contains(style)) {
+            styleList.add(style)
+        }
     }
 
     /**
      * 编辑时需要作用的style list
      */
     fun addStyleList(styles: List<IStyle>) {
-        styleList.clear()
-        styleList.addAll(styles)
+        styles.forEach {
+            addStyle(it)
+        }
     }
 
     fun stopMonitor() {
@@ -217,29 +333,36 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         canMonitor = true
     }
 
+    val refreshRunnable = {
+        stopMonitor()
+        text = if (isFromHtmlRefresh) spannedFromHtml else editableText
+        startMonitor()
+    }
+
     fun refresh(start: Int) {
-        requestLayout()
-        invalidate()
-//        stopMonitor()
-//        editableText.insert(0, " ")
-//        editableText.delete(0, 1)
-//
-//        editableText.insert(start, " ")
-//        editableText.delete(start, start + 1)
-//        startMonitor()
+        stopMonitor()
+        editableText.insert(0, " ")
+        editableText.delete(0, 1)
+
+        editableText.insert(start, " ")
+        editableText.delete(start, start + 1)
+        startMonitor()
     }
 
     fun postDelayUIRun(runnable: Runnable, delay: Long) {
         uiHandler.postDelayed(runnable, delay);
     }
 
-    fun fromHtml(html: String?): Spanned {
+    fun fromHtml(html: String?): SpannableStringBuilder {
         if (html == null) return SpannableStringBuilder()
-        val spannedFromHtml = Html.fromHtml(html, Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH)
+        spannedFromHtml = Html.fromHtml(
+            html,
+            Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH
+        ) as SpannableStringBuilder
         stopMonitor()
         setText(spannedFromHtml)
         startMonitor()
-        return spannedFromHtml
+        return spannedFromHtml as SpannableStringBuilder
     }
 
     fun toHtml(): String? {
@@ -248,7 +371,8 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         val html = StringBuffer()
         val editTextHtml = Html.toHtml(editableText, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL)
         html.append(editTextHtml)
-        val htmlContent = html.toString().replace(Constants.ZERO_WIDTH_SPACE_STR_ESCAPE.toRegex(), "")
+        val htmlContent =
+            html.toString().replace(Constants.ZERO_WIDTH_SPACE_STR_ESCAPE.toRegex(), "")
         startMonitor()
         return htmlContent
     }
@@ -257,6 +381,143 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
 
     }
 
+    /**
+     * call once after init toolbar items
+     */
+    fun bindStyles(mToolbar: DefaultToolbar) {
+        for (item: IToolbarItem in mToolbar.mToolItems) {
+            addStyle(item.mStyle)
+        }
+    }
+
+    fun fromHtmlWithoutSet(richTextContent: String): SpannableStringBuilder {
+        Html.sContext = context.applicationContext
+        spannedFromHtml = Html.fromHtml(
+            richTextContent,
+            Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH,
+            null,
+            null,
+            false
+        ) as SpannableStringBuilder
+        return spannedFromHtml as SpannableStringBuilder
+    }
+
     var isChange: Boolean = false
 
+    /**
+     *  编辑模式
+     */
+    var editMode: Boolean = false
+        set(flag) {
+            field = flag
+            isLongClickable = flag
+            isCursorVisible = flag
+            isFocusableInTouchMode = flag
+            isFocusable = flag
+            val cls = EditText::class.java
+            try {
+                val method =
+                    cls.getMethod("setShowSoftInputOnFocus", Boolean::class.javaPrimitiveType)
+                method.isAccessible = true
+                method.invoke(this, flag)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
+            if (flag) {
+                requestFocus()
+            }
+        }
+
+    /**
+     * 上传附件
+     */
+    val extendData: Map<String, Any?>
+        get() {
+            val map = mutableMapOf<String, Any?>()
+            if (text == null) return map
+            val videoSpans = text!!.getSpans(
+                0, text!!.length,
+                VideoSpan::class.java
+            )
+            if (videoSpans != null && videoSpans.size > 0) {
+                val videoUrl = videoSpans[0].serverUrl
+                val videoPath = videoSpans[0].localPath
+                map["url"] = videoUrl
+                map["path"] = videoPath
+                map["type"] = AttachFileType.VIDEO.attachmentValue
+            }
+            val spans = text!!.getSpans(
+                0, text!!.length,
+                ImageSpan::class.java
+            )
+            if (spans == null || spans.isEmpty()) {
+                return map
+            }
+            val span = spans[0]
+            if (span is AudioSpan) {
+                map["url"] = span.serverUrl
+                map["path"] = span.localPath
+                map["type"] = AttachFileType.AUDIO.attachmentValue
+            } else if (span is ImageSpan2) {
+                map["path"] = span.localPath
+                map["url"] = span.serverUrl
+                map["type"] = AttachFileType.IMG.attachmentValue
+            } else if (span is AttachmentSpan) {
+                map["url"] = span.serverUrl
+                map["path"] = span.localPath
+                map["type"] = span.attachValue
+            }
+            if (text != null && !TextUtils.isEmpty(text.toString())) {
+                val textContent = if (text.toString().length >= 80) text.toString()
+                    .substring(0, 80) else text.toString()
+                map["textContent"] = textContent
+            }
+            return map
+        }
+
+    fun removeVideoByPosition(index: Int) {
+        val videoSpans = editableText.getSpans(0, length(), VideoSpan::class.java)
+        if (index < 0 || index > videoSpans.size) return
+        deleteVideoSpan(videoSpans[index])
+    }
+
+
+    fun removeImageByPosition(imagePosition: Int) {
+        val allImageSpan = editableText.getSpans(0, length(), ImageSpan2::class.java)
+        if (imagePosition < 0 || imagePosition > allImageSpan.size) return
+        deleteImageSpan(allImageSpan[imagePosition])
+    }
+
+    private fun deleteVideoSpan(videoSpan: VideoSpan?) {
+        if (videoSpan == null) return
+        if (editableText == null) return
+        val start = editableText!!.getSpanStart(videoSpan)
+        val end = editableText!!.getSpanEnd(videoSpan)
+        editableText!!.replace(start, end, "")
+        isChange = true
+    }
+
+    private fun deleteImageSpan(span: ImageSpan?) {
+        if (span == null) return
+        if (editableText == null) return
+        val start = editableText!!.getSpanStart(span)
+        val end = editableText!!.getSpanEnd(span)
+        editableText!!.replace(start, end, "")
+        isChange = true
+    }
+
+    fun deleteAttachment(attachmentValue: String?) {
+        if (TextUtils.isEmpty(attachmentValue)) return
+        if (editableText == null) return
+        val spans = editableText.getSpans(0, length(), AttachmentSpan::class.java)
+        for (span in spans) {
+            if (span.attachValue == attachmentValue) {
+                val start = editableText!!.getSpanStart(span)
+                val end = editableText!!.getSpanEnd(span)
+                editableText!!.replace(start, end, "")
+            }
+        }
+        isChange = true
+    }
 }

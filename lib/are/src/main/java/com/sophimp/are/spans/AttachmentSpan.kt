@@ -4,6 +4,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.text.TextUtils
 import android.text.style.ImageSpan
 import com.sophimp.are.inner.Html
+import java.util.*
 
 /**
  *
@@ -14,11 +15,12 @@ class AttachmentSpan(
     bitmapDrawable: BitmapDrawable,
     var localPath: String?,
     var serverUrl: String?,
-    var audioName: String?,
-    var audioSize: Int,
-    var attachType: String
+    var attachName: String?,
+    var attachSize: Int,
+    var attachValue: String,
+    var spanId: String = UUID.randomUUID().toString(),
+    var uploadTime: String? = null
 ) : ImageSpan(bitmapDrawable), ISpan, IClickableSpan, IUploadSpan {
-    private var mUploadTime: String? = null
 
     override val html: String
         get() {
@@ -29,13 +31,13 @@ class AttachmentSpan(
                 htmlBuffer.append(Html.ossServer.getMemoAndDiaryImageUrl(serverUrl))
             }
             htmlBuffer.append("\" data-type=\"")
-            htmlBuffer.append(attachType)
+            htmlBuffer.append(attachValue)
             htmlBuffer.append("\" data-file-name=\"")
-            htmlBuffer.append(audioName)
+            htmlBuffer.append(attachName)
             htmlBuffer.append("\" data-file-size=\"")
-            htmlBuffer.append(audioSize)
+            htmlBuffer.append(attachSize)
             htmlBuffer.append("\" data-uploadtime=\"")
-            htmlBuffer.append(mUploadTime)
+            htmlBuffer.append(uploadTime)
             htmlBuffer.append("\" data-duration=\"")
             htmlBuffer.append("0")
             htmlBuffer.append("\" ></attachment>")
@@ -47,7 +49,7 @@ class AttachmentSpan(
     }
 
     override fun uploadFileSize(): Int {
-        return audioSize
+        return attachSize
     }
 
 }

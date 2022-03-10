@@ -56,6 +56,7 @@ enum class AttachFileType(
             }
         }
 
+        @JvmStatic
         fun getAttachmentTypeByPath(path: String): AttachFileType {
             var suffix = ""
             if (!TextUtils.isEmpty(path)) {

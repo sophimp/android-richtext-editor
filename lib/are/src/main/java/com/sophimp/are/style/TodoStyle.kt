@@ -8,9 +8,9 @@ class TodoStyle(editText: RichEditText) : BaseListStyle<TodoSpan>(editText) {
 
     override fun newSpan(inheritSpan: ISpan?): ISpan? {
         if (inheritSpan is TodoSpan) {
-            return TodoSpan(context, inheritSpan.isCheck)
+            return TodoSpan(inheritSpan.isCheck)
         }
-        return TodoSpan(context, false)
+        return TodoSpan(false)
     }
 
     override fun targetClass(): Class<TodoSpan> {

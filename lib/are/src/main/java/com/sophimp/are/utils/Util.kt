@@ -26,30 +26,34 @@ import android.widget.TextView
 import android.widget.Toast
 import com.sophimp.are.BuildConfig
 import com.sophimp.are.Constants
-import com.sophimp.are.IOssServer
 import com.sophimp.are.inner.Html
+import com.sophimp.are.listener.IOssServer
+import com.sophimp.are.listener.ImageLoadedListener
 import com.sophimp.are.spans.IndentSpan
 import com.sophimp.are.spans.ListNumberSpan
 import com.sophimp.are.table.TableCellInfo
+import com.sophimp.are.utils.Util.initEnv
 import java.io.File
 import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 /**
- * 使用富文本前首需需要调用此方法
- * 建议，在application调用
+ * 使用富文本前首需需要调用 [initEnv] 初始化
  */
 object Util {
+
     /**
-     * 使用富文本前首需需要调用此方法
-     * 建议，在application调用
+     * 使用富文本前首需需要调用此方法, 确保已初始化
      */
-    fun initEnv(context: Context, server: IOssServer?) {
+    @JvmStatic
+    fun initEnv(context: Context, server: IOssServer, imageLoadedListener: ImageLoadedListener?) {
         Html.sContext = context.applicationContext
         Html.ossServer = server
+        Html.imageLoadedListener = imageLoadedListener
     }
 
     val textAlignPattern = Pattern.compile("(?:\\s+|\\A)text-align\\s*:\\s*(\\S*)\\b")
@@ -697,21 +701,31 @@ object Util {
         return bitmap
     }
 
+    @JvmStatic
+    fun getFileSize(path: String): Long {
+
+        val file = File(path)
+        if (file.exists() && file.isFile) {
+            return file.length()
+        }
+        return 0L
+    }
+
+    @JvmStatic
     fun getFileSize(paths: List<String?>?): Long {
         var totalSize: Long = 0
-        if (paths == null || paths.size == 0) {
+        if (paths == null || paths.isEmpty()) {
             return totalSize
         }
         for (path in paths) {
-            if (TextUtils.isEmpty(path)) continue
-            val file = File(path)
-            if (file.exists() && file.isFile) {
-                totalSize += file.length()
+            if (!TextUtils.isEmpty(path)) {
+                totalSize += getFileSize(path!!)
             }
         }
         return totalSize
     }
 
+    @JvmStatic
     fun getFileName(path: String, defaultName: String): String {
         if (TextUtils.isEmpty(path)) return defaultName
         val index = path.lastIndexOf("/")
@@ -725,7 +739,7 @@ object Util {
     fun view2Bitmap(view: View?): Bitmap? {
         if (view == null) return null
         val dm = view.context.resources.displayMetrics
-        val screenWidth = dm.widthPixels
+        val screenWidth = dm.widthPixels - (dm.density * 42)
         val drawingCacheEnabled = view.isDrawingCacheEnabled
         val willNotCacheDrawing = view.willNotCacheDrawing()
         view.isDrawingCacheEnabled = true
@@ -735,7 +749,7 @@ object Util {
         if (null == drawingCache) {
             view.measure(
                 View.MeasureSpec.makeMeasureSpec(
-                    screenWidth,
+                    screenWidth.roundToInt(),
                     View.MeasureSpec.EXACTLY
                 ),  //  view.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
                 View.MeasureSpec.makeMeasureSpec(
@@ -925,7 +939,18 @@ object Util {
         y += widget.scrollY
         val layout: Layout = widget.layout
         val line: Int = layout.getLineForVertical(y)
+        val lineBottom = layout.getLineBottom(line)
+        if (y >= lineBottom) return -1
         return layout.getOffsetForHorizontal(line, x.toFloat())
+    }
+
+    /**
+     * convert the span end offset to touch coordinate x
+     */
+    fun getSpanXEnd(widget: TextView, spanEnd: Int): Int {
+        val layout: Layout = widget.layout
+        val xEnd = layout.getPrimaryHorizontal(spanEnd)
+        return xEnd.toInt()
     }
 
     /**

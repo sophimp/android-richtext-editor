@@ -9,4 +9,8 @@ class AlignmentLeftToolItem(style: AlignmentLeftStyle, itemClickAction: IToolbar
     override val srcResId: Int
         get() = R.mipmap.icon_toolitem_align_left
 
+    override fun iconClickHandle() {
+        super.iconClickHandle()
+        iconView.setIconResId(if (style.isChecked) R.mipmap.icon_toolitem_align_left_sel else R.mipmap.icon_toolitem_align_left)
+    }
 }

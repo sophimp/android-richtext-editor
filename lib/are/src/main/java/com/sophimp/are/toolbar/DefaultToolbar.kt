@@ -30,7 +30,7 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
     private var mTopContainer: LinearLayout? = null
     private var mBottomContainer: LinearLayout? = null
 
-    private val mToolItems: MutableList<IToolbarItem> = arrayListOf()
+    val mToolItems: MutableList<IToolbarItem> = arrayListOf()
 
     private var colorWindow: ColorPickerWindow
     private var fontWindow: FontSizeWindow

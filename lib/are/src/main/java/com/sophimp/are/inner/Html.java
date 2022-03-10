@@ -42,7 +42,10 @@ import android.text.style.TypefaceSpan;
 import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
 
-import com.sophimp.are.IOssServer;
+import androidx.annotation.Nullable;
+
+import com.sophimp.are.listener.IOssServer;
+import com.sophimp.are.listener.ImageLoadedListener;
 import com.sophimp.are.spans.FontBackgroundColorSpan;
 import com.sophimp.are.spans.FontForegroundColorSpan;
 import com.sophimp.are.spans.IListSpan;
@@ -83,6 +86,12 @@ public class Html {
     public static boolean isDiscoverVersion;
 
     public static Observer videoThumbObserver;
+
+    /**
+     * 图片加载监听
+     */
+    @Nullable
+    public static ImageLoadedListener imageLoadedListener;
 
     /**
      * 视频标签预览图有改变

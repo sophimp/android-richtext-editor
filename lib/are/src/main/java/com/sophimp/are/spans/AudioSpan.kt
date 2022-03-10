@@ -14,11 +14,11 @@ class AudioSpan(
     bitmapDrawable: BitmapDrawable,
     var localPath: String?,
     var serverUrl: String?,
-    var mAudioName: String?,
-    var mAudioSize: Int,
-    var mAudioDuration: String
+    var audioName: String?,
+    var audioSize: Int,
+    var audioDuration: String,
+    var uploadTime: String? = null
 ) : ImageSpan(bitmapDrawable), ISpan, IClickableSpan, IUploadSpan {
-    private var mUploadTime: String? = null
 
     override val html: String
         get() {
@@ -30,13 +30,13 @@ class AudioSpan(
             }
             htmlBuffer.append("\" data-type=\"02\"")
             htmlBuffer.append(" data-file-name=\"")
-            htmlBuffer.append(mAudioName)
+            htmlBuffer.append(audioName)
             htmlBuffer.append("\" data-file-size=\"")
-            htmlBuffer.append(mAudioSize)
+            htmlBuffer.append(audioSize)
             htmlBuffer.append("\" data-uploadtime=\"")
-            htmlBuffer.append(mUploadTime)
+            htmlBuffer.append(uploadTime)
             htmlBuffer.append("\" data-duration=\"")
-            htmlBuffer.append(mAudioDuration)
+            htmlBuffer.append(audioDuration)
             htmlBuffer.append("\" ></attachment>")
             return htmlBuffer.toString()
         }
@@ -46,7 +46,7 @@ class AudioSpan(
     }
 
     override fun uploadFileSize(): Int {
-        return mAudioSize
+        return audioSize
     }
 
 }

@@ -1,7 +1,6 @@
 package com.sophimp.are
 
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Browser
@@ -14,12 +13,12 @@ import com.sophimp.are.spans.UrlSpan
  * @since: 2021/7/29
  */
 class DefaultClickStrategyImpl : IEditorClickStrategy {
-    override fun onClickUrl(context: Context?, urlSpan: UrlSpan?): Boolean {
+    override fun onClickUrl(editText: RichEditText, urlSpan: UrlSpan?): Boolean {
         val uri = Uri.parse(urlSpan?.url)
         val intent = Intent(Intent.ACTION_VIEW, uri)
-        intent.putExtra(Browser.EXTRA_APPLICATION_ID, context?.packageName)
+        intent.putExtra(Browser.EXTRA_APPLICATION_ID, editText.context?.packageName)
         try {
-            context?.startActivity(intent)
+            editText.context?.startActivity(intent)
         } catch (e: ActivityNotFoundException) {
             Log.w("URLSpan", "Actvity was not found for intent, $intent")
         }

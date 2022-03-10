@@ -13,7 +13,7 @@ import kotlin.math.min
 abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
     BaseStyle<E>(editText) {
 
-    protected var mFeature = ""
+    var mFeature = ""
 
     override fun itemClickOnNonEmptyParagraph(curPStart: Int, curPEnd: Int): Int {
         handleAbsButtonClick(mEditText.selectionStart, mEditText.selectionEnd)
@@ -58,7 +58,7 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
 
     protected open fun handleAbsInput(beforeSelectionStart: Int) {
         // 如果当前改变的区域
-        val editable = mEditText.editableText
+//        val editable = mEditText.editableText
         val sEnd = mEditText.selectionEnd
         if (beforeSelectionStart < sEnd) {
             handleAbsButtonClick(beforeSelectionStart, sEnd)

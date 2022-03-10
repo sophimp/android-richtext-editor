@@ -1,9 +1,6 @@
 package com.sophimp.are
 
-import android.content.Context
-import com.sophimp.are.spans.ImageSpan2
-import com.sophimp.are.spans.UrlSpan
-import com.sophimp.are.spans.VideoSpan
+import com.sophimp.are.spans.*
 
 /**
  *
@@ -17,20 +14,41 @@ interface IEditorClickStrategy {
      *
      * @return handled return true; or else return false
      */
-    fun onClickImage(context: Context?, imageSpan: ImageSpan2?): Boolean = false
+    fun onClickImage(editText: RichEditText, imageSpan: ImageSpan2?): Boolean = false
+
+    /**
+     * Do your actions upon span clicking [TableSpan]
+     *
+     * @return handled return true; or else return false
+     */
+    fun onClickTable(editText: RichEditText, videoSpan: TableSpan?): Boolean = false
 
     /**
      * Do your actions upon span clicking [UrlSpan]
      *
      * @return handled return true; or else return false
      */
-    fun onClickUrl(context: Context?, urlSpan: UrlSpan?): Boolean = false
+    fun onClickUrl(editText: RichEditText, urlSpan: UrlSpan?): Boolean = false
+
+    /**
+     * Do your actions upon span clicking [AudioSpan]
+     *
+     * @return handled return true; or else return false
+     */
+    fun onClickAudio(editText: RichEditText, audioSpan: AudioSpan?): Boolean = false
 
     /**
      * Do your actions upon span clicking [VideoSpan]
      *
      * @return handled return true; or else return false
      */
-    fun onClickVideo(context: Context?, videoSpan: VideoSpan?): Boolean = false
+    fun onClickVideo(editText: RichEditText, videoSpan: VideoSpan?): Boolean = false
+
+    /**
+     * Do your actions upon span clicking [AttachmentSpan]
+     *
+     * @return handled return true; or else return false
+     */
+    fun onClickAttachment(editText: RichEditText, videoSpan: AttachmentSpan?): Boolean = false
 
 }

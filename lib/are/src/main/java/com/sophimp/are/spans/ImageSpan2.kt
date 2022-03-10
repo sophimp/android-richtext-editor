@@ -1,5 +1,6 @@
 package com.sophimp.are.spans
 
+import android.graphics.Paint
 import android.graphics.drawable.Drawable
 import android.text.TextUtils
 import android.text.style.ImageSpan
@@ -41,6 +42,31 @@ class ImageSpan2(
 
     override fun uploadFileSize(): Int {
         return fileSize
+    }
+
+    override fun getSize(
+        paint: Paint,
+        text: CharSequence?,
+        start: Int,
+        end: Int,
+        fm: Paint.FontMetricsInt?
+    ): Int {
+        val rect = drawable.bounds
+        if (fm != null) {
+            fm.ascent = -rect.bottom
+            fm.descent = 0
+            fm.top = fm.ascent
+            fm.bottom = 0
+        }
+//        val paintFontMetrics = paint.fontMetrics
+//        if (fm != null) {
+//            fm.ascent = paintFontMetrics.ascent.toInt()
+//            fm.bottom = paintFontMetrics.bottom.toInt()
+//            fm.descent = paintFontMetrics.descent.toInt()
+//            fm.leading = paintFontMetrics.leading.toInt()
+//            fm.top = paintFontMetrics.top.toInt()
+//        }
+        return rect.right
     }
 
     override val html: String
