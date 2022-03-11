@@ -2,6 +2,7 @@ package com.sophimp.demo
 
 import android.os.Bundle
 import android.text.SpannableStringBuilder
+import android.text.Spanned
 import android.text.TextUtils
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.min
 
 class EditActivity : AppCompatActivity() {
     lateinit var binding: ActivityEditBinding
@@ -51,6 +53,7 @@ class EditActivity : AppCompatActivity() {
 
     override fun onPause() {
         Util.log("edit onPause: ${binding.reRichtext.toHtml()}")
+        memoInfo.title = Html.toHtml(binding.reRichtext.editableText.subSequence(0, min(1000, binding.reRichtext.length())) as Spanned?)
         memoInfo.richText = binding.reRichtext.toHtml()
         if (!TextUtils.isEmpty(memoInfo.richText)) {
             memoDao.addMemo(memoInfo)

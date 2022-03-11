@@ -562,7 +562,8 @@ public class Html {
                 }
 
 
-                withinParagraph(out, text, i, next);
+//                withinParagraph(out, text, i, next);
+                withinParagraphMergeStyle(out, text, i, next);
 
                 if (!TextUtils.isEmpty(tagType)) {
                     out.append("</");
@@ -631,6 +632,147 @@ public class Html {
         }
 
         out.append("</p>");
+    }
+
+
+    /**
+     * 将同一个 span 中的style attribute 合并
+     */
+    private static void withinParagraphMergeStyle(StringBuilder out, Spanned text, int start, int end) {
+        int next;
+        for (int i = start; i < end; i = next) {
+            next = text.nextSpanTransition(i, end, CharacterStyle.class);
+            CharacterStyle[] style = text.getSpans(i, next, CharacterStyle.class);
+
+            // 先遍历可合并的 style
+            StringBuilder elementStyleBuilder = new StringBuilder();
+            elementStyleBuilder.append("<span style=\"");
+            for (int j = 0; j < style.length; j++) {
+                if (style[j] instanceof UnderlineSpan && elementStyleBuilder.indexOf("text-decoration:underline;") == -1) {
+                    elementStyleBuilder.append(" text-decoration:underline;");
+                }
+
+                if (style[j] instanceof StrikethroughSpan && elementStyleBuilder.indexOf("text-decoration:line-through;") == -1) {
+                    elementStyleBuilder.append(" text-decoration:line-through;");
+                }
+
+                if (style[j] instanceof AbsoluteSizeSpan && elementStyleBuilder.indexOf("font-size:") == -1) {
+                    AbsoluteSizeSpan s = ((AbsoluteSizeSpan) style[j]);
+                    float sizeDip = s.getSize();
+                    if (!s.getDip()) {
+                        // Application application = ActivityThread.currentApplication();
+                        // float density = application.getResources().getDisplayMetrics().density;
+                        float density = 1.5f;
+                        sizeDip /= density;
+                    }
+
+                    // px in CSS is the equivalance of dip in Android
+                    elementStyleBuilder.append(String.format(" font-size:%.0fpx;", sizeDip));
+                }
+//                if (style[j] instanceof RelativeSizeSpan) {
+//                    float sizeEm = ((RelativeSizeSpan) style[j]).getSizeChange();
+//                    out.append(String.format(" font-size:%.2fem;", sizeEm));
+//                }
+                if (style[j] instanceof FontForegroundColorSpan && elementStyleBuilder.indexOf("color:") == -1) {
+                    String color = ((FontForegroundColorSpan) style[j]).getDynamicFeature();
+//                    out.append(String.format("<span style=\"color:#%06X;\">", 0xFFFFFF & color));
+                    elementStyleBuilder.append(String.format(" color:%s;", color));
+                }
+                if (style[j] instanceof FontBackgroundColorSpan && elementStyleBuilder.indexOf("background-color:") == -1) {
+                    String color = ((FontBackgroundColorSpan) style[j]).getDynamicFeature();
+                    if (!TextUtils.isEmpty(color) && !"0".equals(color)) {
+//                        out.append(String.format("<span style=\"background-color:#%06X;\">", 0xFFFFFF & color));
+                        elementStyleBuilder.append(String.format(" background-color:%s;", color));
+                    }
+                }
+            }
+            elementStyleBuilder.append("\">");
+
+            // 再遍历独立的标签
+            for (int j = 0; j < style.length; j++) {
+                if (style[j] instanceof IUploadSpan) {
+                    elementStyleBuilder.append(((ISpan) style[j]).getHtml());
+                    i = next;
+                    continue;
+                }
+                if (style[j] instanceof StyleSpan) {
+                    int s = ((StyleSpan) style[j]).getStyle();
+
+                    if ((s & Typeface.BOLD) != 0 && elementStyleBuilder.indexOf("<b>") == -1) {
+                        elementStyleBuilder.append("<b>");
+                    }
+                    if ((s & Typeface.ITALIC) != 0 && elementStyleBuilder.indexOf("<i>") == -1) {
+                        elementStyleBuilder.append("<i>");
+                    }
+                }
+                if (style[j] instanceof TypefaceSpan) {
+                    String s = ((TypefaceSpan) style[j]).getFamily();
+
+                    if ("monospace".equals(s) && elementStyleBuilder.indexOf("<tt>") == -1) {
+                        out.append("<tt>");
+                    }
+                }
+                if (style[j] instanceof SuperscriptSpan && elementStyleBuilder.indexOf("<sup>") == -1) {
+                    out.append("<sup>");
+                }
+                if (style[j] instanceof SubscriptSpan && elementStyleBuilder.indexOf("<sub>") == -1) {
+                    out.append("<sub>");
+                }
+//                if (style[j] instanceof UnderlineSpan) {
+//                    out.append("<u>");
+//                }
+
+                if (style[j] instanceof URLSpan) {
+                    out.append("<a href=\"");
+                    out.append(((URLSpan) style[j]).getURL());
+                    out.append("\">");
+                }
+//                if (style[j] instanceof ImageSpan) {
+//                    out.append("<img src=\"");
+//                    out.append(((ImageSpan) style[j]).getSource());
+//                    out.append("\" />");
+//
+//                    // Don't output the dummy character underlying the image.
+//                    i = next;
+//                }
+            }
+            // 添加开始标签
+            out.append(elementStyleBuilder);
+            withinStyle(out, text, i, next);
+
+            // 先合并独立标签
+            elementStyleBuilder.setLength(0);
+            for (int j = style.length - 1; j >= 0; j--) {
+                if (style[j] instanceof URLSpan && elementStyleBuilder.indexOf("</a>") == -1) {
+                    out.append("</a>");
+                }
+                if (style[j] instanceof SubscriptSpan && elementStyleBuilder.indexOf("</sub>") == -1) {
+                    out.append("</sub>");
+                }
+                if (style[j] instanceof SuperscriptSpan && elementStyleBuilder.indexOf("</sup>") == -1) {
+                    out.append("</sup>");
+                }
+                if (style[j] instanceof TypefaceSpan) {
+                    String s = ((TypefaceSpan) style[j]).getFamily();
+
+                    if ("monospace".equals(s) && elementStyleBuilder.indexOf("</tt>") == -1) {
+                        out.append("</tt>");
+                    }
+                }
+                if (style[j] instanceof StyleSpan) {
+                    int s = ((StyleSpan) style[j]).getStyle();
+
+                    if ((s & Typeface.BOLD) != 0 && elementStyleBuilder.indexOf("</b>") == -1) {
+                        out.append("</b>");
+                    }
+                    if ((s & Typeface.ITALIC) != 0 && elementStyleBuilder.indexOf("</i>") == -1) {
+                        out.append("</i>");
+                    }
+                }
+            }
+            // 再合并最外层span标签
+            out.append("</span>");
+        }
     }
 
     private static void withinParagraph(StringBuilder out, Spanned text, int start, int end) {
