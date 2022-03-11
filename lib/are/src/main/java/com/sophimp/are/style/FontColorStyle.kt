@@ -15,7 +15,7 @@ class FontColorStyle(editText: RichEditText) : DynamicCharacterStyle<FontForegro
         return when {
             inheritSpan != null ->
                 FontForegroundColorSpan((inheritSpan as IDynamicSpan).dynamicFeature)
-            mFeature == Constants.DEFAULT_FONT_COLOR ->
+            (mFeature == Constants.DEFAULT_FONT_COLOR || mFeature.isEmpty()) ->
                 null
             else ->
                 FontForegroundColorSpan(mFeature)

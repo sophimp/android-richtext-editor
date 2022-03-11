@@ -19,7 +19,7 @@ class FontSizeStyle(editText: RichEditText) :
         return when {
             inheritSpan != null ->
                 FontSizeSpan((inheritSpan as IDynamicSpan).dynamicFeature.toInt())
-            (mSize == 0) ->
+            (mSize == 0 || mSize == Constants.DEFAULT_FONT_SIZE) ->
                 null
             else ->
                 FontSizeSpan(mSize)
