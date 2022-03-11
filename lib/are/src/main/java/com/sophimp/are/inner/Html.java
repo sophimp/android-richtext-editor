@@ -615,7 +615,8 @@ public class Html {
                 next++;
             }
 
-            withinParagraph(out, text, i, next - nl);
+//            withinParagraph(out, text, i, next - nl);
+            withinParagraphMergeStyle(out, text, i, next - nl);
 
             if (nl == 1) {
                 out.append("<br/>");
@@ -644,16 +645,19 @@ public class Html {
             next = text.nextSpanTransition(i, end, CharacterStyle.class);
             CharacterStyle[] style = text.getSpans(i, next, CharacterStyle.class);
 
+            boolean shouldAppendStyle = false;
             // 先遍历可合并的 style
             StringBuilder elementStyleBuilder = new StringBuilder();
             elementStyleBuilder.append("<span style=\"");
             for (int j = 0; j < style.length; j++) {
                 if (style[j] instanceof UnderlineSpan && elementStyleBuilder.indexOf("text-decoration:underline;") == -1) {
                     elementStyleBuilder.append(" text-decoration:underline;");
+                    shouldAppendStyle = true;
                 }
 
                 if (style[j] instanceof StrikethroughSpan && elementStyleBuilder.indexOf("text-decoration:line-through;") == -1) {
                     elementStyleBuilder.append(" text-decoration:line-through;");
+                    shouldAppendStyle = true;
                 }
 
                 if (style[j] instanceof AbsoluteSizeSpan && elementStyleBuilder.indexOf("font-size:") == -1) {
@@ -668,6 +672,7 @@ public class Html {
 
                     // px in CSS is the equivalance of dip in Android
                     elementStyleBuilder.append(String.format(" font-size:%.0fpx;", sizeDip));
+                    shouldAppendStyle = true;
                 }
 //                if (style[j] instanceof RelativeSizeSpan) {
 //                    float sizeEm = ((RelativeSizeSpan) style[j]).getSizeChange();
@@ -677,16 +682,23 @@ public class Html {
                     String color = ((FontForegroundColorSpan) style[j]).getDynamicFeature();
 //                    out.append(String.format("<span style=\"color:#%06X;\">", 0xFFFFFF & color));
                     elementStyleBuilder.append(String.format(" color:%s;", color));
+                    shouldAppendStyle = true;
                 }
                 if (style[j] instanceof FontBackgroundColorSpan && elementStyleBuilder.indexOf("background-color:") == -1) {
                     String color = ((FontBackgroundColorSpan) style[j]).getDynamicFeature();
                     if (!TextUtils.isEmpty(color) && !"0".equals(color)) {
 //                        out.append(String.format("<span style=\"background-color:#%06X;\">", 0xFFFFFF & color));
                         elementStyleBuilder.append(String.format(" background-color:%s;", color));
+                        shouldAppendStyle = true;
                     }
                 }
             }
             elementStyleBuilder.append("\">");
+
+            if (!shouldAppendStyle) {
+                // 如果没有style, 去掉外层的span
+                elementStyleBuilder.setLength(0);
+            }
 
             // 再遍历独立的标签
             for (int j = 0; j < style.length; j++) {
@@ -738,6 +750,7 @@ public class Html {
             }
             // 添加开始标签
             out.append(elementStyleBuilder);
+
             withinStyle(out, text, i, next);
 
             // 先合并独立标签
@@ -770,8 +783,10 @@ public class Html {
                     }
                 }
             }
-            // 再合并最外层span标签
-            out.append("</span>");
+            if (shouldAppendStyle) {
+                // 再闭合最外层span标签
+                out.append("</span>");
+            }
         }
     }
 
