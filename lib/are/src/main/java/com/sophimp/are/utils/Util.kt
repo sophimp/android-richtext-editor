@@ -203,43 +203,48 @@ object Util {
      *
      * 坑点，case 3, 3.1 光标在最后一行空行 与 在最后一行非空行， selection 是一样的
      */
-    fun getParagraphStart(text: EditText, selection: Int): Int {
-        var selection = max(0, min(selection, text.length()))
+    fun getParagraphStart(text: EditText, selectionIndex: Int): Int {
+        var selection = max(0, min(selectionIndex - 1, text.length() - 1))
         val editable = text.editableText
         if (editable.isEmpty() || selection == 0) {
             // case 1: 首行空行
             return 0
-        } else if (selection >= editable.length) {
-            if (editable[selection - 1] == '\n') {
-                // 在最后一行行尾
-                val curLine = text.layout.getLineForOffset(selection)
-                val curLineStart = text.layout.getLineStart(curLine)
-                selection -= if (curLineStart == selection) {
-                    // 空行
-                    return selection
-                } else {
-                    // 非空行 todo 向前遍历
-                    1
-                }
-            }
-        } else if (editable[selection] == '\n') {
-            selection -= if (editable[selection - 1] == '\n') {
-                // 文本中间的空行
-                return selection
-            } else {
-                // case 2: todo 向前遍历找行首
-                1
-            }
-        } else if (editable[selection - 1] == '\n') {
-            // case 4:
-            return selection
         }
-        for (i in selection - 1 downTo 0) {
-            if (editable[i] == '\n') {
-                return i + 1
-            }
+//        else if (selection >= editable.length) {
+//            if (editable[selection - 1] == '\n') {
+//                // 在最后一行行尾
+//                val curLine = text.layout.getLineForOffset(selection)
+//                val curLineStart = text.layout.getLineStart(curLine)
+//                selection -= if (curLineStart == selection) {
+//                    // 空行
+//                    return selection
+//                } else {
+//                    // 非空行 todo 向前遍历
+//                    1
+//                }
+//            }
+//        } else if (editable[selection] == '\n') {
+//            selection -= if (editable[selection - 1] == '\n') {
+//                // 文本中间的空行
+//                return selection
+//            } else {
+//                // case 2: todo 向前遍历找行首
+//                1
+//            }
+//        } else if (editable[selection - 1] == '\n') {
+//            // case 4:
+//            return selection
+//        }
+        val pStartIndex = editable.lastIndexOf('\n', selection)
+        if (pStartIndex > 0) {
+            return min(pStartIndex + 1, text.length())
         }
-        return 0
+//        for (i in selection - 1 downTo 0) {
+//            if (editable[i] == '\n') {
+//                return i + 1
+//            }
+//        }
+        return selection
     }
 
     /**
@@ -252,29 +257,34 @@ object Util {
      * case 4: 光标在非空行行首, selection start 即为该段落start = 非空字符
      * case 5: 光标在非空行中间, selection start 即为常规位置，无须考虑
      */
-    fun getParagraphEnd(editable: Editable, selection: Int): Int {
-        var selection = selection
+    fun getParagraphEnd(editable: Editable, selectionIndex: Int): Int {
+        var selection = selectionIndex
         if (editable.isEmpty()) {
             // case 1: 首行空行
             return 0
-        } else if (selection >= editable.length) {
-            selection = editable.length
-            if (editable[selection - 1] == '\n') {
-                // case 3:
-                return selection
-            }
-        } else if (editable[selection] == '\n') {
-            // case 2:
-            return selection
-        } else if (selection > 0 && editable[selection - 1] == '\n') {
-            // case 4: todo 向后遍历找行尾
-            selection += 1
         }
-        for (i in selection until editable.length) {
-            if (editable[i] == '\n') {
-                return i
-            }
+//        else if (selection >= editable.length) {
+//            selection = editable.length
+//            if (editable[selection - 1] == '\n') {
+//                // case 3:
+//                return selection
+//            }
+//        } else if (editable[selection] == '\n') {
+//            // case 2:
+//            return selection
+//        } else if (selection > 0 && editable[selection - 1] == '\n') {
+//            // case 4: todo 向后遍历找行尾
+//            selection += 1
+//        }
+        val pEndIndex = editable.indexOf('\n', selection)
+        if (pEndIndex >= selection) {
+            return max(0, pEndIndex - 1)
         }
+//        for (i in selection until editable.length) {
+//            if (editable[i] == '\n') {
+//                return i
+//            }
+//        }
         return editable.length - 1
     }
 

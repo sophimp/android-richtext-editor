@@ -134,7 +134,7 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
             val nSpan: ISpan? = newSpan(preParagraphSpans[0])
             // 当前行添加span
             if (nSpan != null) {
-                val curStart = lastPEnd + 1
+                val curStart = mEditText.selectionStart
                 if (curStart >= editable.length || editable[curStart].toInt() != Constants.ZERO_WIDTH_SPACE_INT) {
                     editable.insert(curStart, Constants.ZERO_WIDTH_SPACE_STR)
                 }
@@ -163,7 +163,9 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
 //        logAllSpans(editable, "即将删除的spans ", epStart, epEnd)
         removeMutexSpans(epStart, epEnd)
         removeSpans(editable, curTargetSpans)
-        setSpan(curTargetSpans[0], epStart, epEnd)
+        if (epStart < epEnd) {
+            setSpan(curTargetSpans[0], epStart, epEnd)
+        }
     }
 
     override fun setSpan(span: ISpan, start: Int, end: Int) {

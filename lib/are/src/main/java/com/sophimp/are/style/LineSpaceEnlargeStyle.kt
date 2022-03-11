@@ -73,12 +73,12 @@ class LineSpaceEnlargeStyle(editText: RichEditText) : BaseParagraphStyle<LineSpa
 
         // if current line has no LineSpaceSpan, need to add one, for resolve the problem of the overlap when you apply this style on where two paragraphs separate with consecutive empty line
         // also we should limit factor <= 1.0 LineSpaceSpan not to be converted to html rich text to avoid the html too long
-        if (epStart < epEnd) {
-            val lineSpaceSpans = editable.getSpans(epStart, epEnd, LineSpaceSpan::class.java)
-            if (lineSpaceSpans.isEmpty()) {
-                setSpan(LineSpaceSpan(1.0f), epStart, epEnd)
-            }
-        }
+//        if (epStart < epEnd) {
+//            val lineSpaceSpans = editable.getSpans(epStart, epEnd, LineSpaceSpan::class.java)
+//            if (lineSpaceSpans.isEmpty()) {
+//                setSpan(LineSpaceSpan(1.0f), epStart, epEnd)
+//            }
+//        }
     }
 
     override fun newSpan(inheritSpan: ISpan?): ISpan? {
