@@ -53,7 +53,8 @@ class EditActivity : AppCompatActivity() {
 
     override fun onPause() {
         Util.log("edit onPause: ${binding.reRichtext.toHtml()}")
-        memoInfo.title = Html.toHtml(binding.reRichtext.editableText.subSequence(0, min(1000, binding.reRichtext.length())) as Spanned?)
+        memoInfo.title = Html.toHtml(binding.reRichtext.editableText.subSequence(0, min(1000, binding.reRichtext.length())) as Spanned?,
+            Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL)
         memoInfo.richText = binding.reRichtext.toHtml()
         if (!TextUtils.isEmpty(memoInfo.richText)) {
             memoDao.addMemo(memoInfo)

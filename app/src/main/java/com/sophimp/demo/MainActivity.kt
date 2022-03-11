@@ -66,9 +66,9 @@ class MainActivity : AppCompatActivity() {
         binding.btnGenerateRandom.setOnClickListener {
             mainScope.launch {
                 val job = async {
-//                    launch {
-//                        addCharacterStyle()
-//                    }
+                    launch {
+                        addCharacterStyle()
+                    }
                     launch {
                         addParagraphStyle()
                     }
@@ -91,15 +91,16 @@ class MainActivity : AppCompatActivity() {
     fun addParagraphStyle() {
         // indent, align, todostyle, list bullet/number, line space
         val listNumberStr = "list number"
-        repeat(10) {
+        repeat(1000) {
             val start = spannableStringBuilder.length
             spannableStringBuilder.append(listNumberStr)
             val end = spannableStringBuilder.length
             spannableStringBuilder.setSpan(ListNumberSpan(counter), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             spannableStringBuilder.setSpan(IndentSpan(counter % 5), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            addCharacterStyle()
+//            addCharacterStyle()
             spannableStringBuilder.append("\n")
             counter++
+            Util.log("add paragraph alive $counter")
         }
 
     }
@@ -107,7 +108,7 @@ class MainActivity : AppCompatActivity() {
     fun addCharacterStyle() {
         // img, attachment, bold, strike, underline, italic, font size/color/background, link
         val c = "character style test content"
-        repeat(10) {
+        repeat(100) {
             val start = spannableStringBuilder.length
             spannableStringBuilder.append(c)
             val end = spannableStringBuilder.length

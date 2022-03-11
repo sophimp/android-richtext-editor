@@ -757,32 +757,33 @@ public class Html {
             elementStyleBuilder.setLength(0);
             for (int j = style.length - 1; j >= 0; j--) {
                 if (style[j] instanceof URLSpan && elementStyleBuilder.indexOf("</a>") == -1) {
-                    out.append("</a>");
+                    elementStyleBuilder.append("</a>");
                 }
                 if (style[j] instanceof SubscriptSpan && elementStyleBuilder.indexOf("</sub>") == -1) {
-                    out.append("</sub>");
+                    elementStyleBuilder.append("</sub>");
                 }
                 if (style[j] instanceof SuperscriptSpan && elementStyleBuilder.indexOf("</sup>") == -1) {
-                    out.append("</sup>");
+                    elementStyleBuilder.append("</sup>");
                 }
                 if (style[j] instanceof TypefaceSpan) {
                     String s = ((TypefaceSpan) style[j]).getFamily();
 
                     if ("monospace".equals(s) && elementStyleBuilder.indexOf("</tt>") == -1) {
-                        out.append("</tt>");
+                        elementStyleBuilder.append("</tt>");
                     }
                 }
                 if (style[j] instanceof StyleSpan) {
                     int s = ((StyleSpan) style[j]).getStyle();
 
                     if ((s & Typeface.BOLD) != 0 && elementStyleBuilder.indexOf("</b>") == -1) {
-                        out.append("</b>");
+                        elementStyleBuilder.append("</b>");
                     }
                     if ((s & Typeface.ITALIC) != 0 && elementStyleBuilder.indexOf("</i>") == -1) {
-                        out.append("</i>");
+                        elementStyleBuilder.append("</i>");
                     }
                 }
             }
+            out.append(elementStyleBuilder);
             if (shouldAppendStyle) {
                 // 再闭合最外层span标签
                 out.append("</span>");
