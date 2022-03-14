@@ -180,12 +180,6 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
 
     }
 
-    override fun onSelectionChanged(selectionEnd: Int) {
-        val start = max(0, selectionEnd - 1)
-        val boldSpans = mEditText.editableText.getSpans(start, selectionEnd, targetClass())
-        checkState = boldSpans.isNotEmpty()
-    }
-
     override fun newSpan(inheritSpan: ISpan?): ISpan? {
         return if (isChecked || inheritSpan != null) targetClass().newInstance() else null
     }
