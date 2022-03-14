@@ -16,7 +16,7 @@ class FontBackgroundStyle(editText: RichEditText) :
         return when {
             inheritSpan != null ->
                 FontBackgroundColorSpan((inheritSpan as IDynamicSpan).dynamicFeature)
-            mFeature.isEmpty() ->
+            (mFeature.isEmpty() || mFeature == Constants.DEFAULT_FONT_COLOR) ->
                 null
             else ->
                 FontBackgroundColorSpan(mFeature)
@@ -25,7 +25,7 @@ class FontBackgroundStyle(editText: RichEditText) :
 
     override fun onFeatureChanged(feature: String) {
         this.mFeature = feature
-        checkState = this.mFeature.isNotEmpty()
+        checkState = this.mFeature != Constants.DEFAULT_FONT_COLOR
         handleAbsButtonClick(mEditText.selectionStart, mEditText.selectionEnd)
     }
 

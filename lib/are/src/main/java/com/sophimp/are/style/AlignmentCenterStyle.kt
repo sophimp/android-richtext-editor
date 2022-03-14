@@ -1,9 +1,9 @@
 package com.sophimp.are.style
 
 import android.text.Spanned
+import android.text.style.AlignmentSpan
 import com.sophimp.are.RichEditText
 import com.sophimp.are.spans.AlignmentCenterSpan
-import com.sophimp.are.spans.AlignmentRightSpan
 import com.sophimp.are.spans.ISpan
 import com.sophimp.are.spans.IndentSpan
 
@@ -15,7 +15,7 @@ class AlignmentCenterStyle(editText: RichEditText) : BaseParagraphStyle<Alignmen
         val indents = editable.getSpans(curPStart, curPEnd, IndentSpan::class.java)
         removeSpans(editable, indents)
 
-        val rightSpans = editable.getSpans(curPStart, curPEnd, AlignmentRightSpan::class.java)
+        val rightSpans = editable.getSpans(curPStart, curPEnd, AlignmentSpan::class.java)
         removeSpans(editable, rightSpans)
     }
 

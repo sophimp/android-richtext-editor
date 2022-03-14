@@ -18,7 +18,6 @@ import com.sophimp.are.spans.*
 import com.sophimp.are.style.IStyle
 import com.sophimp.are.toolbar.DefaultToolbar
 import com.sophimp.are.toolbar.items.IToolbarItem
-import com.sophimp.are.utils.UndoRedoHelper
 import com.sophimp.are.utils.Util
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.async
@@ -31,6 +30,8 @@ import kotlin.math.min
  * @since: 2021/7/20
  */
 class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(context, attr) {
+
+    private var lastTapSelectionEnd: Int = 0
 
     @JvmField
     var spannedFromHtml: Spanned? = null
@@ -101,9 +102,10 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
             override fun onSingleTapUp(e: MotionEvent?): Boolean {
                 val offset = Util.getTextOffset(this@RichEditText, e!!)
-                if (offset >= 0) {
+                if (offset >= 0 && offset != lastTapSelectionEnd) {
+                    lastTapSelectionEnd = selectionEnd
                     selectionChangesListeners.forEach {
-                        it.onSelectionChanged(selectionStart, offset)
+                        it.onSelectionChanged(offset, offset)
                     }
                 }
                 if (offset < 0) {
@@ -113,10 +115,6 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                     }
                     return false
                 }
-//                if (selectionEnd.toLong() != lastTapSelectionEnd) {
-//                    handleSelectionChanged(selectionStart, selectionEnd)
-//                    lastTapSelectionEnd = selectionEnd.toLong()
-//                }
                 val clickSpans = editableText.getSpans(offset, offset, IClickableSpan::class.java)
                 if (clickSpans.isEmpty()) {
                     if (!editMode) {
@@ -131,6 +129,9 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                     }
                     clickSpans[0] is ImageSpan2 -> {
                         clickStrategy?.onClickImage(this@RichEditText, clickSpans[0] as ImageSpan2)
+                    }
+                    clickSpans[0] is TableSpan -> {
+                        clickStrategy?.onClickTable(this@RichEditText, clickSpans[0] as TableSpan)
                     }
                     clickSpans[0] is AudioSpan -> {
                         clickStrategy?.onClickAudio(this@RichEditText, clickSpans[0] as AudioSpan)
@@ -378,10 +379,6 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
             html.toString().replace(Constants.ZERO_WIDTH_SPACE_STR_ESCAPE.toRegex(), "")
         startMonitor()
         return htmlContent
-    }
-
-    fun registerToggleStyleObserver(toggleStyleObserver: UndoRedoHelper.ToggleStyleObserver) {
-
     }
 
     /**

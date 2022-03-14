@@ -55,7 +55,7 @@ public class UndoRedoHelper {
         editText.addTextChangedListener(new Watcher());
 
         // 注册样式修改观察者到被观察中，当样式修改的时候，会通知当前对象将action插入到撤销栈中。
-        editText.registerToggleStyleObserver(toggleStyleObserver);
+        editText.setStyleChangedListener(drEditText -> handleStyleChanged(null));
     }
 
     public UndoRedoHelper(EditTableViewModel tableViewModel) {
@@ -252,7 +252,7 @@ public class UndoRedoHelper {
     /**
      * 当样式发生变化回调
      */
-    private void onStyleChanged(Action action) {
+    private void handleStyleChanged(Action action) {
 //        action.setIndex(++index);
 //        history.push(action);
 //        historyBack.clear();
@@ -454,7 +454,7 @@ public class UndoRedoHelper {
 
     public class ToggleStyleObserver {
         public void onChange(Action action) {
-            onStyleChanged(action);
+            handleStyleChanged(action);
         }
     }
 

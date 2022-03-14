@@ -55,6 +55,7 @@ import com.sophimp.are.spans.IndentSpan;
 import com.sophimp.are.spans.LineSpaceSpan;
 import com.sophimp.are.spans.ListBulletSpan;
 import com.sophimp.are.spans.ListNumberSpan;
+import com.sophimp.are.spans.TableSpan;
 import com.sophimp.are.spans.TodoSpan;
 
 import org.ccil.cowan.tagsoup.HTMLSchema;
@@ -702,7 +703,7 @@ public class Html {
 
             // 再遍历独立的标签
             for (int j = 0; j < style.length; j++) {
-                if (style[j] instanceof IUploadSpan) {
+                if (style[j] instanceof IUploadSpan || style[j] instanceof TableSpan) {
                     elementStyleBuilder.append(((ISpan) style[j]).getHtml());
                     i = next;
                     continue;
