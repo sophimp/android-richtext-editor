@@ -26,6 +26,9 @@ public class EditTableViewModel extends ViewModel implements IEditTableView {
      * 行列变化
      */
     private int col = 3, row = 3;
+    public int focusRow;
+    public int focusCol;
+
 
     public @interface RefreshEvent {
         int ADD_OR_DELETE_ROW = 0;

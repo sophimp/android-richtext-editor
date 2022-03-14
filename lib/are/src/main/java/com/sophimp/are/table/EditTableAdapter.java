@@ -53,8 +53,8 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
             helper.binding.areItem.getEditableText().setSpan(new AlignmentSpan.Standard(Layout.Alignment.ALIGN_OPPOSITE), 0, helper.binding.areItem.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         helper.updateCellSize(position);
-        if (helper.cellInfo.requestFocus) {
-//            helper.binding.areItem.requestFocus();
+        if (curRow == tableViewModel.focusRow && curCol == tableViewModel.focusCol) {
+            helper.binding.areItem.requestFocus();
             int selectionStart = Math.max(0, Math.min(helper.cellInfo.cursorSelectionStart, helper.binding.areItem.length()));
             int selectionEnd = Math.max(0, Math.min(helper.cellInfo.cursorSelectionEnd, helper.binding.areItem.length()));
             if (selectionStart < selectionEnd) {
