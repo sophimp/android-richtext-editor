@@ -12,6 +12,7 @@ import android.widget.EditText
 import androidx.appcompat.widget.AppCompatEditText
 import com.sophimp.are.inner.Html
 import com.sophimp.are.listener.ImageLoadedListener
+import com.sophimp.are.listener.OnSelectionChangeListener
 import com.sophimp.are.models.StyleChangedListener
 import com.sophimp.are.spans.*
 import com.sophimp.are.style.IStyle
@@ -48,6 +49,8 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
      * 富文本点击事件处理
      */
     var clickStrategy: IEditorClickStrategy? = DefaultClickStrategyImpl()
+
+    private var selectionChangesListeners = mutableListOf<OnSelectionChangeListener>()
 
     /**
      * 所有需上传的附件总大小
@@ -98,6 +101,11 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
             override fun onSingleTapUp(e: MotionEvent?): Boolean {
                 val offset = Util.getTextOffset(this@RichEditText, e!!)
+                if (offset >= 0) {
+                    selectionChangesListeners.forEach {
+                        it.onSelectionChanged(selectionStart, offset)
+                    }
+                }
                 if (offset < 0) {
                     if (!editMode) {
                         editMode = true
@@ -514,5 +522,17 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
             }
         }
         isChange = true
+    }
+
+    fun registerOnSelectionChangedListener(listener: OnSelectionChangeListener) {
+        if (!selectionChangesListeners.contains(listener)) {
+            selectionChangesListeners.add(listener)
+        }
+    }
+
+    fun removeOnSelectionChangedListener(listener: OnSelectionChangeListener) {
+        if (!selectionChangesListeners.contains(listener)) {
+            selectionChangesListeners.remove(listener)
+        }
     }
 }

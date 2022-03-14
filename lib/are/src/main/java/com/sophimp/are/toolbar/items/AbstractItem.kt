@@ -1,6 +1,7 @@
 package com.sophimp.are.toolbar.items
 
 import android.content.Context
+import androidx.core.content.ContextCompat
 import com.sophimp.are.style.IStyle
 import com.sophimp.are.toolbar.IToolbarItemClickAction
 import com.sophimp.are.toolbar.ItemView
@@ -17,7 +18,7 @@ abstract class AbstractItem(protected var style: IStyle, protected var itemClick
 
     init {
         itemView = ItemView(context)
-        context.getDrawable(srcResId)?.let { itemView.setIconImage(it) }
+        ContextCompat.getDrawable(context, srcResId)?.let { itemView.setIconImage(it) }
         itemView.setOnClickListener { iconClickHandle() }
     }
 

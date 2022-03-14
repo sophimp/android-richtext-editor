@@ -70,6 +70,11 @@ interface IStyle {
     fun setSpan(span: ISpan, start: Int, end: Int) {}
 
     /**
+     * invoke when single tab changed the cursor position
+     */
+    fun onSelectionChanged(selectionEnd: Int) {}
+
+    /**
      * toolbar item click handle
      */
     fun toolItemIconClick() {}
