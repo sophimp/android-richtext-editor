@@ -340,6 +340,17 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
     }
 
     fun refresh(start: Int) {
+        try {
+            val sendWatchersMethod =
+                SpannableStringBuilder::class.java.getDeclaredMethod("sendToSpanWatchers", Int::class.java, Int::class.java, Int::class.java)
+            sendWatchersMethod.isAccessible = true
+            val len = length()
+            sendWatchersMethod.invoke(editableText, 0, len, len)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+//        requestLayout()
 //        stopMonitor()
 //        editableText.insert(0, " ")
 //        editableText.delete(0, 1)

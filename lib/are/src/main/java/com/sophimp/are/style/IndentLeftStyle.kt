@@ -6,6 +6,9 @@ import com.sophimp.are.RichEditText
 import com.sophimp.are.spans.ISpan
 import com.sophimp.are.spans.IndentSpan
 import com.sophimp.are.utils.Util
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class IndentLeftStyle(editText: RichEditText) : BaseParagraphStyle<IndentSpan>(editText) {
 
@@ -22,7 +25,10 @@ class IndentLeftStyle(editText: RichEditText) : BaseParagraphStyle<IndentSpan>(e
             removeSpans(mEditText.editableText, spans)
             (spans[0] as IndentSpan).decreaseLevel()
             setSpan(spans[0], start, end)
-            Util.renumberAllListItemSpans(mEditText.editableText)
+
+            CoroutineScope(Dispatchers.IO).launch {
+                Util.renumberAllListItemSpans(mEditText.editableText)
+            }
             mEditText.setSelection(mEditText.selectionStart, mEditText.selectionEnd)
         }
     }

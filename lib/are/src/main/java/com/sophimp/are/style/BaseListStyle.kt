@@ -7,6 +7,7 @@ import com.sophimp.are.RichEditText
 import com.sophimp.are.spans.IListSpan
 import com.sophimp.are.spans.ISpan
 import com.sophimp.are.utils.Util
+import kotlinx.coroutines.*
 
 /**
  * Abstract for ListBullet, ListTodo, ListNumber
@@ -70,11 +71,14 @@ abstract class BaseListStyle<B : IListSpan>(editText: RichEditText) : BaseParagr
         super.toolItemIconClick()
 
         // 重排所有的 ListNumberSpan, 因为实际数据量并不会大， 所在重排的性能损失可以忽略，但是实现方法简单得多
-        mEditText.postDelayUIRun(Runnable {
-            Util.renumberAllListItemSpans(mEditText.editableText)
-            logAllSpans(mEditText.editableText, "${targetClass().simpleName} item click", 0, mEditText.editableText.length)
+        MainScope().launch {
+            val job = async {
+                Util.renumberAllListItemSpans(mEditText.editableText)
+                logAllSpans(mEditText.editableText, "${targetClass().simpleName} item click", 0, mEditText.editableText.length)
+            }
+            job.await()
             mEditText.refresh(0)
-        }, 30)
+        }
     }
 
     /**
@@ -113,8 +117,10 @@ abstract class BaseListStyle<B : IListSpan>(editText: RichEditText) : BaseParagr
     override fun handleInputNewLine(editable: Editable, beforeSelectionStart: Int) {
         super.handleInputNewLine(editable, beforeSelectionStart)
         // 重排所有的 ListNumberSpan, 因为数据量并不会大， 所在重排的性能损失可以忽略，但是实现方法简单得多
-        Util.renumberAllListItemSpans(editable)
+        CoroutineScope(Dispatchers.IO).launch {
+            Util.renumberAllListItemSpans(editable)
 //        logAllSpans(editable, targetClass().simpleName + " after new line", 0, editable.length)
+        }
     }
 
     override fun handleMultiParagraphInput(
@@ -126,7 +132,9 @@ abstract class BaseListStyle<B : IListSpan>(editText: RichEditText) : BaseParagr
         epEnd: Int
     ) {
         super.handleMultiParagraphInput(editable, changedText, beforeSelectionStart, afterSelectionEnd, epStart, epEnd)
-        Util.renumberAllListItemSpans(editable)
+        CoroutineScope(Dispatchers.IO).launch {
+            Util.renumberAllListItemSpans(editable)
+        }
     }
 
     override fun removeMutexSpans(curPStart: Int, curPEnd: Int) {
@@ -140,7 +148,9 @@ abstract class BaseListStyle<B : IListSpan>(editText: RichEditText) : BaseParagr
     override fun handleDeleteEvent(editable: Editable, epStart: Int, epEnd: Int) {
         super.handleDeleteEvent(editable, epStart, epEnd)
         // 重排所有的 ListNumberSpan, 因为数据量并不会大， 所在重排的性能损失可以忽略，但是实现方法简单得多
-        Util.renumberAllListItemSpans(editable)
+        CoroutineScope(Dispatchers.IO).launch {
+            Util.renumberAllListItemSpans(editable)
+        }
     }
 
 
