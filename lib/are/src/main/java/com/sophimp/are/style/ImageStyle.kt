@@ -73,7 +73,8 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
             width: Int,
             height: Int,
             url: String,
-            localPath: String
+            localPath: String,
+            shouldReload: Boolean
         ) {
             defaultDrawable?.intrinsicWidth?.let {
                 defaultDrawable.setBounds(
@@ -115,7 +116,8 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
                             path,
                             compressBitmap,
                             w,
-                            h
+                            h,
+                            shouldReload
                         )
                     }
                 }
@@ -141,7 +143,8 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
             path: String,
             compressBitmap: Bitmap,
             w: Int,
-            h: Int
+            h: Int,
+            shouldReload: Boolean
         ) {
             val imageSpans = editable.getSpans(0, editable.length, ImageSpan2::class.java)
             imageSpans.forEach { imgSpan ->
@@ -172,7 +175,11 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                     )
                     editable.removeSpan(imgSpan)
-                    Html.imageLoadedListener?.onImageLoaded(editable, spanStart, spanEnd)
+                    if (shouldReload) {
+                        Html.imageLoadedListener?.onImageLoaded(editable, spanStart, spanEnd)
+                    } else {
+                        Html.imageLoadedListener?.onImageRefresh(spanStart, spanEnd)
+                    }
                 }
             }
         }
@@ -192,7 +199,8 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
             defaultDrawable!!.intrinsicWidth,
             defaultDrawable.intrinsicHeight,
             url,
-            localPath
+            localPath,
+            false
         )
         mEditText.editableText.insert(mEditText.selectionEnd, Constants.CHAR_NEW_LINE)
     }
@@ -249,7 +257,7 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
                 path: String?
             ) {
                 path?.let {
-                    replaceImageSpanAfterLoaded(editable, defaultSpan, path, compressBitmap, w, h)
+                    replaceImageSpanAfterLoaded(editable, defaultSpan, path, compressBitmap, w, h, false)
                 }
             }
         }

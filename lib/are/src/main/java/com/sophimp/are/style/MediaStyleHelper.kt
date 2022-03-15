@@ -110,7 +110,7 @@ class MediaStyleHelper {
                                 spanEnd,
                                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                             )
-                            Html.imageLoadedListener?.onImageLoaded(editable, spanStart, spanEnd)
+                            Html.imageLoadedListener?.onImageRefresh(spanStart, spanEnd)
                         }
                     }
                 }

@@ -29,7 +29,6 @@ public class EditTableViewModel extends ViewModel implements IEditTableView {
     public int focusRow;
     public int focusCol;
 
-
     public @interface RefreshEvent {
         int ADD_OR_DELETE_ROW = 0;
         int ADD_OR_DELETE_COL = 1;

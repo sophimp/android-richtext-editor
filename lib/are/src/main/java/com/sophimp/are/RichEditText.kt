@@ -93,6 +93,10 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                 uiHandler.postDelayed(refreshRunnable, 500)
 //                refresh(start)
             }
+
+            override fun onImageRefresh(start: Int, end: Int) {
+                refresh(start)
+            }
         })
     }
 

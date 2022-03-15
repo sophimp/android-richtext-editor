@@ -200,7 +200,6 @@ abstract class BaseStyle<T : ISpan>(private var curEditText: RichEditText) : ISt
         checkState = boldSpans.isNotEmpty()
     }
 
-
     override fun newSpan(inheritSpan: ISpan?): ISpan? {
         return targetClass().newInstance()
     }

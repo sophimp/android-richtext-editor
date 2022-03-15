@@ -879,7 +879,7 @@ class HtmlToSpannedConverter implements ContentHandler {
 
 
         int len = text.length();
-        ImageStyle.Companion.addImageSpanToEditable(Html.sContext, text, len, iwidth, iheight, src, "");
+        ImageStyle.Companion.addImageSpanToEditable(Html.sContext, text, len, iwidth, iheight, src, "", true);
 
         if (dataType == null || dataType.equalsIgnoreCase(AttachFileType.IMG.getAttachmentValue())) {
             // 非贴纸才再换行符
