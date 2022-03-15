@@ -321,12 +321,14 @@ object Util {
             // log("当前 span: start-end: " + curSpanStart + "-" + curSpanEnd);
             val curPLeading: Array<IndentSpan> =
                 editable.getSpans(curSpanStart, curSpanEnd, IndentSpan::class.java)
-            if (curPLeading.size > 0) {
-                span.number = levelCache[curPLeading[0].mLevel]
-                levelCache[curPLeading[0].mLevel] += 1
-            } else {
-                span.number = levelCache[0]
-                levelCache[0] += 1
+            span?.let {
+                if (curPLeading.isNotEmpty()) {
+                    span.number = levelCache[curPLeading[0].mLevel]
+                    levelCache[curPLeading[0].mLevel] += 1
+                } else {
+                    span.number = levelCache[0]
+                    levelCache[0] += 1
+                }
             }
         }
     }
