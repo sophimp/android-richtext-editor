@@ -244,7 +244,7 @@ object Util {
 //                return i + 1
 //            }
 //        }
-        return selection
+        return 0
     }
 
     /**
