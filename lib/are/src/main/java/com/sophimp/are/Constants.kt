@@ -10,6 +10,7 @@ object Constants {
      * default font color
      */
     const val DEFAULT_FONT_COLOR: String = "#232323"
+    const val DEFAULT_FONT_BG_COLOR = "#00000000"
 
     const val CHECKED_COLOR = -0xbf7f // android.R.color.holo_green_light;
     const val UNCHECKED_COLOR = 0X00000000 // android.R.color.transparent;

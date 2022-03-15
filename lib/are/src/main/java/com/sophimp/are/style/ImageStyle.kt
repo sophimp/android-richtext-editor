@@ -53,13 +53,13 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
 
         fun insertImageSpan(editable: Editable, imageSpan: ImageSpan, start: Int, end: Int) {
             val ssb = SpannableStringBuilder()
-            ssb.append(Constants.CHAR_NEW_LINE)
+//            ssb.append(Constants.CHAR_NEW_LINE)
             ssb.append(Constants.ZERO_WIDTH_SPACE_STR)
             //多插个空格
             //多插个空格
             ssb.append(Constants.CHAR_NEW_LINE)
             ssb.append(" ")
-            ssb.setSpan(imageSpan, 1, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            ssb.setSpan(imageSpan, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             editable.replace(start, end, ssb)
         }
 

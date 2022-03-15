@@ -16,7 +16,7 @@ class FontBackgroundStyle(editText: RichEditText) :
         return when {
             inheritSpan != null ->
                 FontBackgroundColorSpan((inheritSpan as IDynamicSpan).dynamicFeature)
-            (mFeature.isEmpty() || mFeature == Constants.DEFAULT_FONT_COLOR) ->
+            (mFeature.isEmpty() || mFeature == Constants.DEFAULT_FONT_BG_COLOR) ->
                 null
             else ->
                 FontBackgroundColorSpan(mFeature)

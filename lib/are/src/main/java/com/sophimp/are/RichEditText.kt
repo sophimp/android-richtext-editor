@@ -31,8 +31,6 @@ import kotlin.math.min
  */
 class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(context, attr) {
 
-    private var lastTapSelectionEnd: Int = 0
-
     @JvmField
     var spannedFromHtml: Spanned? = null
 
@@ -102,8 +100,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
             override fun onSingleTapUp(e: MotionEvent?): Boolean {
                 val offset = Util.getTextOffset(this@RichEditText, e!!)
-                if (offset >= 0 && offset != lastTapSelectionEnd) {
-                    lastTapSelectionEnd = selectionEnd
+                if (offset >= 0 && offset != selectionEnd) {
                     selectionChangesListeners.forEach {
                         it.onSelectionChanged(offset, offset)
                     }

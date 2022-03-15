@@ -278,7 +278,7 @@ object Util {
 //        }
         val pEndIndex = editable.indexOf('\n', selection)
         if (pEndIndex >= selection) {
-            return max(0, pEndIndex - 1)
+            return max(0, pEndIndex)
         }
 //        for (i in selection until editable.length) {
 //            if (editable[i] == '\n') {
