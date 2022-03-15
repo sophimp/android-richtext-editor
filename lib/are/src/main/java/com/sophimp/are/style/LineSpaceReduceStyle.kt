@@ -14,21 +14,20 @@ import kotlin.math.abs
 class LineSpaceReduceStyle(editText: RichEditText) : BaseParagraphStyle<LineSpaceSpan>(editText) {
     private val EPSILON = 1e-5
     override fun <T : ISpan> updateSpan(spans: Array<T>, start: Int, end: Int) {
+        var ns = newSpan()
         if (spans.isNotEmpty()) {
             val ori = spans[0] as LineSpaceSpan
             val factor = getNextSmallFactor(ori.factor)
             if (factor <= 1.0) {
-                Util.toast(context, "reached the min line space")
+                Util.toast(context, "无法缩小了")
                 return
             }
             removeSpans(mEditText.editableText, spans)
             ori.factor = factor
-            setSpan(ori, start, end)
-        } else {
-            val ns = newSpan()
-            if (ns != null) {
-                setSpan(ns, start, end)
-            }
+            ns = newSpan(ori)
+        }
+        ns?.apply {
+            setSpan(ns, start, end)
         }
     }
 

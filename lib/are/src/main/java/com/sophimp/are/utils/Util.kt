@@ -322,7 +322,7 @@ object Util {
             val curPLeading: Array<IndentSpan> =
                 editable.getSpans(curSpanStart, curSpanEnd, IndentSpan::class.java)
             span?.let {
-                if (curPLeading.isNotEmpty()) {
+                if (curPLeading.isNotEmpty() && curPLeading[0] != null) {
                     span.number = levelCache[curPLeading[0].mLevel]
                     levelCache[curPLeading[0].mLevel] += 1
                 } else {

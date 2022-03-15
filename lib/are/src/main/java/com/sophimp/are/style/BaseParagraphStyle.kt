@@ -6,6 +6,7 @@ import android.text.TextUtils
 import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
 import com.sophimp.are.spans.ISpan
+import com.sophimp.are.spans.LineSpaceSpan
 import com.sophimp.are.utils.Util
 import java.util.*
 import kotlin.math.max
@@ -27,7 +28,11 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
             mEditText.editableText.getSpanStart(o1) - mEditText.editableText.getSpanStart(o2)
         }
         updateSpan(targets, curPStart, curPEnd)
-        mEditText.refresh(curPStart)
+        if (targetClass() == LineSpaceSpan::class.java) {
+            mEditText.refreshByInsert(curPStart)
+        } else {
+            mEditText.refresh(curPStart)
+        }
         return 0
     }
 

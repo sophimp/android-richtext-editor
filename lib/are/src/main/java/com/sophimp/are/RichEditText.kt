@@ -354,14 +354,18 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
             e.printStackTrace()
         }
 
-//        requestLayout()
-//        stopMonitor()
-//        editableText.insert(0, " ")
-//        editableText.delete(0, 1)
-//
-//        editableText.insert(start, " ")
-//        editableText.delete(start, start + 1)
-//        startMonitor()
+        requestLayout()
+    }
+
+    fun refreshByInsert(start: Int) {
+        postDelayed({
+            stopMonitor()
+            editableText.insert(0, "-")
+            editableText.delete(0, 1)
+            editableText.insert(start, " ")
+            editableText.delete(start, start + 1)
+            startMonitor()
+        }, 50)
     }
 
     fun postDelayUIRun(runnable: Runnable, delay: Long) {
@@ -380,7 +384,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         return spannedFromHtml as SpannableStringBuilder
     }
 
-    fun toHtml(): String? {
+    fun toHtml(): String {
         stopMonitor()
         Html.sContext = context
         val html = StringBuffer()

@@ -15,21 +15,20 @@ class LineSpaceEnlargeStyle(editText: RichEditText) : BaseParagraphStyle<LineSpa
     private val EPSILON = 1e-5
 
     override fun <T : ISpan> updateSpan(spans: Array<T>, start: Int, end: Int) {
+        var ns = newSpan()
         if (spans.isNotEmpty()) {
             val ori = spans[0] as LineSpaceSpan
             val factor = getNextLargeFactor(ori.factor)
             if (factor >= 5.5) {
-                Util.toast(context, "reached the max line space")
+                Util.toast(context, "无法增大了")
                 return
             }
             removeSpans(mEditText.editableText, spans)
             ori.factor = factor
-            setSpan(ori, start, end)
-        } else {
-            val ns = newSpan()
-            if (ns != null) {
-                setSpan(ns, start, end)
-            }
+            ns = newSpan(ori)
+        }
+        ns?.apply {
+            setSpan(ns, start, end)
         }
     }
 
