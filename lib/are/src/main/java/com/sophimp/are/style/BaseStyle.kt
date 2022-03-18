@@ -41,6 +41,7 @@ abstract class BaseStyle<T : ISpan>(private var curEditText: RichEditText) : ISt
         var spEnd = Util.getParagraphEnd(editable, mEditText.selectionEnd)
         var index = max(0, spStart)
         var off = 0
+        var shouldResort = (targetClass() == ListNumberSpan::class.java)
         while (index <= spEnd) {
             val curPStart = index
             var curPEnd: Int = Util.getParagraphEnd(editable, index)
@@ -61,10 +62,31 @@ abstract class BaseStyle<T : ISpan>(private var curEditText: RichEditText) : ISt
                 continue
             }
 
+            if (!shouldResort) {
+                val numberSpans = editable.getSpans(curPStart, curPEnd, ListNumberSpan::class.java)
+                shouldResort = numberSpans.isNotEmpty()
+            }
+
             off = itemClickOnNonEmptyParagraph(curPStart, curPEnd)
 
             spEnd += off
             index = curPEnd + off + 1
+        }
+        if (shouldResort) {
+            // 重排所有的 ListNumberSpan, 因为实际数据量并不会大， 所在重排的性能损失可以忽略，但是实现方法简单得多
+            MainScope().launch {
+                val job = async {
+                    Util.renumberAllListItemSpans(mEditText.editableText)
+                    logAllSpans(
+                        mEditText.editableText,
+                        "${targetClass().simpleName} item click",
+                        0,
+                        mEditText.editableText.length
+                    )
+                    mEditText.refreshRange(0, mEditText.length())
+                }
+//            job.await()
+            }
         }
         logAllSpans(mEditText.editableText, "${targetClass().simpleName} item click", 0, mEditText.editableText.length)
     }

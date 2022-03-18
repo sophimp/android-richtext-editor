@@ -30,9 +30,10 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
         updateSpan(targets, curPStart, curPEnd)
         if (targetClass() == LineSpaceSpan::class.java) {
             mEditText.refreshByInsert(curPStart)
-        } else {
-            mEditText.refresh(curPStart)
         }
+//        else {
+//            mEditText.refresh(curPStart)
+//        }
         return 0
     }
 

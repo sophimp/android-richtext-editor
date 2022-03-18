@@ -339,12 +339,11 @@ object Util {
     fun reNumberBehindListItemSpans(start: Int, text: EditText) {
         val editable = text.editableText
         // 获取当前段落后的所有 ListNumberSpan,
-        val behindListItemSpans: Array<ListNumberSpan> =
-            editable.getSpans(start, editable.length, ListNumberSpan::class.java)
+        val behindListItemSpans = editable.getSpans(start, editable.length, ListNumberSpan::class.java)
         // 坑点， 这里取出来的span 并不是按先后顺序， 需要先排序
-        Arrays.sort(behindListItemSpans) { o1: ListNumberSpan?, o2: ListNumberSpan? ->
-            editable.getSpanEnd(o1) - editable.getSpanEnd(o2)
-        }
+//        Arrays.sort(behindListItemSpans) { o1: ListNumberSpan?, o2: ListNumberSpan? ->
+//            editable.getSpanEnd(o1) - editable.getSpanEnd(o2)
+//        }
         log("重排 " + start + " 后的 ListNumberSpan: " + behindListItemSpans.size)
         for (i in behindListItemSpans.indices) {
             val span: ListNumberSpan = behindListItemSpans[i]

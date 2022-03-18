@@ -26,6 +26,7 @@ abstract class BaseListStyle<B : IListSpan>(editText: RichEditText) : BaseParagr
         off = 0
         isEmptyLine = true
         addTargetStyle(curPStart, curPEnd)
+        mEditText.refreshRange(curPStart, curPEnd)
         return off
     }
 
@@ -64,21 +65,13 @@ abstract class BaseListStyle<B : IListSpan>(editText: RichEditText) : BaseParagr
                 addTargetStyle(curPStart, curPEnd)
             }
         }
+        mEditText.refreshRange(curPStart, curPEnd)
         return off
     }
 
     override fun toolItemIconClick() {
         super.toolItemIconClick()
 
-        // 重排所有的 ListNumberSpan, 因为实际数据量并不会大， 所在重排的性能损失可以忽略，但是实现方法简单得多
-        MainScope().launch {
-            val job = async {
-                Util.renumberAllListItemSpans(mEditText.editableText)
-                logAllSpans(mEditText.editableText, "${targetClass().simpleName} item click", 0, mEditText.editableText.length)
-            }
-            job.await()
-            mEditText.refresh(0)
-        }
     }
 
     /**

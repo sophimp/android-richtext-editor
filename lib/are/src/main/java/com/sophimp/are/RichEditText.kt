@@ -30,7 +30,7 @@ import kotlin.math.min
  * @since: 2021/7/20
  */
 class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(context, attr) {
-
+    var sendWatchersMethod : Method? = null
     @JvmField
     var spannedFromHtml: Spanned? = null
 
@@ -343,17 +343,12 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         startMonitor()
     }
 
-    fun refresh(start: Int) {
-        try {
-            val sendWatchersMethod =
-                SpannableStringBuilder::class.java.getDeclaredMethod("sendToSpanWatchers", Int::class.java, Int::class.java, Int::class.java)
-            sendWatchersMethod.isAccessible = true
-            val len = length()
-            sendWatchersMethod.invoke(editableText, 0, len, len)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+    fun refreshRange(start: Int, end: Int) {
+        sendWatchersMethod?.invoke(editableText, start, end, end - start)
+    }
 
+    private fun refresh(start: Int) {
+        refreshRange(start, length())
         requestLayout()
     }
 
