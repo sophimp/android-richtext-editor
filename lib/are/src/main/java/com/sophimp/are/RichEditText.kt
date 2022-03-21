@@ -22,6 +22,7 @@ import com.sophimp.are.utils.Util
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import java.lang.reflect.Method
 import kotlin.math.min
 
 /**
@@ -85,6 +86,17 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         }
 
     init {
+        try {
+            sendWatchersMethod = SpannableStringBuilder::class.java.getDeclaredMethod(
+                "sendToSpanWatchers",
+                Int::class.java,
+                Int::class.java,
+                Int::class.java
+            )
+            sendWatchersMethod?.isAccessible = true
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         setupTextWatcher()
         Util.initEnv(context, IOssServerImpl(), object : ImageLoadedListener {
             override fun onImageLoaded(spanned: Spanned, start: Int, end: Int) {
@@ -112,7 +124,9 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                 if (offset < 0) {
                     if (!editMode) {
                         editMode = true
-                        setSelection(Math.min(Math.max(offset, 0), length()))
+                        post {
+                            setSelection(Math.min(Math.max(offset, 0), length()))
+                        }
                     }
                     return false
                 }
@@ -120,7 +134,9 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                 if (clickSpans.isEmpty()) {
                     if (!editMode) {
                         editMode = true
-                        setSelection(Math.min(Math.max(offset, 0), length()))
+                        post {
+                            setSelection(Math.min(Math.max(offset, 0), length()))
+                        }
                     }
                     return false
                 }
@@ -151,7 +167,9 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                         } else {
                             if (!editMode) {
                                 editMode = true
-                                setSelection(Math.min(Math.max(offset, 0), length()))
+                                post {
+                                    setSelection(Math.min(Math.max(offset, 0), length()))
+                                }
                             }
                         }
                     }
@@ -339,7 +357,9 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
 
     val refreshRunnable = {
         stopMonitor()
+        val lastSelect = selectionEnd
         text = spannedFromHtml as Editable?
+        setSelection(lastSelect)
         startMonitor()
     }
 
@@ -435,9 +455,9 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                 e.printStackTrace()
             }
 
-            if (flag) {
-                requestFocus()
-            }
+//            if (flag) {
+//                requestFocus()
+//            }
         }
 
     /**

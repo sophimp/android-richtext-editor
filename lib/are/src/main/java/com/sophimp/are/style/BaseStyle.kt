@@ -17,6 +17,10 @@ abstract class BaseStyle<T : ISpan>(private var curEditText: RichEditText) : ISt
     protected var context = curEditText.context
     protected var checkState: Boolean = false
 
+    companion object {
+        val uiHandler = Handler(Looper.getMainLooper())
+    }
+
     override fun bindEditText(editText: RichEditText) {
         curEditText = editText
     }
@@ -35,7 +39,6 @@ abstract class BaseStyle<T : ISpan>(private var curEditText: RichEditText) : ISt
      */
     override fun toolItemIconClick() {
         checkState = !checkState
-        mEditText.isChange = true
         val editable = mEditText.editableText
         val spStart = Util.getParagraphStart(mEditText, mEditText.selectionStart)
         var spEnd = Util.getParagraphEnd(editable, mEditText.selectionEnd)

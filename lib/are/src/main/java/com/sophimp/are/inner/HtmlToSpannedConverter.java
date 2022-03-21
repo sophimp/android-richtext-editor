@@ -876,10 +876,17 @@ class HtmlToSpannedConverter implements ContentHandler {
                 iheight = (int) (Integer.parseInt(height) * density + 0.5f);
             }
         }
-
+        String serverUrl, localPath;
+        if (Html.ossServer.isServerPath(src)) {
+            serverUrl = src;
+            localPath = "";
+        } else {
+            localPath = src;
+            serverUrl = "";
+        }
 
         int len = text.length();
-        ImageStyle.Companion.addImageSpanToEditable(Html.sContext, text, len, iwidth, iheight, src, "", true);
+        ImageStyle.Companion.addImageSpanToEditable(Html.sContext, text, len, iwidth, iheight, serverUrl, localPath, true);
 
         if (dataType == null || dataType.equalsIgnoreCase(AttachFileType.IMG.getAttachmentValue())) {
             // 非贴纸才再换行符

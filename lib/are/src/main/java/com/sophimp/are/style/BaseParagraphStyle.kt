@@ -176,6 +176,7 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
 
     override fun setSpan(span: ISpan, start: Int, end: Int) {
         mEditText.editableText.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        mEditText.isChange = true
     }
 
 }

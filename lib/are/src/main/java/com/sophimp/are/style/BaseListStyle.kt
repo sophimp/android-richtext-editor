@@ -1,13 +1,13 @@
 package com.sophimp.are.style
 
 import android.text.Editable
-import android.text.Spanned
 import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
 import com.sophimp.are.spans.IListSpan
-import com.sophimp.are.spans.ISpan
 import com.sophimp.are.utils.Util
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Abstract for ListBullet, ListTodo, ListNumber
@@ -147,7 +147,4 @@ abstract class BaseListStyle<B : IListSpan>(editText: RichEditText) : BaseParagr
     }
 
 
-    override fun setSpan(span: ISpan, start: Int, end: Int) {
-        mEditText.editableText.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-    }
 }

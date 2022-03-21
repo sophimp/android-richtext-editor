@@ -52,15 +52,17 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
         }
 
         fun insertImageSpan(editable: Editable, imageSpan: ImageSpan, start: Int, end: Int) {
-            val ssb = SpannableStringBuilder()
+            uiHandler.post {
+                val ssb = SpannableStringBuilder()
 //            ssb.append(Constants.CHAR_NEW_LINE)
-            ssb.append(Constants.ZERO_WIDTH_SPACE_STR)
-            //多插个空格
-            //多插个空格
-            ssb.append(Constants.CHAR_NEW_LINE)
-            ssb.append(" ")
-            ssb.setSpan(imageSpan, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-            editable.replace(start, end, ssb)
+                ssb.append(Constants.ZERO_WIDTH_SPACE_STR)
+                //多插个空格
+                //多插个空格
+                ssb.append(Constants.CHAR_NEW_LINE)
+                ssb.append(" ")
+                ssb.setSpan(imageSpan, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                editable.replace(start, end, ssb)
+            }
         }
 
         /**
@@ -192,17 +194,19 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
     fun addImageSpan(localPath: String, url: String) {
         val start = max(min(mEditText.selectionStart, mEditText.length()), 0)
 //        mEditText.editableText.replace(start, mEditText.selectionEnd, "\uFFFc\n")
-        addImageSpanToEditable(
-            context,
-            mEditText.editableText,
-            mEditText.selectionEnd,
-            defaultDrawable!!.intrinsicWidth,
-            defaultDrawable.intrinsicHeight,
-            url,
-            localPath,
-            false
-        )
-        mEditText.editableText.insert(mEditText.selectionEnd, Constants.CHAR_NEW_LINE)
+        uiHandler.post {
+            addImageSpanToEditable(
+                context,
+                mEditText.editableText,
+                mEditText.selectionEnd,
+                defaultDrawable!!.intrinsicWidth,
+                defaultDrawable.intrinsicHeight,
+                url,
+                localPath,
+                false
+            )
+            mEditText.editableText.insert(mEditText.selectionEnd, Constants.CHAR_NEW_LINE)
+        }
     }
 
 

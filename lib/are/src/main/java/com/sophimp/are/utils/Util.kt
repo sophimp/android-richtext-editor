@@ -285,7 +285,7 @@ object Util {
 //                return i
 //            }
 //        }
-        return editable.length - 1
+        return editable.length
     }
 
     fun getParagraphEndWithLine(editText: EditText, line: Int): Int {

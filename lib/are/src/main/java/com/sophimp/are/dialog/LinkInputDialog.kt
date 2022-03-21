@@ -40,7 +40,6 @@ class LinkInputDialog(context: Context) : Dialog(context, R.style.ThemeOverlay_A
     }
 
     private fun setUpView() {
-        binding.iclTitle.tvBtnConfirm.text = "save"
         updateConfirmBtnState()
     }
 

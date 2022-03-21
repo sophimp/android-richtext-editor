@@ -703,7 +703,7 @@ public class Html {
 
             // 再遍历独立的标签
             for (int j = 0; j < style.length; j++) {
-                if (style[j] instanceof IUploadSpan || style[j] instanceof TableSpan) {
+                if (style[j] instanceof IUploadSpan || style[j] instanceof TableSpan || style[j] instanceof HrSpan) {
                     elementStyleBuilder.append(((ISpan) style[j]).getHtml());
                     i = next;
                     continue;
@@ -799,7 +799,7 @@ public class Html {
             CharacterStyle[] style = text.getSpans(i, next, CharacterStyle.class);
 
             for (int j = 0; j < style.length; j++) {
-                if (style[j] instanceof IUploadSpan) {
+                if (style[j] instanceof IUploadSpan || style[j] instanceof HrSpan) {
                     out.append(((ISpan) style[j]).getHtml());
                     i = next;
                     continue;
