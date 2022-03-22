@@ -301,10 +301,11 @@ class MediaStyleHelper {
         }
 
         @JvmStatic
-        fun insertTableSpan(editText: Editable, html: String, start: Int, end: Int) {
+        fun insertTableSpan(editable: Editable, html: String, start: Int, end: Int) {
             val insertDrawable = generateCommonMediaDrawable("表格", "点击查看", R.mipmap.icon_file_excel)
             val tableSpan = TableSpan(html, insertDrawable)
-            ImageStyle.insertImageSpan(editText, tableSpan, start, end)
+            editable.insert(start, Constants.ZERO_WIDTH_SPACE_STR)
+            editable.setSpan(tableSpan, start, start + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
     }

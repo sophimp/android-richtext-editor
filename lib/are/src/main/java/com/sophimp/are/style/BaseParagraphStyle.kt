@@ -141,18 +141,25 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
             // case 1: 有内容换行,
             // 前一行添加span
             setSpan(preParagraphSpans[0], lastPStart, lastPEnd)
-
             val nSpan: ISpan? = newSpan(preParagraphSpans[0])
             // 当前行添加span
             if (nSpan != null) {
-                val curStart = mEditText.selectionStart
+//                val curStart = mEditText.selectionStart
+                val curStart = epStart
                 if (curStart >= editable.length || editable[curStart].toInt() != Constants.ZERO_WIDTH_SPACE_INT) {
                     editable.insert(curStart, Constants.ZERO_WIDTH_SPACE_STR)
                 }
                 setSpan(nSpan, curStart, min(curStart + 1, editable.length))
             }
+            // 子样式后续处理
+            handleNewLineWithAboveLineSpan(epStart, epStart + 1)
         }
     }
+
+    /**
+     * 上一行有样式, 传递给子样式处理
+     */
+    protected open fun handleNewLineWithAboveLineSpan(start: Int, end: Int) {}
 
     override fun handleDeleteEvent(editable: Editable, epStart: Int, epEnd: Int) {
         /*

@@ -270,11 +270,15 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         MainScope().launch {
             stopMonitor()
             val job = async {
-                val epStart = Util.getParagraphStart(
+                var epStart = Util.getParagraphStart(
                     this@RichEditText,
                     min(beforeSelectionStart, afterSelectionStart)
                 )
-                val epEnd = Util.getParagraphEnd(editableText, afterSelectionStart)
+                var epEnd = Util.getParagraphEnd(editableText, afterSelectionStart)
+                if (textEvent == IStyle.TextEvent.INPUT_NEW_LINE) {
+                    epStart = selectionStart
+                    epEnd = selectionEnd
+                }
                 for (style: IStyle in styleList) {
                     launch {
                         style.applyStyle(

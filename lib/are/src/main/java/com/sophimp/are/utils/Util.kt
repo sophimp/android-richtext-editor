@@ -209,40 +209,10 @@ object Util {
             // case 1: 首行空行
             return 0
         }
-//        else if (selection >= editable.length) {
-//            if (editable[selection - 1] == '\n') {
-//                // 在最后一行行尾
-//                val curLine = text.layout.getLineForOffset(selection)
-//                val curLineStart = text.layout.getLineStart(curLine)
-//                selection -= if (curLineStart == selection) {
-//                    // 空行
-//                    return selection
-//                } else {
-//                    // 非空行 todo 向前遍历
-//                    1
-//                }
-//            }
-//        } else if (editable[selection] == '\n') {
-//            selection -= if (editable[selection - 1] == '\n') {
-//                // 文本中间的空行
-//                return selection
-//            } else {
-//                // case 2: todo 向前遍历找行首
-//                1
-//            }
-//        } else if (editable[selection - 1] == '\n') {
-//            // case 4:
-//            return selection
-//        }
         val pStartIndex = editable.lastIndexOf('\n', selection)
         if (pStartIndex > 0) {
             return min(pStartIndex + 1, text.length())
         }
-//        for (i in selection - 1 downTo 0) {
-//            if (editable[i] == '\n') {
-//                return i + 1
-//            }
-//        }
         return 0
     }
 
@@ -262,28 +232,10 @@ object Util {
             // case 1: 首行空行
             return 0
         }
-//        else if (selection >= editable.length) {
-//            selection = editable.length
-//            if (editable[selection - 1] == '\n') {
-//                // case 3:
-//                return selection
-//            }
-//        } else if (editable[selection] == '\n') {
-//            // case 2:
-//            return selection
-//        } else if (selection > 0 && editable[selection - 1] == '\n') {
-//            // case 4: todo 向后遍历找行尾
-//            selection += 1
-//        }
         val pEndIndex = editable.indexOf('\n', selection)
         if (pEndIndex >= selection) {
             return max(0, pEndIndex)
         }
-//        for (i in selection until editable.length) {
-//            if (editable[i] == '\n') {
-//                return i
-//            }
-//        }
         return editable.length
     }
 
@@ -312,7 +264,7 @@ object Util {
             }
         }
 
-        val listNumberSpans: Array<ListNumberSpan> =
+        val listNumberSpans: Array<ListNumberSpan>? =
             if (getSpanMethodWithNoSort != null) {
                 val spans = getSpanMethodWithNoSort!!.invoke(
                     editable,
@@ -324,42 +276,44 @@ object Util {
                 if (spans is Array<*> && spans.size > 0) {
                     spans as Array<ListNumberSpan>
                 } else {
-                    {} as Array<ListNumberSpan>
+                    null
                 }
             } else {
                 editable.getSpans(0, editable.length, ListNumberSpan::class.java)
             }
-        // 坑点， 这里取出来的span 并不是按先后顺序，源码里默认是按照插入顺序排过序了
-        if (getSpanMethodWithNoSort == null) {
-            Arrays.sort(listNumberSpans) { o1: ListNumberSpan?, o2: ListNumberSpan? ->
-                editable.getSpanEnd(o1) - editable.getSpanEnd(o2)
-            }
-        }
-        for (i in listNumberSpans.indices) {
-            val span: ListNumberSpan = listNumberSpans[i]
-            // 获取当前段落的缩进等级
-            val curSpanStart = editable.getSpanStart(span)
-            val curSpanEnd = editable.getSpanEnd(span)
-            // 判断是否有隔断
-            if (i > 0) {
-                val preListNumberSpan: ListNumberSpan = listNumberSpans[i - 1]
-                val preEnd = editable.getSpanEnd(preListNumberSpan)
-                val preParaEnd: Int = getParagraphEnd(editable, preEnd)
-                if (curSpanStart - preParaEnd > 1) {
-                    // 后面的重新排
-                    Arrays.fill(levelCache, 1)
+        listNumberSpans?.let {
+            if (getSpanMethodWithNoSort == null) {
+                // 坑点， 这里取出来的span 并不是按先后顺序，源码里默认是按照插入顺序排过序了
+                Arrays.sort(listNumberSpans) { o1: ListNumberSpan?, o2: ListNumberSpan? ->
+                    editable.getSpanEnd(o1) - editable.getSpanEnd(o2)
                 }
             }
-            // log("当前 span: start-end: " + curSpanStart + "-" + curSpanEnd);
-            val curPLeading: Array<IndentSpan> =
-                editable.getSpans(curSpanStart, curSpanEnd, IndentSpan::class.java)
-            span?.let {
-                if (curPLeading.isNotEmpty() && curPLeading[0] != null) {
-                    span.number = levelCache[curPLeading[0].mLevel]
-                    levelCache[curPLeading[0].mLevel] += 1
-                } else {
-                    span.number = levelCache[0]
-                    levelCache[0] += 1
+            for (i in listNumberSpans.indices) {
+                val span: ListNumberSpan = listNumberSpans[i]
+                // 获取当前段落的缩进等级
+                val curSpanStart = editable.getSpanStart(span)
+                val curSpanEnd = editable.getSpanEnd(span)
+                // 判断是否有隔断
+                if (i > 0) {
+                    val preListNumberSpan: ListNumberSpan = listNumberSpans[i - 1]
+                    val preEnd = editable.getSpanEnd(preListNumberSpan)
+                    val preParaEnd: Int = getParagraphEnd(editable, preEnd)
+                    if (curSpanStart - preParaEnd > 1) {
+                        // 后面的重新排
+                        Arrays.fill(levelCache, 1)
+                    }
+                }
+                // log("当前 span: start-end: " + curSpanStart + "-" + curSpanEnd);
+                val curPLeading: Array<IndentSpan> =
+                    editable.getSpans(curSpanStart, curSpanEnd, IndentSpan::class.java)
+                span?.let {
+                    if (curPLeading.isNotEmpty()) {
+                        span.number = levelCache[curPLeading[0].mLevel]
+                        levelCache[curPLeading[0].mLevel] += 1
+                    } else {
+                        span.number = levelCache[0]
+                        levelCache[0] += 1
+                    }
                 }
             }
         }

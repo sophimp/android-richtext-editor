@@ -104,18 +104,18 @@ abstract class BaseListStyle<B : IListSpan>(editText: RichEditText) : BaseParagr
         removeSpans(editable, spans)
     }
 
-    override fun handleInputNewLine(
-        editable: Editable,
-        beforeSelectionStart: Int,
-        epStart: Int,
-        epEnd: Int
-    ) {
-        super.handleInputNewLine(editable, beforeSelectionStart, epStart, epEnd)
-        // 重排所有的 ListNumberSpan
-        val tarSpans = editable.getSpans(epStart, epEnd, targetClass());
-        if (tarSpans.isNotEmpty()) {
-            Util.renumberAllListItemSpans(editable)
-//        logAllSpans(editable, targetClass().simpleName + " after new line", 0, editable.length)
+    override fun handleNewLineWithAboveLineSpan(start: Int, end: Int) {
+        // 上一行有样式，需重排
+        // 当前行setSpan没那么快生效
+        mEditText.refreshRange(start, end)
+        mEditText.post {
+            MainScope().launch {
+                val job = async {
+                    Util.renumberAllListItemSpans(mEditText.editableText)
+                }
+                job.await()
+                mEditText.refreshRange(0, mEditText.length())
+            }
         }
     }
 
@@ -127,7 +127,14 @@ abstract class BaseListStyle<B : IListSpan>(editText: RichEditText) : BaseParagr
         epStart: Int,
         epEnd: Int
     ) {
-        super.handleMultiParagraphInput(editable, changedText, beforeSelectionStart, afterSelectionEnd, epStart, epEnd)
+        super.handleMultiParagraphInput(
+            editable,
+            changedText,
+            beforeSelectionStart,
+            afterSelectionEnd,
+            epStart,
+            epEnd
+        )
 
         val tarSpans = editable.getSpans(epStart, epEnd, targetClass());
         if (tarSpans.isNotEmpty()) {
