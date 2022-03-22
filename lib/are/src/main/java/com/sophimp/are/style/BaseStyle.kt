@@ -1,10 +1,16 @@
 package com.sophimp.are.style
 
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import com.sophimp.are.BuildConfig
 import com.sophimp.are.RichEditText
 import com.sophimp.are.spans.ISpan
+import com.sophimp.are.spans.ListNumberSpan
 import com.sophimp.are.utils.Util
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.math.max
 
@@ -76,16 +82,16 @@ abstract class BaseStyle<T : ISpan>(private var curEditText: RichEditText) : ISt
             index = curPEnd + off + 1
         }
         if (shouldResort) {
-            // 重排所有的 ListNumberSpan, 因为实际数据量并不会大， 所在重排的性能损失可以忽略，但是实现方法简单得多
+            // 重排所有的 ListNumberSpan
             MainScope().launch {
                 val job = async {
                     Util.renumberAllListItemSpans(mEditText.editableText)
-                    logAllSpans(
-                        mEditText.editableText,
-                        "${targetClass().simpleName} item click",
-                        0,
-                        mEditText.editableText.length
-                    )
+//                    logAllSpans(
+//                        mEditText.editableText,
+//                        "${targetClass().simpleName} item click",
+//                        0,
+//                        mEditText.editableText.length
+//                    )
                     mEditText.refreshRange(0, mEditText.length())
                 }
 //            job.await()
@@ -135,7 +141,7 @@ abstract class BaseStyle<T : ISpan>(private var curEditText: RichEditText) : ISt
     ) {
         when (event) {
             IStyle.TextEvent.DELETE -> handleDeleteEvent(editable, epStart, epEnd)
-            IStyle.TextEvent.INPUT_NEW_LINE -> handleInputNewLine(editable, beforeSelectionStart)
+            IStyle.TextEvent.INPUT_NEW_LINE -> handleInputNewLine(editable, beforeSelectionStart, epStart, epEnd)
             IStyle.TextEvent.INPUT_SINGLE_PARAGRAPH -> handleSingleParagraphInput(
                 editable,
                 changedText,
@@ -184,7 +190,12 @@ abstract class BaseStyle<T : ISpan>(private var curEditText: RichEditText) : ISt
     )
 
 
-    abstract fun handleInputNewLine(editable: Editable, beforeSelectionStart: Int)
+    abstract fun handleInputNewLine(
+        editable: Editable,
+        beforeSelectionStart: Int,
+        epStart: Int,
+        epEnd: Int
+    )
 
     abstract fun handleDeleteEvent(editable: Editable, epStart: Int, epEnd: Int)
 

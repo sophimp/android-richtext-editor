@@ -202,15 +202,23 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         }
     }
 
-    // 用来判断是点周事件还是删除事件
+    /**
+     * 用来判断是点周事件还是删除事件
+     */
     var afterSelectionStart = 0
     var changedText: String = ""
+
+    /**
+     * 用来判断是否已经执行过style
+     */
+    var hasAppliedStyle = true
 
     /**
      * handle style changed
      */
     private val textChangeAndApplyStyleRunnable = Runnable { // 一旦内容发生变化后，结束后肯定是光标状态, start == end
         afterSelectionStart = selectionStart
+        hasAppliedStyle = true;
         var textEvent: IStyle.TextEvent = IStyle.TextEvent.IDLE
         if (beforeSelectionStart == beforeSelectionEnd) {
             // 处于光标状态
@@ -301,9 +309,12 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                 if (!canMonitor) {
                     return
                 }
-                beforeSelectionStart = selectionStart
-                beforeSelectionEnd = selectionEnd
-                changedText = ""
+                if (hasAppliedStyle) {
+                    beforeSelectionStart = selectionStart
+                    beforeSelectionEnd = selectionEnd
+                    changedText = ""
+                    hasAppliedStyle = false
+                }
 //                if (BuildConfig.DEBUG) {
 //                    Util.log(("beforeTextChanged:: s = $s, start = $start, count = $count, after = $after"))
 //                }

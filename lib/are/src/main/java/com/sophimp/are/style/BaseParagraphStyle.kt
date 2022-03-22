@@ -108,7 +108,12 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
         }
     }
 
-    override fun handleInputNewLine(editable: Editable, beforeSelectionStart: Int) {
+    override fun handleInputNewLine(
+        editable: Editable,
+        beforeSelectionStart: Int,
+        epStart: Int,
+        epEnd: Int
+    ) {
         /*
             case 1: 有 内容 换行
                 移除换行前的span, 然后在当前行与前一行分别添加baseClassSpan即可

@@ -5,9 +5,6 @@ import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
 import com.sophimp.are.spans.IListSpan
 import com.sophimp.are.utils.Util
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 /**
  * Abstract for ListBullet, ListTodo, ListNumber
@@ -107,10 +104,16 @@ abstract class BaseListStyle<B : IListSpan>(editText: RichEditText) : BaseParagr
         removeSpans(editable, spans)
     }
 
-    override fun handleInputNewLine(editable: Editable, beforeSelectionStart: Int) {
-        super.handleInputNewLine(editable, beforeSelectionStart)
-        // 重排所有的 ListNumberSpan, 因为数据量并不会大， 所在重排的性能损失可以忽略，但是实现方法简单得多
-        CoroutineScope(Dispatchers.IO).launch {
+    override fun handleInputNewLine(
+        editable: Editable,
+        beforeSelectionStart: Int,
+        epStart: Int,
+        epEnd: Int
+    ) {
+        super.handleInputNewLine(editable, beforeSelectionStart, epStart, epEnd)
+        // 重排所有的 ListNumberSpan
+        val tarSpans = editable.getSpans(epStart, epEnd, targetClass());
+        if (tarSpans.isNotEmpty()) {
             Util.renumberAllListItemSpans(editable)
 //        logAllSpans(editable, targetClass().simpleName + " after new line", 0, editable.length)
         }
@@ -125,7 +128,9 @@ abstract class BaseListStyle<B : IListSpan>(editText: RichEditText) : BaseParagr
         epEnd: Int
     ) {
         super.handleMultiParagraphInput(editable, changedText, beforeSelectionStart, afterSelectionEnd, epStart, epEnd)
-        CoroutineScope(Dispatchers.IO).launch {
+
+        val tarSpans = editable.getSpans(epStart, epEnd, targetClass());
+        if (tarSpans.isNotEmpty()) {
             Util.renumberAllListItemSpans(editable)
         }
     }

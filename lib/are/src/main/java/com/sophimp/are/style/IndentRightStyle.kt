@@ -4,10 +4,6 @@ import android.text.style.AlignmentSpan
 import com.sophimp.are.RichEditText
 import com.sophimp.are.spans.ISpan
 import com.sophimp.are.spans.IndentSpan
-import com.sophimp.are.utils.Util
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class IndentRightStyle(editText: RichEditText) : BaseParagraphStyle<IndentSpan>(editText) {
 
@@ -30,9 +26,9 @@ class IndentRightStyle(editText: RichEditText) : BaseParagraphStyle<IndentSpan>(
                 setSpan(ns, start, end)
             }
         }
-        CoroutineScope(Dispatchers.IO).launch {
-            Util.renumberAllListItemSpans(mEditText.editableText)
-        }
+//        CoroutineScope(Dispatchers.IO).launch {
+//            Util.renumberAllListItemSpans(mEditText.editableText)
+//        }
         mEditText.setSelection(mEditText.selectionStart, mEditText.selectionEnd)
     }
 

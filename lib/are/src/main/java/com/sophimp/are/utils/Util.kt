@@ -12,10 +12,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
-import android.text.Editable
-import android.text.Layout
-import android.text.Selection
-import android.text.TextUtils
+import android.text.*
 import android.util.Log
 import android.util.TypedValue
 import android.view.MotionEvent
@@ -34,12 +31,14 @@ import com.sophimp.are.spans.ListNumberSpan
 import com.sophimp.are.table.TableCellInfo
 import com.sophimp.are.utils.Util.initEnv
 import java.io.File
+import java.lang.reflect.Method
 import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
+
 
 /**
  * 使用富文本前首需需要调用 [initEnv] 初始化
@@ -61,9 +60,9 @@ object Util {
     var symbols = arrayOf("m", "cm", "d", "cd", "c", "xc", "l", "xl", "x", "ix", "v", "iv", "i")
 
     /**
-     * 排序缩进缓存
+     * 反射SpannableStringBuilder 的无排序getSpans
      */
-    var levelCache = IntArray(6)
+    var getSpanMethodWithNoSort: Method? = null
 
     fun toast(context: Context?, msg: String?) {
         Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
@@ -296,12 +295,45 @@ object Util {
     @JvmStatic
     fun renumberAllListItemSpans(editable: Editable) {
         // 所有的段落重新排序, 同级的段落
+        val levelCache = IntArray(6)
+
         Arrays.fill(levelCache, 1)
+        if (getSpanMethodWithNoSort == null) {
+            try {
+                getSpanMethodWithNoSort = SpannableStringBuilder::class.java.getDeclaredMethod(
+                    "getSpans",
+                    Int::class.java,
+                    Int::class.java,
+                    Class::class.java,
+                    Boolean::class.java
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
         val listNumberSpans: Array<ListNumberSpan> =
-            editable.getSpans(0, editable.length, ListNumberSpan::class.java)
-        // 坑点， 这里取出来的span 并不是按先后顺序， 需要先排序
-        Arrays.sort(listNumberSpans) { o1: ListNumberSpan?, o2: ListNumberSpan? ->
-            editable.getSpanEnd(o1) - editable.getSpanEnd(o2)
+            if (getSpanMethodWithNoSort != null) {
+                val spans = getSpanMethodWithNoSort!!.invoke(
+                    editable,
+                    0,
+                    editable.length,
+                    ListNumberSpan::class.java,
+                    false
+                )
+                if (spans is Array<*> && spans.size > 0) {
+                    spans as Array<ListNumberSpan>
+                } else {
+                    {} as Array<ListNumberSpan>
+                }
+            } else {
+                editable.getSpans(0, editable.length, ListNumberSpan::class.java)
+            }
+        // 坑点， 这里取出来的span 并不是按先后顺序，源码里默认是按照插入顺序排过序了
+        if (getSpanMethodWithNoSort == null) {
+            Arrays.sort(listNumberSpans) { o1: ListNumberSpan?, o2: ListNumberSpan? ->
+                editable.getSpanEnd(o1) - editable.getSpanEnd(o2)
+            }
         }
         for (i in listNumberSpans.indices) {
             val span: ListNumberSpan = listNumberSpans[i]
@@ -339,11 +371,12 @@ object Util {
     fun reNumberBehindListItemSpans(start: Int, text: EditText) {
         val editable = text.editableText
         // 获取当前段落后的所有 ListNumberSpan,
-        val behindListItemSpans = editable.getSpans(start, editable.length, ListNumberSpan::class.java)
+        val behindListItemSpans =
+            editable.getSpans(start, editable.length, ListNumberSpan::class.java)
         // 坑点， 这里取出来的span 并不是按先后顺序， 需要先排序
-//        Arrays.sort(behindListItemSpans) { o1: ListNumberSpan?, o2: ListNumberSpan? ->
-//            editable.getSpanEnd(o1) - editable.getSpanEnd(o2)
-//        }
+        Arrays.sort(behindListItemSpans) { o1: ListNumberSpan?, o2: ListNumberSpan? ->
+            editable.getSpanEnd(o1) - editable.getSpanEnd(o2)
+        }
         log("重排 " + start + " 后的 ListNumberSpan: " + behindListItemSpans.size)
         for (i in behindListItemSpans.indices) {
             val span: ListNumberSpan = behindListItemSpans[i]
@@ -1020,11 +1053,19 @@ object Util {
                                 val m: Matcher = textAlignPattern.matcher(style)
                                 if (m.find()) {
                                     val alignment = m.group(1)
-                                    if (alignment.equals("start", ignoreCase = true) || alignment.equals("left", ignoreCase = true)) {
+                                    if (alignment.equals(
+                                            "start",
+                                            ignoreCase = true
+                                        ) || alignment.equals("left", ignoreCase = true)
+                                    ) {
                                         cellInfo.alignment = Layout.Alignment.ALIGN_NORMAL
                                     } else if (alignment.equals("center", ignoreCase = true)) {
                                         cellInfo.alignment = Layout.Alignment.ALIGN_CENTER
-                                    } else if (alignment.equals("end", ignoreCase = true) || alignment.equals("right", ignoreCase = true)) {
+                                    } else if (alignment.equals(
+                                            "end",
+                                            ignoreCase = true
+                                        ) || alignment.equals("right", ignoreCase = true)
+                                    ) {
                                         cellInfo.alignment = Layout.Alignment.ALIGN_OPPOSITE
                                     }
                                 }

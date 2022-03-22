@@ -48,6 +48,7 @@ import com.sophimp.are.listener.IOssServer;
 import com.sophimp.are.listener.ImageLoadedListener;
 import com.sophimp.are.spans.FontBackgroundColorSpan;
 import com.sophimp.are.spans.FontForegroundColorSpan;
+import com.sophimp.are.spans.HrSpan;
 import com.sophimp.are.spans.IListSpan;
 import com.sophimp.are.spans.ISpan;
 import com.sophimp.are.spans.IUploadSpan;

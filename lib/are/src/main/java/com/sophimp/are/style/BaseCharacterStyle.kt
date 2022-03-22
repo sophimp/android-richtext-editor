@@ -104,7 +104,12 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
         }
     }
 
-    override fun handleInputNewLine(editable: Editable, beforeSelectionStart: Int) {
+    override fun handleInputNewLine(
+        editable: Editable,
+        beforeSelectionStart: Int,
+        epStart: Int,
+        epEnd: Int
+    ) {
         /*
             行尾有样式换行，需要分段， 如果不分段，当前段有段落样式的话(列表，缩进)，如果超过两行，格式会乱
         */
