@@ -104,7 +104,7 @@ abstract class BaseListStyle<B : IListSpan>(editText: RichEditText) : BaseParagr
         removeSpans(editable, spans)
     }
 
-    override fun handleNewLineWithAboveLineSpan(start: Int, end: Int) {
+    override fun handleNewLineWithAboveLineSpan(preSpan: B?, start: Int, end: Int) {
         // 上一行有样式，需重排
         // 当前行setSpan没那么快生效
         mEditText.refreshRange(start, end)

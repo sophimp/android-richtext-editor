@@ -137,6 +137,7 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
         if (TextUtils.isEmpty(lastContent) || lastContent.length == 1 && lastContent[0].toInt() == Constants.ZERO_WIDTH_SPACE_INT) {
             // case 2: 没有内容换行
             editable.delete(max(0, mEditText.selectionStart - 1), mEditText.selectionStart)
+            handleNewLineWithAboveLineSpan(null, epStart, epStart + 1)
         } else {
             // case 1: 有内容换行,
             // 前一行添加span
@@ -146,20 +147,20 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
             if (nSpan != null) {
 //                val curStart = mEditText.selectionStart
                 val curStart = epStart
-                if (curStart >= editable.length || editable[curStart].toInt() != Constants.ZERO_WIDTH_SPACE_INT) {
+                if (curStart >= editable.length || editable[curStart].code != Constants.ZERO_WIDTH_SPACE_INT) {
                     editable.insert(curStart, Constants.ZERO_WIDTH_SPACE_STR)
                 }
                 setSpan(nSpan, curStart, min(curStart + 1, editable.length))
             }
             // 子样式后续处理
-            handleNewLineWithAboveLineSpan(epStart, epStart + 1)
+            handleNewLineWithAboveLineSpan(preParagraphSpans[0], epStart, epStart + 1)
         }
     }
 
     /**
      * 上一行有样式, 传递给子样式处理
      */
-    protected open fun handleNewLineWithAboveLineSpan(start: Int, end: Int) {}
+    protected open fun handleNewLineWithAboveLineSpan(preSpan: T?, start: Int, end: Int) {}
 
     override fun handleDeleteEvent(editable: Editable, epStart: Int, epEnd: Int) {
         /*
