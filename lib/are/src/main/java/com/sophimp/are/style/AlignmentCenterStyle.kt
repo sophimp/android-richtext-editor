@@ -25,6 +25,7 @@ class AlignmentCenterStyle(editText: RichEditText) : BaseParagraphStyle<Alignmen
 
     override fun setSpan(span: ISpan, start: Int, end: Int) {
         mEditText.editableText.setSpan(span, start, end, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+        mEditText.isChange = true
     }
 
     override fun targetClass(): Class<AlignmentCenterSpan> {

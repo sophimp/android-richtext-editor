@@ -141,7 +141,8 @@ abstract class BaseListStyle<B : IListSpan>(editText: RichEditText) : BaseParagr
     override fun handleDeleteEvent(editable: Editable, epStart: Int, epEnd: Int) {
         super.handleDeleteEvent(editable, epStart, epEnd)
         // 重排所有的 ListNumberSpan, 因为数据量并不会大， 所在重排的性能损失可以忽略，但是实现方法简单得多
-        CoroutineScope(Dispatchers.IO).launch {
+        val tarSpans = editable.getSpans(epStart, epEnd, targetClass());
+        if (tarSpans.isNotEmpty()) {
             Util.renumberAllListItemSpans(editable)
         }
     }

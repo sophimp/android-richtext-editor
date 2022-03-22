@@ -31,7 +31,8 @@ import kotlin.math.min
  * @since: 2021/7/20
  */
 class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(context, attr) {
-    var sendWatchersMethod : Method? = null
+    var sendWatchersMethod: Method? = null
+
     @JvmField
     var spannedFromHtml: Spanned? = null
 
@@ -201,13 +202,95 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         }
     }
 
+    // 用来判断是点周事件还是删除事件
+    var afterSelectionStart = 0
+    var changedText: String = ""
+
+    /**
+     * handle style changed
+     */
+    private val textChangeAndApplyStyleRunnable = Runnable { // 一旦内容发生变化后，结束后肯定是光标状态, start == end
+        afterSelectionStart = selectionStart
+        var textEvent: IStyle.TextEvent = IStyle.TextEvent.IDLE
+        if (beforeSelectionStart == beforeSelectionEnd) {
+            // 处于光标状态
+            if (beforeSelectionStart < afterSelectionStart) {
+                // 输入或复制操作
+                changedText = editableText.subSequence(
+                    beforeSelectionStart,
+                    Math.min(afterSelectionStart, length())
+                ).toString()
+                val findNewLine: Int = changedText.indexOf("\n")
+                textEvent = if (findNewLine > 0 && findNewLine < changedText.length - 1) {
+                    IStyle.TextEvent.INPUT_MULTI_PARAGRAPH
+                } else if (findNewLine == 0 && changedText.length > 1) {
+                    IStyle.TextEvent.INPUT_MULTI_PARAGRAPH
+                } else if (findNewLine == changedText.length - 1) {
+                    IStyle.TextEvent.INPUT_NEW_LINE
+                } else {
+                    // 没找到
+                    IStyle.TextEvent.INPUT_SINGLE_PARAGRAPH
+                }
+            } else if (beforeSelectionStart > afterSelectionStart) {
+                // 删除操作
+                textEvent = IStyle.TextEvent.DELETE
+            } //else {/*copy操作, 不会触发，由Menu处理*/}
+        } else {
+            // 处于选择状态
+            if (beforeSelectionStart == afterSelectionStart) {
+                // 删除或剪切操作
+                textEvent = IStyle.TextEvent.DELETE
+            } else if (afterSelectionStart > beforeSelectionStart) {
+                // 输入或复制操作
+                changedText = editableText.subSequence(
+                    beforeSelectionStart,
+                    min(afterSelectionStart + 1, length())
+                ).toString()
+                val findNewLine: Int = changedText.indexOf("\n")
+                textEvent = if (findNewLine > 0 && findNewLine <= changedText.length - 1) {
+                    IStyle.TextEvent.INPUT_MULTI_PARAGRAPH
+                } else if (findNewLine == 0 && changedText.length > 1) {
+                    IStyle.TextEvent.INPUT_MULTI_PARAGRAPH
+                } else {
+                    // find nothing
+                    IStyle.TextEvent.INPUT_SINGLE_PARAGRAPH
+                }
+            }
+        }
+//                if (BuildConfig.DEBUG)
+//                    Util.log(("before change selection: $beforeSelectionStart - $beforeSelectionEnd after change selection: $afterSelectionStart   \n textEvent: $textEvent start: $startPos end: $endPos changeText: $changedText"))
+        MainScope().launch {
+            stopMonitor()
+            val job = async {
+                val epStart = Util.getParagraphStart(
+                    this@RichEditText,
+                    min(beforeSelectionStart, afterSelectionStart)
+                )
+                val epEnd = Util.getParagraphEnd(editableText, afterSelectionStart)
+                for (style: IStyle in styleList) {
+                    launch {
+                        style.applyStyle(
+                            editableText,
+                            textEvent,
+                            changedText,
+                            beforeSelectionStart,
+                            afterSelectionStart,
+                            epStart,
+                            epEnd
+                        )
+                    }
+                }
+            }
+            job.await()
+            refresh(0)
+            startMonitor()
+        }
+    }
+
     /**
      * Monitoring text changes.
      */
     private fun setupTextWatcher() {
-        // 用来判断是点周事件还是删除事件
-        var afterSelectionStart = 0
-        var changedText: String = ""
         val mTextWatcher = object : TextWatcher {
             override fun beforeTextChanged(
                 s: CharSequence,
@@ -245,83 +328,9 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                 if (!canMonitor) {
                     return
                 }
+                uiHandler.removeCallbacks(textChangeAndApplyStyleRunnable)
+                uiHandler.postDelayed(textChangeAndApplyStyleRunnable, 100)
 
-                // 一旦内容发生变化后，结束后肯定是光标状态, start == end
-                afterSelectionStart = selectionStart
-                var textEvent: IStyle.TextEvent = IStyle.TextEvent.IDLE
-                if (beforeSelectionStart == beforeSelectionEnd) {
-                    // 处于光标状态
-                    if (beforeSelectionStart < afterSelectionStart) {
-                        // 输入或复制操作
-                        changedText = getEditableText().subSequence(
-                            beforeSelectionStart,
-                            Math.min(afterSelectionStart, length())
-                        ).toString()
-                        val findNewLine: Int = changedText.indexOf("\n")
-                        textEvent = if (findNewLine > 0 && findNewLine < changedText.length - 1) {
-                            IStyle.TextEvent.INPUT_MULTI_PARAGRAPH
-                        } else if (findNewLine == 0 && changedText.length > 1) {
-                            IStyle.TextEvent.INPUT_MULTI_PARAGRAPH
-                        } else if (findNewLine == changedText.length - 1) {
-                            IStyle.TextEvent.INPUT_NEW_LINE
-                        } else {
-                            // 没找到
-                            IStyle.TextEvent.INPUT_SINGLE_PARAGRAPH
-                        }
-                    } else if (beforeSelectionStart > afterSelectionStart) {
-                        // 删除操作
-                        textEvent = IStyle.TextEvent.DELETE
-                    } //else {/*copy操作, 不会触发，由Menu处理*/}
-                } else {
-                    // 处于选择状态
-                    if (beforeSelectionStart == afterSelectionStart) {
-                        // 删除或剪切操作
-                        textEvent = IStyle.TextEvent.DELETE
-                    } else if (afterSelectionStart > beforeSelectionStart) {
-                        // 输入或复制操作
-                        changedText = getEditableText().subSequence(
-                            beforeSelectionStart,
-                            min(afterSelectionStart + 1, length())
-                        ).toString()
-                        val findNewLine: Int = changedText.indexOf("\n")
-                        textEvent = if (findNewLine > 0 && findNewLine <= changedText.length - 1) {
-                            IStyle.TextEvent.INPUT_MULTI_PARAGRAPH
-                        } else if (findNewLine == 0 && changedText.length > 1) {
-                            IStyle.TextEvent.INPUT_MULTI_PARAGRAPH
-                        } else {
-                            // find nothing
-                            IStyle.TextEvent.INPUT_SINGLE_PARAGRAPH
-                        }
-                    }
-                }
-//                if (BuildConfig.DEBUG)
-//                    Util.log(("before change selection: $beforeSelectionStart - $beforeSelectionEnd after change selection: $afterSelectionStart   \n textEvent: $textEvent start: $startPos end: $endPos changeText: $changedText"))
-                MainScope().launch {
-                    stopMonitor()
-                    val job = async {
-                        val epStart = Util.getParagraphStart(
-                            this@RichEditText,
-                            min(beforeSelectionStart, afterSelectionStart)
-                        )
-                        val epEnd = Util.getParagraphEnd(editableText, afterSelectionStart)
-                        for (style: IStyle in styleList) {
-                            launch {
-                                style.applyStyle(
-                                    s,
-                                    textEvent,
-                                    changedText,
-                                    beforeSelectionStart,
-                                    afterSelectionStart,
-                                    epStart,
-                                    epEnd
-                                )
-                            }
-                        }
-                    }
-                    job.await()
-                    refresh(0)
-                    startMonitor()
-                }
 //                isFromHtmlRefresh = false
 //                uiHandler.postDelayed(refreshRunnable, 500)
             }
@@ -384,7 +393,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
     }
 
     fun postDelayUIRun(runnable: Runnable, delay: Long) {
-        uiHandler.postDelayed(runnable, delay);
+        uiHandler.postDelayed(runnable, delay)
     }
 
     fun fromHtml(html: String?): SpannableStringBuilder {
