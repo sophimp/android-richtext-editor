@@ -24,6 +24,7 @@ class ExampleInstrumentedTest {
         assertEquals("com.sophimp.are.test", appContext.packageName)
     }
 
+
     @Test
     fun getSpansTest() {
         val fmt = "%24s: %s%n"

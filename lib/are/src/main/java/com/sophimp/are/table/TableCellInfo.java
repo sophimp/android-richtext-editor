@@ -44,4 +44,13 @@ public class TableCellInfo {
     public TableCellInfo(String text) {
         richText = text;
     }
+
+    public TableCellInfo(String richText, Layout.Alignment alignment) {
+        this.richText = richText;
+        this.alignment = alignment;
+    }
+
+    public TableCellInfo(Layout.Alignment alignment) {
+        this.alignment = alignment;
+    }
 }

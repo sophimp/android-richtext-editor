@@ -172,7 +172,7 @@ public class EditTableDialog extends BottomSheetDialogFragment {
 
         if (!TextUtils.isEmpty(html)) {
             // 回显表格
-            tableViewModel.updateDatas(Util.parseTableCell(html));
+            tableViewModel.updateDatas(Util.parseTableByHtmlCleaner(html));
         }
     }
 

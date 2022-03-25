@@ -143,19 +143,19 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                 }
                 when {
                     clickSpans[0] is UrlSpan -> {
-                        clickStrategy?.onClickUrl(this@RichEditText, clickSpans[0] as UrlSpan)
+                        clickStrategy?.onClickUrl(context, editableText, clickSpans[0] as UrlSpan)
                     }
                     clickSpans[0] is ImageSpan2 -> {
-                        clickStrategy?.onClickImage(this@RichEditText, clickSpans[0] as ImageSpan2)
+                        clickStrategy?.onClickImage(context, editableText, clickSpans[0] as ImageSpan2)
                     }
                     clickSpans[0] is TableSpan -> {
-                        clickStrategy?.onClickTable(this@RichEditText, clickSpans[0] as TableSpan)
+                        clickStrategy?.onClickTable(context, editableText, clickSpans[0] as TableSpan)
                     }
                     clickSpans[0] is AudioSpan -> {
-                        clickStrategy?.onClickAudio(this@RichEditText, clickSpans[0] as AudioSpan)
+                        clickStrategy?.onClickAudio(context, editableText, clickSpans[0] as AudioSpan)
                     }
                     clickSpans[0] is VideoSpan -> {
-                        clickStrategy?.onClickVideo(this@RichEditText, clickSpans[0] as VideoSpan)
+                        clickStrategy?.onClickVideo(context, editableText, clickSpans[0] as VideoSpan)
                     }
                     clickSpans[0] is TodoSpan -> {
                         if (e.x <= (clickSpans[0] as TodoSpan).drawableRectf.right) {
@@ -176,7 +176,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                     }
                     clickSpans[0] is AttachmentSpan -> {
                         clickStrategy?.onClickAttachment(
-                            this@RichEditText,
+                            context, editableText,
                             clickSpans[0] as AttachmentSpan
                         )
                     }

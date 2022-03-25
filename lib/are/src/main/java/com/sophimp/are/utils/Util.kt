@@ -30,6 +30,7 @@ import com.sophimp.are.spans.IndentSpan
 import com.sophimp.are.spans.ListNumberSpan
 import com.sophimp.are.table.TableCellInfo
 import com.sophimp.are.utils.Util.initEnv
+import org.htmlcleaner.HtmlCleaner
 import java.io.File
 import java.lang.reflect.Method
 import java.util.*
@@ -949,6 +950,64 @@ object Util {
         val layout: Layout = widget.layout
         val xEnd = layout.getPrimaryHorizontal(spanEnd)
         return xEnd.toInt()
+    }
+
+    @JvmStatic
+    fun parseTableByHtmlCleaner(html: String): MutableList<MutableList<TableCellInfo>> {
+        val tableData: MutableList<MutableList<TableCellInfo>> = mutableListOf()
+        if (TextUtils.isEmpty(html)) return tableData
+
+        val htmlCleaner = HtmlCleaner()
+        val tagNode = htmlCleaner.clean(html)
+        val rows = tagNode.getElementListByName("tr", true)
+        // 添加所有行
+        rows.forEach { _ ->
+            tableData.add(mutableListOf())
+        }
+
+        rows.forEachIndexed { rowInd, eachRow ->
+            val cols = eachRow.getElementListByName("td", false)
+            cols.forEach { eachCol ->
+                val contentText = htmlCleaner.getInnerHtml(eachCol)
+                var alignAttr = eachCol.getAttributeByName("text-align")
+                val textAlign = when (alignAttr) {
+                    "center" -> {
+                        Layout.Alignment.ALIGN_CENTER
+                    }
+                    "right" -> {
+                        Layout.Alignment.ALIGN_OPPOSITE
+                    }
+                    else -> {
+                        Layout.Alignment.ALIGN_NORMAL
+                    }
+                }
+                // 先将当前行添加上
+                tableData[rowInd].add(TableCellInfo(contentText, textAlign))
+
+                // 补全rowspan, colspan
+                val colspanAttr: String? = eachCol.getAttributeByName("colspan")
+                val rowspanAttr: String? = eachCol.getAttributeByName("rowspan")
+                rowspanAttr?.let { rowspan ->
+                    // 行与列同时合并了
+                    for (index in 1 until rowspan.toInt()) {
+                        tableData[rowInd + index].add(TableCellInfo(alignAttr))
+                    }
+                    colspanAttr?.let { colspan ->
+                        for (index in 1 until colspan.toInt()) {
+                            tableData[rowInd].add(TableCellInfo(alignAttr))
+                        }
+                    }
+                } ?: run {
+                    colspanAttr?.let { colspan ->
+                        // 列合并了
+                        for (index in 1 until colspan.toInt()) {
+                            tableData[rowInd].add(TableCellInfo(alignAttr))
+                        }
+                    }
+                }
+            }
+        }
+        return tableData
     }
 
     /**

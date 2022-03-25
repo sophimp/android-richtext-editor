@@ -53,7 +53,7 @@ public class EditTableViewModel extends ViewModel implements IEditTableView {
 
     public void init(Context ctx) {
         // 计算出cell的最大长度与最小长度, 去掉两边边距16*2 + 列菜单的长度 20
-        tableShowWidth = Util.getScreenWidth(ctx) - Util.dip2px(ctx, 52);
+        tableShowWidth = Util.getScreenWidth(ctx);// - Util.dip2px(ctx, 50);
         defHeight = Util.dip2px(ctx, 20);
         cellWidth = (int) (tableShowWidth * 0.4f + 0.5f);
 //        cellMinWidth = (int) (tableShowWidth * 0.25f + 0.5f);
@@ -239,6 +239,9 @@ public class EditTableViewModel extends ViewModel implements IEditTableView {
         int targetCol = position % col, targetRow = position / col;
         int rowMaxCellHeight = findMaxRowCellHeight(targetRow, targetCol);
         List<TableCellInfo> rowCellInfos = dataSource.get(targetRow);
+        if (rowCellInfos.size() < col) {
+            rowCellInfos.add(new TableCellInfo(cellWidth, defHeight));
+        }
         if (rowMaxCellHeight < height) {
             // 更新当前行高
             for (int i = 0; i < col; i++) {
@@ -257,11 +260,16 @@ public class EditTableViewModel extends ViewModel implements IEditTableView {
      * @param targetCol 所在列
      */
     private int findMaxRowCellHeight(int targetRow, int targetCol) {
-        int maxHeight = 0;
-        List<TableCellInfo> rowCellInfos = dataSource.get(targetRow);
-        for (int i = 0; i < col; i++) {
-            if (i != targetCol) {
-                maxHeight = Math.max(maxHeight, rowCellInfos.get(i).cellHeight);
+        int maxHeight = defHeight;
+        if (targetRow < dataSource.size()) {
+            List<TableCellInfo> rowCellInfos = dataSource.get(targetRow);
+            if (rowCellInfos.size() < col) {
+                rowCellInfos.add(new TableCellInfo(cellWidth, defHeight));
+            }
+            for (int i = 0; i < col; i++) {
+                if (i != targetCol) {
+                    maxHeight = Math.max(maxHeight, rowCellInfos.get(i).cellHeight);
+                }
             }
         }
         return maxHeight;

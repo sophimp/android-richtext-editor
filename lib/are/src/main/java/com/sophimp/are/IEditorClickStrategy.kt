@@ -1,5 +1,7 @@
 package com.sophimp.are
 
+import android.content.Context
+import android.text.Spanned
 import com.sophimp.are.spans.*
 
 /**
@@ -14,41 +16,41 @@ interface IEditorClickStrategy {
      *
      * @return handled return true; or else return false
      */
-    fun onClickImage(editText: RichEditText, imageSpan: ImageSpan2?): Boolean = false
+    fun onClickImage(context: Context, editable: Spanned, imageSpan: ImageSpan2?): Boolean = false
 
     /**
      * Do your actions upon span clicking [TableSpan]
      *
      * @return handled return true; or else return false
      */
-    fun onClickTable(editText: RichEditText, videoSpan: TableSpan?): Boolean = false
+    fun onClickTable(context: Context, editable: Spanned, tableSpan: TableSpan?): Boolean = false
 
     /**
      * Do your actions upon span clicking [UrlSpan]
      *
      * @return handled return true; or else return false
      */
-    fun onClickUrl(editText: RichEditText, urlSpan: UrlSpan?): Boolean = false
+    fun onClickUrl(context: Context, editable: Spanned, urlSpan: UrlSpan?): Boolean = false
 
     /**
      * Do your actions upon span clicking [AudioSpan]
      *
      * @return handled return true; or else return false
      */
-    fun onClickAudio(editText: RichEditText, audioSpan: AudioSpan?): Boolean = false
+    fun onClickAudio(context: Context, editable: Spanned, audioSpan: AudioSpan?): Boolean = false
 
     /**
      * Do your actions upon span clicking [VideoSpan]
      *
      * @return handled return true; or else return false
      */
-    fun onClickVideo(editText: RichEditText, videoSpan: VideoSpan?): Boolean = false
+    fun onClickVideo(context: Context, editable: Spanned, videoSpan: VideoSpan?): Boolean = false
 
     /**
      * Do your actions upon span clicking [AttachmentSpan]
      *
      * @return handled return true; or else return false
      */
-    fun onClickAttachment(editText: RichEditText, videoSpan: AttachmentSpan?): Boolean = false
+    fun onClickAttachment(context: Context, editable: Spanned, attachmentSpan: AttachmentSpan?): Boolean = false
 
 }

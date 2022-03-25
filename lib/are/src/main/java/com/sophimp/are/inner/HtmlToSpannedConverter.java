@@ -354,7 +354,6 @@ class HtmlToSpannedConverter implements ContentHandler {
 //            text.append("\n");
 //            text.append(" ");
             int len = text.length();
-            text.append(Constants.ZERO_WIDTH_SPACE_STR);
             MediaStyleHelper.insertTableSpan(text, richTableStrs.remove(0), len, text.length());
         }
     }

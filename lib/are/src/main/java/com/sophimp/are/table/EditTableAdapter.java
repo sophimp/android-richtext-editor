@@ -45,6 +45,11 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
     protected void convert(TableCellHolder helper, int position) {
         int curRow = position / tableViewModel.getCol();
         int curCol = position % tableViewModel.getCol();
+
+        // outOfIndexException
+        if (curRow >= tableViewModel.getDatas().size() || curCol >= tableViewModel.getDatas().get(curRow).size())
+            return;
+
         helper.cellInfo = tableViewModel.getDatas().get(curRow).get(curCol);
         helper.binding.areItem.fromHtml(helper.cellInfo.richText);
         if (helper.cellInfo.alignment == Layout.Alignment.ALIGN_CENTER) {

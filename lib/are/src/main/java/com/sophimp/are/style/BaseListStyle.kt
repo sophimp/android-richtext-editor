@@ -5,6 +5,9 @@ import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
 import com.sophimp.are.spans.IListSpan
 import com.sophimp.are.utils.Util
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 /**
  * Abstract for ListBullet, ListTodo, ListNumber

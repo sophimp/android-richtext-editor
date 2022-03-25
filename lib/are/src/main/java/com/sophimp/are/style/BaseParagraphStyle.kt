@@ -147,7 +147,7 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
             if (nSpan != null) {
 //                val curStart = mEditText.selectionStart
                 val curStart = epStart
-                if (curStart >= editable.length || editable[curStart].code != Constants.ZERO_WIDTH_SPACE_INT) {
+                if (curStart >= editable.length || editable[curStart].toInt() != Constants.ZERO_WIDTH_SPACE_INT) {
                     editable.insert(curStart, Constants.ZERO_WIDTH_SPACE_STR)
                 }
                 setSpan(nSpan, curStart, min(curStart + 1, editable.length))
