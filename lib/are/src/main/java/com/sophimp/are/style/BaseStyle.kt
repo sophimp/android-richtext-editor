@@ -114,18 +114,6 @@ abstract class BaseStyle<T : ISpan>(private var curEditText: RichEditText) : ISt
         return 0
     }
 
-    open fun <T : ISpan> updateSpan(spans: Array<T>, start: Int, end: Int) {
-        if (spans.isNotEmpty()) {
-            removeSpans(mEditText.editableText, spans)
-            setSpan(spans[0], start, end)
-        } else {
-            val ns = newSpan(null)
-            if (ns != null) {
-                setSpan(ns, start, end)
-            }
-        }
-    }
-
     /**
      * @param epStart effect paragraph start selection
      * @param epEnd effect paragraph end selection

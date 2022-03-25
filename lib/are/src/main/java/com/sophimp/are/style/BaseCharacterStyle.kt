@@ -61,7 +61,37 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
 //        val editable = mEditText.editableText
         val sEnd = mEditText.selectionEnd
         if (beforeSelectionStart < sEnd) {
-            handleAbsButtonClick(beforeSelectionStart, sEnd)
+            val editable = mEditText.editableText
+            val targetSpans =
+                editable.getSpans(max(beforeSelectionStart - 1, 0), sEnd, targetClass())
+            val newSpan = newSpan()
+            if (targetSpans.isNotEmpty() && newSpan != null && checkFeatureEqual(
+                    newSpan,
+                    targetSpans[targetSpans.size - 1]
+                )
+            ) {
+                // 直接使用 INCLUDE 特性
+                var preSpanStart = editable.getSpanStart(targetSpans[0])
+                var lastSpan = targetSpans[0]
+                targetSpans.forEach {
+                    if (checkFeatureEqual(lastSpan, it)) {
+                        preSpanStart = min(editable.getSpanStart(it), preSpanStart)
+                        if (preSpanStart < sEnd) {
+                            editable.removeSpan(it)
+                        }
+                    }
+                }
+                if (preSpanStart < sEnd) {
+                    setSpan(newSpan, preSpanStart, sEnd)
+                }
+            } else {
+                // 没有样式
+                if (isChecked && newSpan != null) {
+                    setSpan(newSpan, beforeSelectionStart, sEnd)
+                    // 合并相同style
+//                    mergeSameStyle(beforeSelectionStart, sEnd)
+                }
+            }
         }
     }
 
@@ -123,7 +153,10 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
         // 先移除上一行的span
         removeSpans(editable, preParagraphSpans)
         // 移除当前行的Spans
-        removeSpans(editable, editable.getSpans(mEditText.selectionStart, mEditText.selectionEnd, targetClass()))
+        removeSpans(
+            editable,
+            editable.getSpans(mEditText.selectionStart, mEditText.selectionEnd, targetClass())
+        )
         if (preSpanStart < lastPEnd) {
             setSpan(preParagraphSpans[0], preSpanStart, lastPEnd)
         }
@@ -132,7 +165,8 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
     protected open fun mergeSameStyle(start: Int, end: Int) {
         // 前后紧挨着相同属性的， 同一个span在同一个区域设置多次的
         val editable = mEditText.editableText
-        val targetSpans = editable.getSpans(max(0, start - 1), min(end + 1, mEditText.length()), targetClass())
+        val targetSpans =
+            editable.getSpans(max(0, start - 1), min(end + 1, mEditText.length()), targetClass())
         if (targetSpans.size < 2) return
         Arrays.sort(targetSpans) { o1: E, o2: E ->
             editable.getSpanStart(o1) - editable.getSpanStart(o2)
@@ -179,7 +213,7 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
         }
     }
 
-    open fun checkFeatureEqual(span1: ISpan, span2: ISpan): Boolean = true
+    open fun checkFeatureEqual(span1: ISpan?, span2: ISpan?): Boolean = true
 
     private fun handleDeleteAbsStyle() {
 
@@ -190,7 +224,8 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
     }
 
     override fun setSpan(span: ISpan, start: Int, end: Int) {
-        mEditText.editableText.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+        mEditText.editableText.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         mEditText.isChange = true
+        mEditText.refreshRange(start, end)
     }
 }

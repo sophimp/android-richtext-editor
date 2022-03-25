@@ -22,8 +22,8 @@ abstract class DynamicCharacterStyle<E : IDynamicSpan>(editText: RichEditText) :
         logAllSpans(mEditText.editableText, "${targetClass().simpleName} item click", 0, mEditText.editableText.length)
     }
 
-    override fun checkFeatureEqual(span1: ISpan, span2: ISpan): Boolean {
-        return (span1 as IDynamicSpan).dynamicFeature == (span2 as IDynamicSpan).dynamicFeature
+    override fun checkFeatureEqual(span1: ISpan?, span2: ISpan?): Boolean {
+        return span1 != null && span2 != null && (span1 as IDynamicSpan).dynamicFeature == (span2 as IDynamicSpan).dynamicFeature
     }
 
     abstract fun onFeatureChanged(feature: String)

@@ -6,6 +6,7 @@ import android.text.TextUtils
 import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
 import com.sophimp.are.spans.ISpan
+import com.sophimp.are.spans.IndentSpan
 import com.sophimp.are.spans.LineSpaceSpan
 import com.sophimp.are.utils.Util
 import java.util.*
@@ -28,13 +29,25 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
             mEditText.editableText.getSpanStart(o1) - mEditText.editableText.getSpanStart(o2)
         }
         updateSpan(targets, curPStart, curPEnd)
-        if (targetClass() == LineSpaceSpan::class.java) {
+        if (targetClass() == LineSpaceSpan::class.java || targetClass() == IndentSpan::class.java) {
             mEditText.refreshByInsert(curPStart)
         }
 //        else {
 //            mEditText.refresh(curPStart)
 //        }
         return 0
+    }
+
+    open fun <T : ISpan> updateSpan(spans: Array<T>, start: Int, end: Int) {
+        if (spans.isNotEmpty()) {
+            removeSpans(mEditText.editableText, spans)
+            setSpan(spans[0], start, end)
+        } else {
+            val ns = newSpan(null)
+            if (ns != null) {
+                setSpan(ns, start, end)
+            }
+        }
     }
 
     open fun removeMutexSpans(curPStart: Int, curPEnd: Int) {}
@@ -189,6 +202,7 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
 
     override fun setSpan(span: ISpan, start: Int, end: Int) {
         mEditText.editableText.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        mEditText.refreshRange(start, end)
         mEditText.isChange = true
     }
 

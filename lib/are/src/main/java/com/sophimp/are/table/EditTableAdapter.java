@@ -166,6 +166,8 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
             binding.areItem.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
+                    // 焦点变化的时候存一下数据
+                    cellInfo.richText = binding.areItem.toHtml();
                     if (binding.areItem == v && hasFocus) {
                         if (cellFocusChangeListener != null) {
                             cellFocusChangeListener.onCellFocus(binding.areItem, getAbsoluteAdapterPosition() / tableViewModel.getCol(), getAbsoluteAdapterPosition() % tableViewModel.getCol());
@@ -179,8 +181,6 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
                             lastFocusCell = cellInfo;
                         }
                     }
-                    // 焦点变化的时候存一下数据
-                    cellInfo.richText = binding.areItem.toHtml();
                 }
             });
 

@@ -27,9 +27,12 @@ class FontColorStyle(editText: RichEditText) : DynamicCharacterStyle<FontForegro
     }
 
     override fun onFeatureChanged(feature: String) {
-        this.mFeature = feature
-        checkState = this.mFeature != Constants.DEFAULT_FONT_COLOR
-        handleAbsButtonClick(mEditText.selectionStart, mEditText.selectionEnd)
+        mFeature = feature
+        val curState = mFeature != Constants.DEFAULT_FONT_COLOR
+        if (checkState != curState) {
+            handleAbsButtonClick(mEditText.selectionStart, mEditText.selectionEnd)
+            checkState = curState
+        }
     }
 
 }

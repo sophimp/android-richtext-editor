@@ -14,7 +14,8 @@ import kotlinx.coroutines.launch
  * @author: sfx
  * @since: 2021/7/22
  */
-abstract class BaseListStyle<B : IListSpan>(editText: RichEditText) : BaseParagraphStyle<B>(editText) {
+abstract class BaseListStyle<B : IListSpan>(editText: RichEditText) :
+    BaseParagraphStyle<B>(editText) {
 
     /**
      * 每次插入一个span, 可能会多插入一个字符，使用off记录

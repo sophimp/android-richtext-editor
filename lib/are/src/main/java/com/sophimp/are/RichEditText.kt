@@ -280,16 +280,22 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                     epEnd = selectionEnd
                 }
                 for (style: IStyle in styleList) {
-                    launch {
-                        style.applyStyle(
-                            editableText,
-                            textEvent,
-                            changedText,
-                            beforeSelectionStart,
-                            afterSelectionStart,
-                            epStart,
-                            epEnd
-                        )
+                    var shouldApplyStyle = true;
+                    if (style is BaseCharacterStyle<*> && textEvent == IStyle.TextEvent.DELETE) {
+                        shouldApplyStyle = false
+                    }
+                    if (shouldApplyStyle) {
+                        launch {
+                            style.applyStyle(
+                                editableText,
+                                textEvent,
+                                changedText,
+                                beforeSelectionStart,
+                                afterSelectionStart,
+                                epStart,
+                                epEnd
+                            )
+                        }
                     }
                 }
             }
@@ -344,7 +350,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                     return
                 }
                 uiHandler.removeCallbacks(textChangeAndApplyStyleRunnable)
-                uiHandler.postDelayed(textChangeAndApplyStyleRunnable, 100)
+                uiHandler.postDelayed(textChangeAndApplyStyleRunnable, 80)
 
 //                isFromHtmlRefresh = false
 //                uiHandler.postDelayed(refreshRunnable, 500)

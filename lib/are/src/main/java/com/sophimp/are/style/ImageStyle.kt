@@ -109,8 +109,8 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
                             defaultSpan,
                             path,
                             compressBitmap,
-                            w,
-                            h,
+                            compressBitmap.width,
+                            compressBitmap.height,
                             shouldReload
                         )
                     }
@@ -156,8 +156,8 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
                         defaultSpan.name,
                         defaultSpan.imageType,
                         defaultSpan.size,
-                        defaultSpan.width,
-                        defaultSpan.height
+                        w,
+                        h
                     )
                     loadedImageSpan.size = defaultSpan.size
                     loadedImageSpan.name = defaultSpan.name
@@ -253,7 +253,7 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
                 path: String?
             ) {
                 path?.let {
-                    replaceImageSpanAfterLoaded(editable, defaultSpan, path, compressBitmap, w, h, false)
+                    replaceImageSpanAfterLoaded(editable, defaultSpan, path, compressBitmap, compressBitmap.width, compressBitmap.height, false)
                 }
             }
         }
