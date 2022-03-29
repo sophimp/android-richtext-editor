@@ -1,6 +1,7 @@
 package com.sophimp.are
 
 object Constants {
+
     /**
      * default font size
      */
@@ -29,4 +30,10 @@ object Constants {
     const val KB = 1024
     const val MB = 1048576
     const val GB = 1073741824
+
+    /**
+     * 默认显示宽度
+     */
+    var SHOW_WIDTH: Int = 0
+
 }

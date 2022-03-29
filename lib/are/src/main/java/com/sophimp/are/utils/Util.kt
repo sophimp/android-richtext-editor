@@ -54,6 +54,7 @@ object Util {
         Html.sContext = context.applicationContext
         Html.ossServer = server
         Html.imageLoadedListener = imageLoadedListener
+        Constants.SHOW_WIDTH = (context.resources.displayMetrics.widthPixels - context.resources.displayMetrics.density * 32 + 0.5f).toInt()
     }
 
     val textAlignPattern = Pattern.compile("(?:\\s+|\\A)text-align\\s*:\\s*(\\S*)\\b")

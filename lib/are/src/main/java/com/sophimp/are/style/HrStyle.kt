@@ -1,7 +1,6 @@
 package com.sophimp.are.style
 
 import android.text.Spannable
-import android.text.SpannableStringBuilder
 import android.text.Spanned
 import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
@@ -39,12 +38,8 @@ class HrStyle(mEditText: RichEditText) : BaseFreeStyle<HrSpan>(mEditText) {
         removeSpans(editable, listSpans)
         removeSpans(editable, leadingMarginSpans)
         mEditText.stopMonitor()
-        val ssb = SpannableStringBuilder()
-        ssb.append(Constants.CHAR_NEW_LINE)
-        ssb.append(Constants.ZERO_WIDTH_SPACE_STR)
-        ssb.append(Constants.CHAR_NEW_LINE)
-        ssb.setSpan(HrSpan(context), 1, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-        editable.replace(start, end, ssb)
+        editable.insert(end, Constants.ZERO_WIDTH_SPACE_STR)
+        editable.setSpan(HrSpan(Constants.SHOW_WIDTH), end, end + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         if (lStart >= 0 && lStart == pStart && lStart < start) {
             editable.setSpan(listSpans[0], lStart, start, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }

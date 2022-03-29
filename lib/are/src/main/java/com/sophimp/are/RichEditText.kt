@@ -15,6 +15,7 @@ import com.sophimp.are.listener.ImageLoadedListener
 import com.sophimp.are.listener.OnSelectionChangeListener
 import com.sophimp.are.models.StyleChangedListener
 import com.sophimp.are.spans.*
+import com.sophimp.are.style.BaseCharacterStyle
 import com.sophimp.are.style.IStyle
 import com.sophimp.are.toolbar.DefaultToolbar
 import com.sophimp.are.toolbar.items.IToolbarItem
