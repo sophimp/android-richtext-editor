@@ -1,7 +1,6 @@
 package com.sophimp.demo
 
 import android.os.Bundle
-import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
 import android.view.MenuItem
@@ -11,10 +10,6 @@ import com.sophimp.are.inner.Html
 import com.sophimp.are.utils.Util
 import com.sophimp.demo.db.MemoDatabase
 import com.sophimp.demo.db.MemoInfo
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.math.min
 
 class EditActivity : AppCompatActivity() {
@@ -33,14 +28,7 @@ class EditActivity : AppCompatActivity() {
         val id = intent.getLongExtra("id", -1L)
         if (id != -1L) {
             memoInfo = memoDao.queryMemoById(id)
-            var richContent: SpannableStringBuilder
-            CoroutineScope(Dispatchers.IO).launch {
-                var content: SpannableStringBuilder =
-                    Html.fromHtml(memoDao.queryMemoById(id).richText, Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH) as SpannableStringBuilder
-                withContext(Dispatchers.Main) {
-                    binding.reRichtext.text = content
-                }
-            }
+            binding.reRichtext.fromHtml(memoInfo.richText)
         }
     }
 
