@@ -18,6 +18,6 @@ class AppApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         context = applicationContext
-        Util.initEnv(applicationContext, IOssServerImpl(), null)
+        Util.initEnv(applicationContext, IOssServerImpl())
     }
 }

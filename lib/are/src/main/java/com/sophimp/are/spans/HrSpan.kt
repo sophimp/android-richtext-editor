@@ -1,5 +1,6 @@
 package com.sophimp.are.spans
 
+import android.content.Context
 import android.graphics.Canvas
 import android.graphics.DashPathEffect
 import android.graphics.Paint

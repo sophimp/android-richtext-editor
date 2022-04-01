@@ -10,7 +10,6 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.widget.EditText
 import androidx.appcompat.widget.AppCompatEditText
-import com.pf.drrichtext.IOssServerImpl
 import com.sophimp.are.inner.Html
 import com.sophimp.are.listener.ImageLoadedListener
 import com.sophimp.are.listener.OnSelectionChangeListener

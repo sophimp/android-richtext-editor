@@ -1,6 +1,7 @@
 package com.sophimp.are.style
 
 import android.text.Spannable
+import android.text.SpannableStringBuilder
 import android.text.Spanned
 import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText

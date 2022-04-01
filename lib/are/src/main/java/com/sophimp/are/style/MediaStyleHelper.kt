@@ -9,7 +9,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
-import com.bumptech.glide.Glide
 import com.sophimp.are.AttachFileType
 import com.sophimp.are.Constants
 import com.sophimp.are.R
@@ -224,7 +223,7 @@ class MediaStyleHelper {
         }
 
         private fun generateCommonMediaDrawable(title: String, subTitle: String,@DrawableRes imgRes : Int): BitmapDrawable {
-            val view = LayoutInflater.from(Html.sContext).inflate(R.layout.view_edit_annex, null)
+            val view = LayoutInflater.from(Html.sContext).inflate(R.layout.layout_view_rich_media_preview, null)
             view.findViewById<ImageView>(R.id.edit_annex_icon_iv)
                 .setImageResource(imgRes)
             view.findViewById<TextView>(R.id.edit_annex_title_tv).text = title
