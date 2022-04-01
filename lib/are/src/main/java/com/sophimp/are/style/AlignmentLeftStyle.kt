@@ -3,9 +3,7 @@ package com.sophimp.are.style
 import android.text.Editable
 import android.text.style.AlignmentSpan
 import com.sophimp.are.RichEditText
-import com.sophimp.are.spans.AlignmentLeftSpan
-import com.sophimp.are.spans.ISpan
-import com.sophimp.are.spans.IndentSpan
+import com.sophimp.are.spans.*
 
 class AlignmentLeftStyle(editText: RichEditText) : BaseParagraphStyle<AlignmentLeftSpan>(editText) {
 

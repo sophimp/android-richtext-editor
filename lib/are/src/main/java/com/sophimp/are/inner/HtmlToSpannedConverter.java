@@ -885,7 +885,7 @@ class HtmlToSpannedConverter implements ContentHandler {
         }
 
         int len = text.length();
-        ImageStyle.Companion.addImageSpanToEditable(Html.sContext, text, len, iwidth, iheight, serverUrl, localPath, true);
+        ImageStyle.Companion.addImageSpanToEditable(Html.sContext, text, len, iwidth, iheight, serverUrl, localPath);
 
         if (dataType == null || dataType.equalsIgnoreCase(AttachFileType.IMG.getAttachmentValue())) {
             // 非贴纸才再换行符
@@ -980,7 +980,7 @@ class HtmlToSpannedConverter implements ContentHandler {
     private static void startHr(Editable text) {
         int len = text.length();
         text.append(Constants.ZERO_WIDTH_SPACE_STR);
-        text.setSpan(new HrSpan(Constants.INSTANCE.getSHOW_WIDTH()), len, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        text.setSpan(new HrSpan(Html.sContext), len, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     private static void startEmoji(Editable text, Attributes attributes) {

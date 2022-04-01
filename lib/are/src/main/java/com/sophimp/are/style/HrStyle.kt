@@ -38,8 +38,12 @@ class HrStyle(mEditText: RichEditText) : BaseFreeStyle<HrSpan>(mEditText) {
         removeSpans(editable, listSpans)
         removeSpans(editable, leadingMarginSpans)
         mEditText.stopMonitor()
-        editable.insert(end, Constants.ZERO_WIDTH_SPACE_STR)
-        editable.setSpan(HrSpan(Constants.SHOW_WIDTH), end, end + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        val ssb = SpannableStringBuilder()
+        ssb.append(Constants.CHAR_NEW_LINE)
+        ssb.append(Constants.ZERO_WIDTH_SPACE_STR)
+        ssb.append(Constants.CHAR_NEW_LINE)
+        ssb.setSpan(HrSpan(context), 1, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        editable.replace(start, end, ssb)
         if (lStart >= 0 && lStart == pStart && lStart < start) {
             editable.setSpan(listSpans[0], lStart, start, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }

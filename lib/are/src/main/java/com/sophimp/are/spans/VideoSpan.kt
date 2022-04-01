@@ -16,8 +16,10 @@ class VideoSpan(
     var videoName: String? = "",
     var videoSize: Int = 0,
     var videoDuration: Int = 0
-) : ImageSpan(
-    drawable), ISpan, IClickableSpan, IUploadSpan {
+) : ImageSpan(drawable), ISpan, IClickableSpan, IUploadSpan {
+    var previewWidth = 0
+    var previewHeight = 0
+    var previewUrl : String? = null
     var uploadTime: String? = ""
 
     enum class VideoType {

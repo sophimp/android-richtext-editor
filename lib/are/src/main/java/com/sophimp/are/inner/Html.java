@@ -87,14 +87,6 @@ public class Html {
      */
     public static boolean isDiscoverVersion;
 
-    public static Observer videoThumbObserver;
-
-    /**
-     * 图片加载监听
-     */
-    @Nullable
-    public static ImageLoadedListener imageLoadedListener;
-
     /**
      * 视频标签预览图有改变
      */

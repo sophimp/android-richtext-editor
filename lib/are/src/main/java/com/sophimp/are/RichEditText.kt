@@ -10,6 +10,7 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.widget.EditText
 import androidx.appcompat.widget.AppCompatEditText
+import com.pf.drrichtext.IOssServerImpl
 import com.sophimp.are.inner.Html
 import com.sophimp.are.listener.ImageLoadedListener
 import com.sophimp.are.listener.OnSelectionChangeListener
@@ -17,12 +18,11 @@ import com.sophimp.are.models.StyleChangedListener
 import com.sophimp.are.spans.*
 import com.sophimp.are.style.BaseCharacterStyle
 import com.sophimp.are.style.IStyle
+import com.sophimp.are.style.ImageStyle
 import com.sophimp.are.toolbar.DefaultToolbar
 import com.sophimp.are.toolbar.items.IToolbarItem
 import com.sophimp.are.utils.Util
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.lang.reflect.Method
 import kotlin.math.min
 
@@ -43,6 +43,11 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
     private val uiHandler = Handler(Looper.getMainLooper())
 
     private var styleList: MutableList<IStyle> = arrayListOf()
+
+    val imageStyle: ImageStyle? = null
+        get() {
+            return field ?: ImageStyle(this)
+        }
 
     var beforeSelectionStart = 0
     var beforeSelectionEnd = 0
@@ -100,18 +105,16 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
             e.printStackTrace()
         }
         setupTextWatcher()
-        Util.initEnv(context, IOssServerImpl(), object : ImageLoadedListener {
-            override fun onImageLoaded(spanned: Spanned, start: Int, end: Int) {
-                uiHandler.removeCallbacks(refreshRunnable)
-                spannedFromHtml = spanned
-                uiHandler.postDelayed(refreshRunnable, 500)
-//                refresh(start)
-            }
+        Util.initEnv(context, IOssServerImpl())
+    }
 
-            override fun onImageRefresh(start: Int, end: Int) {
-                refresh(start)
-            }
-        })
+    val imageLoadedListener = object : ImageLoadedListener {
+        override fun onImageRefresh(start: Int, end: Int) {
+//            uiHandler.removeCallbacks(refreshRunnable)
+//            spannedFromHtml = spanned
+//            uiHandler.postDelayed(refreshRunnable, 500)
+            refresh(start)
+        }
     }
 
     private val gestureDetector =
@@ -147,16 +150,32 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                         clickStrategy?.onClickUrl(context, editableText, clickSpans[0] as UrlSpan)
                     }
                     clickSpans[0] is ImageSpan2 -> {
-                        clickStrategy?.onClickImage(context, editableText, clickSpans[0] as ImageSpan2)
+                        clickStrategy?.onClickImage(
+                            context,
+                            editableText,
+                            clickSpans[0] as ImageSpan2
+                        )
                     }
                     clickSpans[0] is TableSpan -> {
-                        clickStrategy?.onClickTable(context, editableText, clickSpans[0] as TableSpan)
+                        clickStrategy?.onClickTable(
+                            context,
+                            editableText,
+                            clickSpans[0] as TableSpan
+                        )
                     }
                     clickSpans[0] is AudioSpan -> {
-                        clickStrategy?.onClickAudio(context, editableText, clickSpans[0] as AudioSpan)
+                        clickStrategy?.onClickAudio(
+                            context,
+                            editableText,
+                            clickSpans[0] as AudioSpan
+                        )
                     }
                     clickSpans[0] is VideoSpan -> {
-                        clickStrategy?.onClickVideo(context, editableText, clickSpans[0] as VideoSpan)
+                        clickStrategy?.onClickVideo(
+                            context,
+                            editableText,
+                            clickSpans[0] as VideoSpan
+                        )
                     }
                     clickSpans[0] is TodoSpan -> {
                         if (e.x <= (clickSpans[0] as TodoSpan).drawableRectf.right) {
@@ -418,16 +437,40 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         uiHandler.postDelayed(runnable, delay)
     }
 
-    fun fromHtml(html: String?): SpannableStringBuilder {
-        if (html == null) return SpannableStringBuilder()
-        spannedFromHtml = Html.fromHtml(
-            html,
-            Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH
-        ) as SpannableStringBuilder
-        stopMonitor()
-        setText(spannedFromHtml)
-        startMonitor()
-        return spannedFromHtml as SpannableStringBuilder
+    fun fromHtml(html: String?) {
+        html?.let {
+            CoroutineScope(Dispatchers.IO).launch {
+                spannedFromHtml = Html.fromHtml(
+                    html,
+                    Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH
+                ) as SpannableStringBuilder
+
+                withContext(Dispatchers.Main) {
+                    stopMonitor()
+                    setText(spannedFromHtml)
+                    loadImageSpanWithGlide()
+                    startMonitor()
+                }
+            }
+        }
+    }
+
+    /**
+     * 使用Glide加载图片
+     */
+    private fun loadImageSpanWithGlide() {
+        val imageSpans = editableText.getSpans(0, length(), ImageSpan2::class.java)
+        imageSpans.forEach {
+            imageStyle?.loadImageSpanWithGlide(context, it, imageLoadedListener)
+        }
+
+        val videoSpans = editableText.getSpans(0, length(), VideoSpan::class.java)
+        videoSpans.forEach { vSpan ->
+            vSpan.previewUrl?.apply {
+                imageStyle?.loadVideoSpanPreviewFrame(context, vSpan, imageLoadedListener)
+            }
+        }
+
     }
 
     fun toHtml(): String {
@@ -461,6 +504,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
             null,
             false
         ) as SpannableStringBuilder
+        loadImageSpanWithGlide()
         return spannedFromHtml as SpannableStringBuilder
     }
 

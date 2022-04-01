@@ -2,6 +2,8 @@ package com.sophimp.are.style
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.text.Editable
 import android.text.Spannable
@@ -19,14 +21,17 @@ import com.sophimp.are.listener.ImageLoadedListener
 import com.sophimp.are.render.GlideResTarget
 import com.sophimp.are.spans.ISpan
 import com.sophimp.are.spans.ImageSpan2
+import com.sophimp.are.spans.VideoSpan
+import com.sophimp.are.utils.Util
 import java.io.File
 import kotlin.math.max
 import kotlin.math.min
 
 class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
 
+    private var glideRequest: RequestManager = Glide.with(editText.context)
+
     init {
-        glideRequest = Glide.with(editText.context)
         val displayMetrics = editText.context.resources.displayMetrics
         sWidth = (displayMetrics.widthPixels - displayMetrics.density * 32).toInt()
         sHeight = displayMetrics.heightPixels
@@ -34,8 +39,6 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
 
     companion object {
         val defaultDrawable = ContextCompat.getDrawable(Html.sContext, R.mipmap.default_image)
-        private var glideRequest: RequestManager? = null
-        var imageLoadedListener: ImageLoadedListener? = null
         var sWidth = 0
         var sHeight = 0
 
@@ -68,8 +71,7 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
             height: Int,
             url: String,
             localPath: String,
-            shouldReload: Boolean
-        ) {
+        ) : ImageSpan2{
             defaultDrawable?.intrinsicWidth?.let {
                 defaultDrawable.setBounds(
                     0,
@@ -84,49 +86,16 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
                 url,
                 "",
                 AttachFileType.IMG.attachmentValue,
-                0,
+                Util.getFileSize(localPath),
                 width,
                 height
             )
             editable.insert(start, Constants.ZERO_WIDTH_SPACE_STR)
             editable.setSpan(defaultSpan, start, start + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            return defaultSpan
 
-            val resTarget = object : GlideResTarget(
-                context,
-                defaultSpan.width,
-                defaultSpan.height,
-                if (TextUtils.isEmpty(defaultSpan.localPath)) defaultSpan.serverUrl else defaultSpan.localPath
-            ) {
-                override fun handleLoadedBitmap(
-                    compressBitmap: Bitmap,
-                    w: Int,
-                    h: Int,
-                    path: String?
-                ) {
-                    path?.let {
-                        replaceImageSpanAfterLoaded(
-                            editable,
-                            defaultSpan,
-                            path,
-                            compressBitmap,
-                            compressBitmap.width,
-                            compressBitmap.height,
-                            shouldReload
-                        )
-                    }
-                }
-            }
-
-            if (!TextUtils.isEmpty(defaultSpan.localPath)) {
-                // local path
-                glideRequest?.asBitmap()?.load(File(defaultSpan.localPath))?.encodeQuality(10)
-                    ?.into(resTarget)
-            } else {
-                // remote path
-                glideRequest?.asBitmap()?.load(defaultSpan.serverUrl)?.encodeQuality(10)
-                    ?.into(resTarget)
-            }
         }
+
 
         /**
          * 替换已加载成功的图片
@@ -138,7 +107,7 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
             compressBitmap: Bitmap,
             w: Int,
             h: Int,
-            shouldReload: Boolean
+            imageLoadedListener: ImageLoadedListener?
         ) {
             val imageSpans = editable.getSpans(0, editable.length, ImageSpan2::class.java)
             imageSpans.forEach { imgSpan ->
@@ -169,11 +138,7 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                     )
                     editable.removeSpan(imgSpan)
-                    if (shouldReload) {
-                        Html.imageLoadedListener?.onImageLoaded(editable, spanStart, spanEnd)
-                    } else {
-                        Html.imageLoadedListener?.onImageRefresh(spanStart, spanEnd)
-                    }
+                    imageLoadedListener?.onImageRefresh(spanStart, spanEnd)
                 }
             }
         }
@@ -187,7 +152,7 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
         val start = max(min(mEditText.selectionStart, mEditText.length()), 0)
 //        mEditText.editableText.replace(start, mEditText.selectionEnd, "\uFFFc\n")
         uiHandler.post {
-            addImageSpanToEditable(
+            val defaultSpan = addImageSpanToEditable(
                 context,
                 mEditText.editableText,
                 mEditText.selectionEnd,
@@ -195,8 +160,9 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
                 defaultDrawable.intrinsicHeight,
                 url,
                 localPath,
-                false
             )
+            // 需要手动加载图片
+            loadImageSpanWithGlide(context, defaultSpan, mEditText.imageLoadedListener)
             mEditText.editableText.insert(mEditText.selectionEnd, Constants.CHAR_NEW_LINE)
         }
     }
@@ -216,7 +182,8 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
     fun addStickerImage(
         url: String,
         width: Int,
-        height: Int
+        height: Int,
+        imageLoadedListener: ImageLoadedListener?
     ) {
 //        AttachmentType.STICKER.getAttachmentValue(),
         defaultDrawable?.setBounds(
@@ -240,11 +207,22 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
         editable.insert(start, Constants.ZERO_WIDTH_SPACE_STR)
         editable.setSpan(defaultSpan, start, start + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
+        loadImageSpanWithGlide(context, defaultSpan, imageLoadedListener)
+    }
+
+    /**
+     * 加载图片
+     */
+    fun loadImageSpanWithGlide(
+        context: Context,
+        imgSpan: ImageSpan2,
+        imageLoadedListener: ImageLoadedListener?
+    ) {
         val resTarget = object : GlideResTarget(
             context,
-            defaultSpan.width,
-            defaultSpan.height,
-            if (TextUtils.isEmpty(defaultSpan.localPath)) defaultSpan.serverUrl else defaultSpan.localPath
+            imgSpan.width,
+            imgSpan.height,
+            if (TextUtils.isEmpty(imgSpan.localPath)) imgSpan.serverUrl else imgSpan.localPath
         ) {
             override fun handleLoadedBitmap(
                 compressBitmap: Bitmap,
@@ -253,20 +231,83 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
                 path: String?
             ) {
                 path?.let {
-                    replaceImageSpanAfterLoaded(editable, defaultSpan, path, compressBitmap, compressBitmap.width, compressBitmap.height, false)
+                    replaceImageSpanAfterLoaded(
+                        mEditText.editableText,
+                        imgSpan,
+                        path,
+                        compressBitmap,
+                        compressBitmap.width,
+                        compressBitmap.height,
+                        imageLoadedListener
+                    )
                 }
             }
         }
 
-        if (!TextUtils.isEmpty(defaultSpan.localPath)) {
+        if (!TextUtils.isEmpty(imgSpan.localPath)) {
             // local path
-            glideRequest?.asBitmap()?.load(File(defaultSpan.localPath))?.encodeQuality(10)
-                ?.into(resTarget)
+            glideRequest.asBitmap().load(File(imgSpan.localPath)).encodeQuality(10).into(resTarget)
         } else {
             // remote path
-            glideRequest?.asBitmap()?.load(defaultSpan.serverUrl)?.encodeQuality(10)
-                ?.into(resTarget)
+            glideRequest.asBitmap().load(imgSpan.serverUrl).encodeQuality(10).into(resTarget)
         }
     }
 
+    /**
+     * 加载带预览图的VideoSpan
+     */
+    fun loadVideoSpanPreviewFrame(context: Context, videoSpan: VideoSpan, imageLoadedListener: ImageLoadedListener?) {
+        val resTarget = object : GlideResTarget(
+            context,
+            videoSpan.previewWidth,
+            videoSpan.previewHeight,
+            videoSpan.previewUrl
+        ) {
+            override fun handleLoadedBitmap(
+                compressBitmap: Bitmap,
+                w: Int,
+                h: Int,
+                path: String?
+            ) {
+                val editable = mEditText.editableText
+                val videoSpans = editable.getSpans(0, editable.length, VideoSpan::class.java)
+                for (span in videoSpans) {
+                    if (TextUtils.equals(
+                            span.localPath,
+                            path
+                        ) || TextUtils.equals(span.serverUrl, path)
+                    ) {
+                        val spanStart = editable.getSpanStart(span)
+                        val spanEnd = editable.getSpanEnd(span)
+                        editable.removeSpan(span)
+
+                        val playIcon = BitmapFactory.decodeResource(
+                            context.resources,
+                            R.mipmap.icon_video_play
+                        )
+                        val videoCompose = Util.mergeBitMapWithLimit(compressBitmap, playIcon, w, h)
+                        val loadedDrawable = BitmapDrawable(context.resources, videoCompose)
+                        loadedDrawable.bounds = Rect(0, 0, w, h)
+                        val loadedVideoSpan = VideoSpan(
+                            loadedDrawable,
+                            videoSpan.localPath,
+                            videoSpan.serverUrl,
+                            videoSpan.videoName,
+                            videoSpan.videoSize,
+                            videoSpan.videoDuration
+                        )
+                        loadedVideoSpan.uploadTime = videoSpan.uploadTime
+                        editable.setSpan(
+                            loadedVideoSpan,
+                            spanStart,
+                            spanEnd,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                        imageLoadedListener?.onImageRefresh(spanStart, spanEnd)
+                    }
+                }
+            }
+        }
+        glideRequest.asBitmap().load(videoSpan.previewUrl).encodeQuality(10).into(resTarget)
+    }
 }

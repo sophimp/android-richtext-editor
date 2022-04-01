@@ -12,8 +12,8 @@ import android.text.style.ReplacementSpan
  * @author: sfx
  * @since: 2021/7/20
  */
-class HrSpan(var width: Int) : ReplacementSpan(), ISpan {
-
+class HrSpan(ctx: Context) : ReplacementSpan(), ISpan {
+    private val mScreenWidth: Int
     override fun getSize(
         paint: Paint,
         text: CharSequence,
@@ -21,14 +21,7 @@ class HrSpan(var width: Int) : ReplacementSpan(), ISpan {
         end: Int,
         fm: FontMetricsInt?
     ): Int {
-
-//        if (fm != null) {
-//            fm.ascent = -paint.fontMetricsInt.ascent
-//            fm.descent = 0
-//            fm.top = fm.ascent
-//            fm.bottom = 0
-//        }
-        return width
+        return (mScreenWidth * p).toInt()
     }
 
     override fun draw(
@@ -42,17 +35,15 @@ class HrSpan(var width: Int) : ReplacementSpan(), ISpan {
         bottom: Int,
         paint: Paint
     ) {
-        canvas.save()
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = 1f
         val lineY = top + (bottom - top) / 2
         val linePath = Path()
-        linePath.moveTo(x, lineY.toFloat())
-        linePath.lineTo(x + width, lineY.toFloat())
+        linePath.moveTo(x + (mScreenWidth * (1 - p) / 2).toInt(), lineY.toFloat())
+        linePath.lineTo(x + (mScreenWidth * p).toInt(), lineY.toFloat())
         paint.pathEffect = DashPathEffect(floatArrayOf(4f, 4f), 1F)
         canvas.drawPath(linePath, paint)
-//        canvas.drawLine(x , lineY.toFloat(), x + width, lineY.toFloat(), paint);
-        canvas.restore()
+        //        canvas.drawLine(x + (int) (mScreenWidth * (1 - p) / 2), lineY, x + (int) (mScreenWidth * p), lineY, paint);
     }
 
     override val html: String
@@ -60,4 +51,11 @@ class HrSpan(var width: Int) : ReplacementSpan(), ISpan {
             return "<hr/>"
         }
 
+    companion object {
+        private const val p = 1f
+    }
+
+    init {
+        mScreenWidth = ctx.resources.displayMetrics.widthPixels
+    }
 }

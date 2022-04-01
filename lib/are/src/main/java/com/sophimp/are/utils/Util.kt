@@ -50,11 +50,9 @@ object Util {
      * 使用富文本前首需需要调用此方法, 确保已初始化
      */
     @JvmStatic
-    fun initEnv(context: Context, server: IOssServer, imageLoadedListener: ImageLoadedListener?) {
+    fun initEnv(context: Context, server: IOssServer) {
         Html.sContext = context.applicationContext
         Html.ossServer = server
-        Html.imageLoadedListener = imageLoadedListener
-        Constants.SHOW_WIDTH = (context.resources.displayMetrics.widthPixels - context.resources.displayMetrics.density * 32 + 0.5f).toInt()
     }
 
     val textAlignPattern = Pattern.compile("(?:\\s+|\\A)text-align\\s*:\\s*(\\S*)\\b")

@@ -1,13 +1,9 @@
 package com.sophimp.are.style
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.text.Editable
 import android.text.Spannable
-import android.text.TextUtils
 import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.TextView
@@ -19,13 +15,11 @@ import com.sophimp.are.Constants
 import com.sophimp.are.R
 import com.sophimp.are.RichEditText
 import com.sophimp.are.inner.Html
-import com.sophimp.are.render.GlideResTarget
 import com.sophimp.are.spans.AttachmentSpan
 import com.sophimp.are.spans.AudioSpan
 import com.sophimp.are.spans.TableSpan
 import com.sophimp.are.spans.VideoSpan
 import com.sophimp.are.utils.Util
-import com.sophimp.are.utils.Util.mergeBitMapWithLimit
 import com.sophimp.are.utils.Util.view2Bitmap
 
 /**
@@ -62,64 +56,11 @@ class MediaStyleHelper {
                 defaultDrawable.intrinsicHeight
             )
             val defaultSpan = VideoSpan(defaultDrawable!!, localPath, url, "", 0, 0)
+            defaultSpan.previewUrl = previewUrl
+            defaultSpan.previewWidth = width
+            defaultSpan.previewHeight = height
             editable.insert(start, Constants.ZERO_WIDTH_SPACE_STR)
             editable.setSpan(defaultSpan, start, start + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-            val resTarget = object : GlideResTarget(
-                context,
-                width,
-                height,
-                if (TextUtils.isEmpty(defaultSpan.localPath)) previewUrl else defaultSpan.localPath
-            ) {
-                override fun handleLoadedBitmap(
-                    compressBitmap: Bitmap,
-                    w: Int,
-                    h: Int,
-                    path: String?
-                ) {
-                    val videoSpans = editable.getSpans(0, editable.length, VideoSpan::class.java)
-                    for (span in videoSpans) {
-                        if (TextUtils.equals(
-                                span.localPath,
-                                path
-                            ) || TextUtils.equals(span.serverUrl, path)
-                        ) {
-                            val spanStart = editable.getSpanStart(span)
-                            val spanEnd = editable.getSpanEnd(span)
-                            editable.removeSpan(span)
-
-                            val playIcon = BitmapFactory.decodeResource(
-                                context.resources,
-                                R.mipmap.icon_video_play
-                            )
-                            val videoCompose = mergeBitMapWithLimit(compressBitmap, playIcon, w, h)
-                            val loadedDrawable = BitmapDrawable(context.resources, videoCompose)
-                            loadedDrawable.bounds = Rect(0, 0, w, h)
-                            val loadedVideoSpan = VideoSpan(
-                                loadedDrawable,
-                                defaultSpan.localPath,
-                                defaultSpan.serverUrl,
-                                defaultSpan.videoName,
-                                defaultSpan.videoSize,
-                                defaultSpan.videoDuration
-                            )
-                            loadedVideoSpan.uploadTime = defaultSpan.uploadTime
-                            editable.setSpan(
-                                loadedVideoSpan,
-                                spanStart,
-                                spanEnd,
-                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                            )
-                            Html.imageLoadedListener?.onImageRefresh(spanStart, spanEnd)
-                        }
-                    }
-                }
-            }
-
-            Glide.with(Html.sContext).asBitmap()
-                .load(if (TextUtils.isEmpty(previewUrl)) defaultSpan.localPath else previewUrl)
-                .encodeQuality(10)
-                .into(resTarget)
         }
 
         fun addDetailVideoSpanToEditable(
@@ -160,9 +101,7 @@ class MediaStyleHelper {
                 defaultDrawable.intrinsicHeight
             )
 
-            val bitmapDrawable = generateCommonMediaDrawable(name,
-                Util.getTimeDurationDesc(duration.toLong()) + "  " + Util.getFileSizeDesc(size.toLong()),
-                AttachFileType.VIDEO.resId)
+            val bitmapDrawable = generateCommonMediaDrawable(name, Util.getTimeDurationDesc(duration.toLong()) + "  " + Util.getFileSizeDesc(size.toLong()), AttachFileType.VIDEO.resId)
             bitmapDrawable.let {
                 val defaultSpan = VideoSpan(
                     bitmapDrawable,
@@ -216,9 +155,7 @@ class MediaStyleHelper {
                 defaultDrawable.intrinsicHeight
             )
 
-            val bitmapDrawable = generateCommonMediaDrawable(name,
-                Util.getTimeDurationDesc(duration.toLong()) + "  " + Util.getFileSizeDesc(size.toLong()),
-                R.mipmap.icon_file_audio)
+            val bitmapDrawable = generateCommonMediaDrawable(name, Util.getTimeDurationDesc(duration.toLong()) + "  " + Util.getFileSizeDesc(size.toLong()), R.mipmap.icon_file_audio)
             bitmapDrawable.let {
                 val defaultSpan = AudioSpan(
                     bitmapDrawable,
@@ -286,8 +223,8 @@ class MediaStyleHelper {
             }
         }
 
-        private fun generateCommonMediaDrawable(title: String, subTitle: String, @DrawableRes imgRes: Int): BitmapDrawable {
-            val view = LayoutInflater.from(Html.sContext).inflate(R.layout.layout_view_rich_media_preview, null)
+        private fun generateCommonMediaDrawable(title: String, subTitle: String,@DrawableRes imgRes : Int): BitmapDrawable {
+            val view = LayoutInflater.from(Html.sContext).inflate(R.layout.view_edit_annex, null)
             view.findViewById<ImageView>(R.id.edit_annex_icon_iv)
                 .setImageResource(imgRes)
             view.findViewById<TextView>(R.id.edit_annex_title_tv).text = title

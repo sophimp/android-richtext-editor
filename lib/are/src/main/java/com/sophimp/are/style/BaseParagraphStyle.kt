@@ -37,7 +37,6 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
 //        }
         return 0
     }
-
     open fun <T : ISpan> updateSpan(spans: Array<T>, start: Int, end: Int) {
         if (spans.isNotEmpty()) {
             removeSpans(mEditText.editableText, spans)
@@ -49,7 +48,6 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
             }
         }
     }
-
     open fun removeMutexSpans(curPStart: Int, curPEnd: Int) {}
 
     override fun handleMultiParagraphInput(
