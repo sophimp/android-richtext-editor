@@ -3,6 +3,7 @@ package com.sophimp.are.style
 import com.sophimp.are.RichEditText
 import com.sophimp.are.spans.IDynamicSpan
 import com.sophimp.are.spans.ISpan
+import kotlin.math.max
 
 /**
  * Dynamic style abstract implementation.
@@ -27,4 +28,14 @@ abstract class DynamicCharacterStyle<E : IDynamicSpan>(editText: RichEditText) :
     }
 
     abstract fun onFeatureChanged(feature: String)
+
+    override fun onSelectionChanged(selectionEnd: Int) {
+        val start = max(0, selectionEnd - 1)
+        val targetSpans = mEditText.editableText.getSpans(start, selectionEnd, targetClass())
+        if (targetSpans.isNotEmpty()) {
+            onFeatureChanged(targetSpans[0].dynamicFeature)
+        } else {
+            onFeatureChanged("")
+        }
+    }
 }

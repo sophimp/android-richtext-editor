@@ -62,11 +62,13 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
             helper.binding.areItem.requestFocus();
             int selectionStart = Math.max(0, Math.min(helper.cellInfo.cursorSelectionStart, helper.binding.areItem.length()));
             int selectionEnd = Math.max(0, Math.min(helper.cellInfo.cursorSelectionEnd, helper.binding.areItem.length()));
-            if (selectionStart < selectionEnd) {
-                helper.binding.areItem.setSelection(selectionStart, selectionEnd);
-            } else {
-                helper.binding.areItem.setSelection(selectionEnd);
-            }
+            helper.binding.areItem.postDelayed(() -> {
+                if (selectionStart < selectionEnd) {
+                    helper.binding.areItem.setSelection(selectionStart, selectionEnd);
+                } else {
+                    helper.binding.areItem.setSelection(selectionEnd);
+                }
+            }, 50);
         }
     }
 
@@ -141,9 +143,11 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
                     }
                     if (binding.areItem.getLayout() != null) {
 //                        LogUtils.d("sgx height: " + binding.areItem.getLayout().getHeight());
-                        cellInfo.cellHeight = binding.areItem.getLayout().getHeight();
-                        // 更新当前cell高度
-                        tableViewModel.updateCellSize(getLayoutPosition(), cellInfo.cellHeight);
+                        if (cellInfo.cellHeight != binding.areItem.getLayout().getHeight()) {
+                            cellInfo.cellHeight = binding.areItem.getLayout().getHeight();
+                            // 更新当前cell高度
+                            tableViewModel.updateCellSize(getLayoutPosition(), cellInfo.cellHeight);
+                        }
                     }
                 }
             });
@@ -153,7 +157,7 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
             binding.areItem.setStyleChangedListener(new StyleChangedListener() {
                 @Override
                 public void onStyleChanged(RichEditText arEdit) {
-                    cellInfo.richText = arEdit.toHtml();
+//                    cellInfo.richText = arEdit.toHtml();
                     cellInfo.cursorSelectionStart = binding.areItem.getSelectionStart();
                     cellInfo.cursorSelectionEnd = binding.areItem.getSelectionEnd();
                     if (binding.areItem.getLayout() != null) {
@@ -167,7 +171,7 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
                     // 焦点变化的时候存一下数据
-                    cellInfo.richText = binding.areItem.toHtml();
+//                    cellInfo.richText = binding.areItem.toHtml();
                     if (binding.areItem == v && hasFocus) {
                         if (cellFocusChangeListener != null) {
                             cellFocusChangeListener.onCellFocus(binding.areItem, getAbsoluteAdapterPosition() / tableViewModel.getCol(), getAbsoluteAdapterPosition() % tableViewModel.getCol());

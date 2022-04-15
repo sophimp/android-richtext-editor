@@ -100,7 +100,9 @@ class MediaStyleHelper {
                 defaultDrawable.intrinsicHeight
             )
 
-            val bitmapDrawable = generateCommonMediaDrawable(name, Util.getTimeDurationDesc(duration.toLong()) + "  " + Util.getFileSizeDesc(size.toLong()), AttachFileType.VIDEO.resId)
+            val bitmapDrawable = generateCommonMediaDrawable(name,
+                Util.getTimeDurationDesc(duration.toLong()) + "  " + Util.getFileSizeDesc(size.toLong()),
+                R.mipmap.icon_file_video)
             bitmapDrawable.let {
                 val defaultSpan = VideoSpan(
                     bitmapDrawable,

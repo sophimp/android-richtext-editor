@@ -21,17 +21,7 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
     }
 
     override fun handleDeleteEvent(editable: Editable, epStart: Int, epEnd: Int) {
-        // 移除掉 start == end 的span即可, 其他的交由TextView处理
-        val editable = mEditText.editableText
-        val pEnd = getParagraphEnd(editable, mEditText.selectionEnd)
-        val targetSpans = editable.getSpans(mEditText.selectionStart, pEnd, targetClass())
-        for (span in targetSpans) {
-            val s = editable.getSpanStart(span)
-            val e = editable.getSpanEnd(span)
-            if (s == e) {
-                editable.removeSpan(span)
-            }
-        }
+        handleDeleteAbsStyle()
     }
 
     override fun handleSingleParagraphInput(
@@ -58,31 +48,58 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
 
     protected open fun handleAbsInput(beforeSelectionStart: Int) {
         // 如果当前改变的区域
-//        val editable = mEditText.editableText
         val sEnd = mEditText.selectionEnd
         if (beforeSelectionStart < sEnd) {
             val editable = mEditText.editableText
             val targetSpans =
                 editable.getSpans(max(beforeSelectionStart - 1, 0), sEnd, targetClass())
             val newSpan = newSpan()
-            if (targetSpans.isNotEmpty() && newSpan != null && checkFeatureEqual(
-                    newSpan,
-                    targetSpans[targetSpans.size - 1]
-                )
-            ) {
-                // 直接使用 INCLUDE 特性
-                var preSpanStart = editable.getSpanStart(targetSpans[0])
+            if (targetSpans.isNotEmpty()) {
                 var lastSpan = targetSpans[0]
+                var preSpanStart = editable.getSpanStart(lastSpan)
+                var preSpanEnd = editable.getSpanEnd(lastSpan)
                 targetSpans.forEach {
-                    if (checkFeatureEqual(lastSpan, it)) {
-                        preSpanStart = min(editable.getSpanStart(it), preSpanStart)
-                        if (preSpanStart < sEnd) {
-                            editable.removeSpan(it)
+                    preSpanStart = min(editable.getSpanStart(it), preSpanStart)
+                    preSpanEnd = max(editable.getSpanEnd(it), preSpanEnd)
+                }
+                if (newSpan != null) {
+                    // 非DynamicSpan, 根据特征值判断是否重新选择了字体大小，颜色
+                    removeSpans(editable, targetSpans)
+                    if (!checkFeatureEqual(newSpan, targetSpans[targetSpans.size - 1])) {
+                        // 前一个不一样的span
+                        if (preSpanStart < beforeSelectionStart) {
+                            setSpan(lastSpan, preSpanStart, beforeSelectionStart)
+                        }
+                        if (beforeSelectionStart < sEnd) {
+                            setSpan(newSpan, beforeSelectionStart, sEnd)
+                        }
+                        if (sEnd < preSpanEnd) {
+                            val splitSpan = newSpan(lastSpan)
+                            splitSpan?.let {
+                                setSpan(splitSpan, sEnd, preSpanEnd)
+                            }
+                        }
+                    } else {
+                        // 所有的合并
+                        var mergeEnd = max(sEnd, preSpanEnd)
+                        if (preSpanStart < mergeEnd) {
+                            setSpan(lastSpan, preSpanStart, mergeEnd)
                         }
                     }
-                }
-                if (preSpanStart < sEnd) {
-                    setSpan(newSpan, preSpanStart, sEnd)
+                } else {
+                    // 处理非 DynamicStyle, isChecked = false
+                    // 没有选中了, 设置之前的样式
+                    // 前一个不一样的span
+                    if (preSpanStart < beforeSelectionStart) {
+                        setSpan(lastSpan, preSpanStart, beforeSelectionStart)
+                    }
+                    // 中间分隔开了
+                    if (sEnd < preSpanEnd) {
+                        val splitSpan = newSpan(lastSpan)
+                        splitSpan?.let {
+                            setSpan(splitSpan, sEnd, preSpanEnd)
+                        }
+                    }
                 }
             } else {
                 // 没有样式
@@ -131,6 +148,7 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
             }
             // 合并相同style
             mergeSameStyle(start, end)
+            mEditText.markChanged()
         }
     }
 
@@ -143,23 +161,30 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
         /*
             行尾有样式换行，需要分段， 如果不分段，当前段有段落样式的话(列表，缩进)，如果超过两行，格式会乱
         */
-        val lastPStart: Int = Util.getParagraphStart(mEditText, beforeSelectionStart)
-        var lastPEnd: Int = Util.getParagraphEnd(editable, beforeSelectionStart)
-        if (lastPEnd <= lastPStart) return
-        val preParagraphSpans = editable.getSpans(lastPEnd - 1, lastPEnd, targetClass())
-        if (preParagraphSpans.isEmpty()) return
-        Util.log("pre line: " + lastPStart + " - " + lastPEnd + " cur line: " + mEditText.selectionStart + " - " + mEditText.selectionEnd)
-        val preSpanStart = editable.getSpanStart(preParagraphSpans[0]);
-        // 先移除上一行的span
-        removeSpans(editable, preParagraphSpans)
-        // 移除当前行的Spans
-        removeSpans(
-            editable,
-            editable.getSpans(mEditText.selectionStart, mEditText.selectionEnd, targetClass())
-        )
-        if (preSpanStart < lastPEnd) {
-            setSpan(preParagraphSpans[0], preSpanStart, lastPEnd)
-        }
+//        val lastPStart: Int = Util.getParagraphStart(mEditText, beforeSelectionStart)
+//        var lastPEnd: Int = Util.getParagraphEnd(editable, beforeSelectionStart)
+//        if (lastPEnd <= lastPStart) return
+//        val preParagraphSpans = editable.getSpans(lastPEnd - 1, lastPEnd, targetClass())
+//        if (preParagraphSpans.isEmpty()) return
+//        Util.log("pre line: " + lastPStart + " - " + lastPEnd + " cur line: " + mEditText.selectionStart + " - " + mEditText.selectionEnd)
+//        val preSpanStart = editable.getSpanStart(preParagraphSpans[0])
+//        // 先移除上一行的span
+//        removeSpans(editable, preParagraphSpans)
+//        // 移除当前行的Spans
+//        removeSpans(
+//            editable,
+//            editable.getSpans(mEditText.selectionStart, mEditText.selectionEnd, targetClass())
+//        )
+//        // 设计当前行span
+//        val newSpan = newSpan(preParagraphSpans[preParagraphSpans.size - 1])
+//        newSpan?.let {
+//            if (epStart <= epEnd) {
+//                setSpan(newSpan, epStart, epEnd)
+//            }
+//        }
+//        if (preSpanStart < lastPEnd) {
+//            setSpan(preParagraphSpans[0], preSpanStart, lastPEnd)
+//        }
     }
 
     protected open fun mergeSameStyle(start: Int, end: Int) {
@@ -213,10 +238,30 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
         }
     }
 
-    open fun checkFeatureEqual(span1: ISpan?, span2: ISpan?): Boolean = true
+    open fun checkFeatureEqual(span1: ISpan?, span2: ISpan?): Boolean {
+        return isChecked
+    }
 
     private fun handleDeleteAbsStyle() {
-
+        val targetSpans = mEditText.editableText.getSpans(
+            mEditText.selectionStart,
+            mEditText.selectionEnd,
+            targetClass()
+        )
+        var hasDelete = false
+        if (targetSpans.isNotEmpty()) {
+            targetSpans.forEach {
+                // 清除掉start == end 的span
+                if (mEditText.editableText.getSpanStart(it) == mEditText.editableText.getSpanEnd(it)) {
+                    hasDelete = true
+                    mEditText.editableText.removeSpan(it)
+                }
+            }
+        }
+//        if (hasDelete) {
+//            // 删除也需要触发一下状读的变换
+//            mEditText.styleSelectionChanged(this)
+//        }
     }
 
     override fun newSpan(inheritSpan: ISpan?): ISpan? {

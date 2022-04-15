@@ -1,5 +1,6 @@
 package com.sophimp.are.style
 
+import android.text.TextUtils
 import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
 import com.sophimp.are.spans.FontForegroundColorSpan
@@ -27,12 +28,14 @@ class FontColorStyle(editText: RichEditText) : DynamicCharacterStyle<FontForegro
     }
 
     override fun onFeatureChanged(feature: String) {
-        mFeature = feature
-        val curState = mFeature != Constants.DEFAULT_FONT_COLOR
-        if (checkState != curState) {
-            handleAbsButtonClick(mEditText.selectionStart, mEditText.selectionEnd)
-            checkState = curState
+        var validFeature = if (TextUtils.isEmpty(feature)) {
+            Constants.DEFAULT_FONT_COLOR
+        } else {
+            feature
         }
+        checkState = validFeature != Constants.DEFAULT_FONT_COLOR
+        mFeature = validFeature
+        handleAbsButtonClick(mEditText.selectionStart, mEditText.selectionEnd)
     }
 
 }

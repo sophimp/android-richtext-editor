@@ -22,10 +22,12 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import com.sophimp.are.BuildConfig
+import com.sophimp.are.AttachFileType
 import com.sophimp.are.Constants
 import com.sophimp.are.inner.Html
 import com.sophimp.are.listener.IOssServer
-import com.sophimp.are.listener.ImageLoadedListener
+import com.sophimp.are.spans.IUploadSpan
+import com.sophimp.are.spans.ImageSpan2
 import com.sophimp.are.spans.IndentSpan
 import com.sophimp.are.spans.ListNumberSpan
 import com.sophimp.are.table.TableCellInfo
@@ -1138,4 +1140,15 @@ object Util {
         }
     }
 
+    fun getUploadSpans(uploadSpanned: Spanned): MutableList<IUploadSpan> {
+        val res = mutableListOf<IUploadSpan>()
+        val uploadSpans = uploadSpanned.getSpans(0, uploadSpanned.length, IUploadSpan::class.java)
+        uploadSpans.forEach {
+            if (it is ImageSpan2 && AttachFileType.STICKER.attachmentValue == it.imageType) {
+                return@forEach
+            }
+            res.add(it)
+        }
+        return res
+    }
 }

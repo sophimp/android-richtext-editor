@@ -115,7 +115,7 @@ class MainActivity : AppCompatActivity() {
             when {
                 counter % 3 == 0 -> {
                     spannableStringBuilder.setSpan(UnderlineSpan2(), start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
-                    spannableStringBuilder.setSpan(StrikeThroughSpan2(), start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                    spannableStringBuilder.setSpan(StrikethroughSpan2(), start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
                 }
                 counter % 2 == 0 -> {
                     spannableStringBuilder.setSpan(BoldSpan(), start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)

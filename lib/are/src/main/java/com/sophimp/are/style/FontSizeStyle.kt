@@ -1,5 +1,6 @@
 package com.sophimp.are.style
 
+import android.text.TextUtils
 import com.sophimp.are.Constants
 import com.sophimp.are.RichEditText
 import com.sophimp.are.spans.FontSizeSpan
@@ -27,8 +28,12 @@ class FontSizeStyle(editText: RichEditText) :
     }
 
     override fun onFeatureChanged(feature: String) {
-        mSize = feature.toInt()
-        checkState = mSize != Constants.DEFAULT_FONT_SIZE
+        var validSize = Constants.DEFAULT_FONT_SIZE
+        if (!TextUtils.isEmpty(feature)) {
+            validSize = feature.toInt()
+        }
+        checkState = validSize != Constants.DEFAULT_FONT_SIZE
+        mSize = validSize
         handleAbsButtonClick(mEditText.selectionStart, mEditText.selectionEnd)
     }
 

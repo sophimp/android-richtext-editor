@@ -97,6 +97,7 @@ abstract class BaseStyle<T : ISpan>(private var curEditText: RichEditText) : ISt
 //            job.await()
             }
         }
+        mEditText.markChanged()
         logAllSpans(mEditText.editableText, "${targetClass().simpleName} item click", 0, mEditText.editableText.length)
     }
 
@@ -220,8 +221,8 @@ abstract class BaseStyle<T : ISpan>(private var curEditText: RichEditText) : ISt
 
     override fun onSelectionChanged(selectionEnd: Int) {
         val start = max(0, selectionEnd - 1)
-        val boldSpans = mEditText.editableText.getSpans(start, selectionEnd, targetClass())
-        checkState = boldSpans.isNotEmpty()
+        val targetSpans = mEditText.editableText.getSpans(start, selectionEnd, targetClass())
+        checkState = targetSpans.isNotEmpty()
     }
 
     override fun newSpan(inheritSpan: ISpan?): ISpan? {

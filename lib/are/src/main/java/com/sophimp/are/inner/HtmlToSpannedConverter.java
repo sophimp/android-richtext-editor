@@ -31,10 +31,12 @@ import com.sophimp.are.spans.FontForegroundColorSpan;
 import com.sophimp.are.spans.FontSizeSpan;
 import com.sophimp.are.spans.HrSpan;
 import com.sophimp.are.spans.IndentSpan;
+import com.sophimp.are.spans.ItalicSpan;
 import com.sophimp.are.spans.LineSpaceSpan;
 import com.sophimp.are.spans.ListBulletSpan;
 import com.sophimp.are.spans.ListNumberSpan;
 import com.sophimp.are.spans.QuoteSpan2;
+import com.sophimp.are.spans.StrikethroughSpan2;
 import com.sophimp.are.spans.TodoSpan;
 import com.sophimp.are.spans.UnderlineSpan2;
 import com.sophimp.are.spans.UrlSpan;
@@ -379,17 +381,17 @@ class HtmlToSpannedConverter implements ContentHandler {
         } else if (tag.equalsIgnoreCase("span")) {
             endCssStyle(mSpannableStringBuilder, false);
         } else if (tag.equalsIgnoreCase("strong")) {
-            end(mSpannableStringBuilder, Bold.class, new BoldSpan());
+            endCharacterStyle(mSpannableStringBuilder, Bold.class, new BoldSpan());
         } else if (tag.equalsIgnoreCase("b")) {
-            end(mSpannableStringBuilder, Bold.class, new BoldSpan());
+            endCharacterStyle(mSpannableStringBuilder, Bold.class, new BoldSpan());
         } else if (tag.equalsIgnoreCase("em")) {
-            end(mSpannableStringBuilder, Italic.class, new StyleSpan(Typeface.ITALIC));
+            endCharacterStyle(mSpannableStringBuilder, Italic.class, new ItalicSpan());
         } else if (tag.equalsIgnoreCase("cite")) {
-            end(mSpannableStringBuilder, Italic.class, new StyleSpan(Typeface.ITALIC));
+            endCharacterStyle(mSpannableStringBuilder, Italic.class, new ItalicSpan());
         } else if (tag.equalsIgnoreCase("dfn")) {
-            end(mSpannableStringBuilder, Italic.class, new StyleSpan(Typeface.ITALIC));
+            endCharacterStyle(mSpannableStringBuilder, Italic.class, new ItalicSpan());
         } else if (tag.equalsIgnoreCase("i")) {
-            end(mSpannableStringBuilder, Italic.class, new StyleSpan(Typeface.ITALIC));
+            endCharacterStyle(mSpannableStringBuilder, Italic.class, new ItalicSpan());
         } else if (tag.equalsIgnoreCase("big")) {
             end(mSpannableStringBuilder, Big.class, new RelativeSizeSpan(1.25f));
         } else if (tag.equalsIgnoreCase("small")) {
@@ -405,11 +407,11 @@ class HtmlToSpannedConverter implements ContentHandler {
         } else if (tag.equalsIgnoreCase("u")) {
             end(mSpannableStringBuilder, Underline.class, new UnderlineSpan2());
         } else if (tag.equalsIgnoreCase("del")) {
-            end(mSpannableStringBuilder, Strikethrough.class, new StrikethroughSpan());
+            end(mSpannableStringBuilder, Strikethrough.class, new StrikethroughSpan2());
         } else if (tag.equalsIgnoreCase("s")) {
-            end(mSpannableStringBuilder, Strikethrough.class, new StrikethroughSpan());
+            end(mSpannableStringBuilder, Strikethrough.class, new StrikethroughSpan2());
         } else if (tag.equalsIgnoreCase("strike")) {
-            end(mSpannableStringBuilder, Strikethrough.class, new StrikethroughSpan());
+            end(mSpannableStringBuilder, Strikethrough.class, new StrikethroughSpan2());
         } else if (tag.equalsIgnoreCase("sup")) {
             end(mSpannableStringBuilder, Super.class, new SuperscriptSpan());
         } else if (tag.equalsIgnoreCase("sub")) {
@@ -691,7 +693,7 @@ class HtmlToSpannedConverter implements ContentHandler {
         // Their ranges should not include the newlines at the end
         Heading h = getLast(text, Heading.class);
         if (h != null) {
-            setSpanFromMark(text, h, new RelativeSizeSpan(HEADING_SIZES[h.mLevel]), new BoldSpan());
+            setCharacterSpanFromMark(text, h, new RelativeSizeSpan(HEADING_SIZES[h.mLevel]), new BoldSpan());
         }
 
         endBlockElement(text);
@@ -722,6 +724,10 @@ class HtmlToSpannedConverter implements ContentHandler {
         }
     }
 
+    private static void setCharacterSpanFromMark(Spannable text, Object mark, Object... span) {
+        setSpanFromMark(text, mark, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE, span);
+    }
+
     private static void setSpanFromMark(Spannable text, Object mark, Object... span) {
         setSpanFromMark(text, mark, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE, span);
     }
@@ -729,6 +735,14 @@ class HtmlToSpannedConverter implements ContentHandler {
     private static void start(Editable text, Object mark) {
         int len = text.length();
         text.setSpan(mark, len, len, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+    }
+
+    private static void endCharacterStyle(Editable text, Class kind, Object repl) {
+        int len = text.length();
+        Object obj = getLast(text, kind);
+        if (obj != null) {
+            setCharacterSpanFromMark(text, obj, repl);
+        }
     }
 
     private static void end(Editable text, Class kind, Object repl) {
@@ -805,27 +819,27 @@ class HtmlToSpannedConverter implements ContentHandler {
     private static void endCssStyle(Editable text, boolean isParagraph) {
         Strikethrough s = getLast(text, Strikethrough.class);
         if (s != null) {
-            setSpanFromMark(text, s, new StrikethroughSpan());
+            setCharacterSpanFromMark(text, s, new StrikethroughSpan2());
         }
 
         Underline u = getLast(text, Underline.class);
         if (u != null) {
-            setSpanFromMark(text, u, new UnderlineSpan2());
+            setCharacterSpanFromMark(text, u, new UnderlineSpan2());
         }
 
         Background b = getLast(text, Background.class);
         if (b != null) {
-            setSpanFromMark(text, b, new FontBackgroundColorSpan(b.colorStr));
+            setCharacterSpanFromMark(text, b, new FontBackgroundColorSpan(b.colorStr));
         }
 
         Foreground f = getLast(text, Foreground.class);
         if (f != null) {
-            setSpanFromMark(text, f, new FontForegroundColorSpan(f.colorStr));
+            setCharacterSpanFromMark(text, f, new FontForegroundColorSpan(f.colorStr));
         }
 
         FontSize fontSize = getLast(text, FontSize.class);
         if (fontSize != null) {
-            setSpanFromMark(text, fontSize, new FontSizeSpan(fontSize.mFontSize));
+            setCharacterSpanFromMark(text, fontSize, new FontSizeSpan(fontSize.mFontSize));
         }
 
         if (isParagraph) {
@@ -885,7 +899,7 @@ class HtmlToSpannedConverter implements ContentHandler {
         }
 
         int len = text.length();
-        ImageStyle.Companion.addImageSpanToEditable(Html.sContext, text, len, iwidth, iheight, serverUrl, localPath);
+        ImageStyle.Companion.addImageSpanToEditable(Html.sContext, text, len, iwidth, iheight, serverUrl, localPath, dataType);
 
         if (dataType == null || dataType.equalsIgnoreCase(AttachFileType.IMG.getAttachmentValue())) {
             // 非贴纸才再换行符
