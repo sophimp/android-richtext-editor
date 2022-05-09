@@ -18,8 +18,8 @@ class AttachmentSpan(
     var attachName: String?,
     var attachSize: Int,
     var attachValue: String,
-    var spanId: String = UUID.randomUUID().toString(),
-    var uploadTime: String? = null
+    var uploadTime: String? = null,
+    var spanId: String = UUID.randomUUID().toString()
 ) : ImageSpan(bitmapDrawable), ISpan, IClickableSpan, IUploadSpan {
 
     override val html: String

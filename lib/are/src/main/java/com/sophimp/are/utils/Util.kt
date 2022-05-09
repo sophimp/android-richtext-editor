@@ -21,8 +21,8 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import com.sophimp.are.BuildConfig
 import com.sophimp.are.AttachFileType
+import com.sophimp.are.BuildConfig
 import com.sophimp.are.Constants
 import com.sophimp.are.inner.Html
 import com.sophimp.are.listener.IOssServer
@@ -968,7 +968,7 @@ object Util {
 
         rows.forEachIndexed { rowInd, eachRow ->
             val cols = eachRow.getElementListByName("td", false)
-            cols.forEach { eachCol ->
+            cols.forEachIndexed { colInd, eachCol ->
                 val contentText = htmlCleaner.getInnerHtml(eachCol)
                 var alignAttr = eachCol.getAttributeByName("text-align")
                 val textAlign = when (alignAttr) {

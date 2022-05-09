@@ -19,10 +19,10 @@ class ImageSpan2(
     var imageType: String,
     var size: Long = 0,
     var width: Int = drawable.intrinsicWidth,
-    var height: Int = drawable.intrinsicHeight
+    var height: Int = drawable.intrinsicHeight,
+    var uploadTime: String? = null
 ) : ImageSpan(drawable), IClickableSpan, IUploadSpan, ISpan {
 
-    var uploadTime: String? = null
 
     val fileSize: Int
         get() {

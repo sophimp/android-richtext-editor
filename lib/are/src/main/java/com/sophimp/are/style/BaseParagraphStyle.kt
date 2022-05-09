@@ -141,7 +141,7 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
         // 先移除上一行的span
         removeSpans(editable, preParagraphSpans)
         // 移除当前行的Spans
-        removeSpans(editable, editable.getSpans(mEditText.selectionStart, mEditText.selectionEnd, targetClass()))
+        removeSpans(editable, editable.getSpans(epStart, epEnd, targetClass()))
 
         // 再将上一行与当前行统一处理
         val lastContent = editable.subSequence(lastPStart, lastPEnd).toString()
@@ -199,9 +199,11 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
     }
 
     override fun setSpan(span: ISpan, start: Int, end: Int) {
-        mEditText.editableText.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        mEditText.refreshRange(start, end)
-        mEditText.isChange = true
+        if (start >= 0 && end <= mEditText.length()) {
+            mEditText.editableText.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            mEditText.refreshRange(start, end)
+            mEditText.isChange = true
+        }
     }
 
 }

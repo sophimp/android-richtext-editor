@@ -71,7 +71,8 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
             height: Int,
             url: String,
             localPath: String,
-            dataType : String?
+            dataType: String?,
+            uploadTime: String?
         ) : ImageSpan2{
             defaultDrawable?.intrinsicWidth?.let {
                 defaultDrawable.setBounds(
@@ -89,7 +90,8 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
                 dataType ?: AttachFileType.IMG.attachmentValue,
                 Util.getFileSize(localPath),
                 width,
-                height
+                height,
+                uploadTime
             )
             editable.insert(start, Constants.ZERO_WIDTH_SPACE_STR)
             editable.setSpan(defaultSpan, start, start + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -127,7 +129,8 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
                         defaultSpan.imageType,
                         defaultSpan.size,
                         w,
-                        h
+                        h,
+                        defaultSpan.uploadTime
                     )
                     loadedImageSpan.size = defaultSpan.size
                     loadedImageSpan.name = defaultSpan.name
@@ -161,7 +164,8 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
                 defaultDrawable.intrinsicHeight,
                 url,
                 localPath,
-                AttachFileType.IMG.attachmentValue
+                AttachFileType.IMG.attachmentValue,
+                null
             )
             // 需要手动加载图片
             loadImageSpanWithGlide(context, defaultSpan, mEditText.imageLoadedListener)

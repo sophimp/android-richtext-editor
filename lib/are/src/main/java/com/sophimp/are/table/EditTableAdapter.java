@@ -35,6 +35,8 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
     private boolean shouldClearEmpty = true;
     private TableCellInfo lastFocusCell = null;
 
+    private final static int UPDATE_CELL_HEIGHT = 0x1001;
+
     private int curScrollPosition = 0;
 
     public EditTableAdapter(EditTableViewModel tableViewModel, DefaultTableToolbar areToolbar) {
@@ -49,27 +51,28 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
         // outOfIndexException
         if (curRow >= tableViewModel.getDatas().size() || curCol >= tableViewModel.getDatas().get(curRow).size())
             return;
-
         helper.cellInfo = tableViewModel.getDatas().get(curRow).get(curCol);
         helper.binding.areItem.fromHtml(helper.cellInfo.richText);
-        if (helper.cellInfo.alignment == Layout.Alignment.ALIGN_CENTER) {
-            helper.binding.areItem.getEditableText().setSpan(new AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER), 0, helper.binding.areItem.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        } else if (helper.cellInfo.alignment == Layout.Alignment.ALIGN_OPPOSITE) {
-            helper.binding.areItem.getEditableText().setSpan(new AlignmentSpan.Standard(Layout.Alignment.ALIGN_OPPOSITE), 0, helper.binding.areItem.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
-        helper.updateCellSize(position);
-        if (curRow == tableViewModel.focusRow && curCol == tableViewModel.focusCol) {
-            helper.binding.areItem.requestFocus();
-            int selectionStart = Math.max(0, Math.min(helper.cellInfo.cursorSelectionStart, helper.binding.areItem.length()));
-            int selectionEnd = Math.max(0, Math.min(helper.cellInfo.cursorSelectionEnd, helper.binding.areItem.length()));
-            helper.binding.areItem.postDelayed(() -> {
-                if (selectionStart < selectionEnd) {
-                    helper.binding.areItem.setSelection(selectionStart, selectionEnd);
-                } else {
-                    helper.binding.areItem.setSelection(selectionEnd);
-                }
-            }, 50);
-        }
+        helper.binding.areItem.post(() -> {
+            if (helper.cellInfo.alignment == Layout.Alignment.ALIGN_CENTER) {
+                helper.binding.areItem.getEditableText().setSpan(new AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER), 0, helper.binding.areItem.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            } else if (helper.cellInfo.alignment == Layout.Alignment.ALIGN_OPPOSITE) {
+                helper.binding.areItem.getEditableText().setSpan(new AlignmentSpan.Standard(Layout.Alignment.ALIGN_OPPOSITE), 0, helper.binding.areItem.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+            helper.updateCellSize(position, helper.cellInfo.cellHeight);
+            if (curRow == tableViewModel.focusRow && curCol == tableViewModel.focusCol) {
+                helper.binding.areItem.requestFocus();
+//            int selectionStart = Math.max(0, Math.min(helper.cellInfo.cursorSelectionStart, helper.binding.areItem.length()));
+//            int selectionEnd = Math.max(0, Math.min(helper.cellInfo.cursorSelectionEnd, helper.binding.areItem.length()));
+//            helper.binding.areItem.postDelayed(() -> {
+//                if (selectionStart < selectionEnd) {
+//                    helper.binding.areItem.setSelection(selectionStart, selectionEnd);
+//                } else {
+//                    helper.binding.areItem.setSelection(selectionEnd);
+//                }
+//            },50);
+            }
+        });
     }
 
     public RichEditText getCurFocusEditText() {
@@ -101,6 +104,12 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
     }
 
     class TableCellHolder extends RecyclerView.ViewHolder {
+        private Handler uiHandler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                updateCellSizeInHandler(msg.arg1, msg.arg2);
+            }
+        };
         TableCellInfo cellInfo;
         ItemRichTableCellBinding binding;
         RecyclerView.LayoutParams layoutParams;
@@ -130,7 +139,6 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
                 public void afterTextChanged(Editable s) {
                     if (!binding.areItem.getCanMonitor()) return;
 //                    float strWidth = binding.areItem.getPaint().measureText(s.toString());
-                    cellInfo.richText = binding.areItem.toHtml();
                     // 编辑过就清空兼容web的属性
                     cellInfo.alignment = null;
                     cellInfo.cursorSelectionStart = binding.areItem.getSelectionStart();
@@ -143,11 +151,11 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
                     }
                     if (binding.areItem.getLayout() != null) {
 //                        LogUtils.d("sgx height: " + binding.areItem.getLayout().getHeight());
-                        if (cellInfo.cellHeight != binding.areItem.getLayout().getHeight()) {
-                            cellInfo.cellHeight = binding.areItem.getLayout().getHeight();
-                            // 更新当前cell高度
-                            tableViewModel.updateCellSize(getLayoutPosition(), cellInfo.cellHeight);
-                        }
+                        // 更新当前cell高度
+                        updateCellSize(getLayoutPosition(), binding.areItem.getLayout().getHeight());
+                        // 更新富文本
+                        LogUtils.d("sgx textChanged richText:" + binding.areItem.toHtml());
+                        cellInfo.richText = binding.areItem.toHtml();
                     }
                 }
             });
@@ -157,21 +165,22 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
             binding.areItem.setStyleChangedListener(new StyleChangedListener() {
                 @Override
                 public void onStyleChanged(RichEditText arEdit) {
-//                    cellInfo.richText = arEdit.toHtml();
                     cellInfo.cursorSelectionStart = binding.areItem.getSelectionStart();
                     cellInfo.cursorSelectionEnd = binding.areItem.getSelectionEnd();
                     if (binding.areItem.getLayout() != null) {
-                        cellInfo.cellHeight = binding.areItem.getLayout().getHeight();
-                        // 更新当前cell高度
-                        tableViewModel.updateCellSize(getAbsoluteAdapterPosition(), cellInfo.cellHeight);
+                        // 更新当前cell高度, 样式的更改都是异步的，没那么快刷新，延时刷新
+                        uiHandler.postDelayed(() -> {
+                            updateCellSize(getLayoutPosition(), binding.areItem.getLayout().getHeight());
+                        }, 60);
+                        // 更新富文本
+                        cellInfo.richText = binding.areItem.toHtml();
+                        LogUtils.d("sgx styleChanged richText:" + binding.areItem.toHtml());
                     }
                 }
             });
             binding.areItem.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
-                    // 焦点变化的时候存一下数据
-//                    cellInfo.richText = binding.areItem.toHtml();
                     if (binding.areItem == v && hasFocus) {
                         if (cellFocusChangeListener != null) {
                             cellFocusChangeListener.onCellFocus(binding.areItem, getAbsoluteAdapterPosition() / tableViewModel.getCol(), getAbsoluteAdapterPosition() % tableViewModel.getCol());
@@ -190,18 +199,31 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
 
         }
 
-        void updateCellSize(int position) {
+        void updateCellSize(int position, int cellHeight) {
             layoutParams.width = cellInfo.width;
-            if (cellInfo.cellHeight <= 0) {
+            Message msg = uiHandler.obtainMessage();
+            msg.what = UPDATE_CELL_HEIGHT;
+            msg.arg1 = position;
+            msg.arg2 = cellHeight;
+            uiHandler.removeMessages(UPDATE_CELL_HEIGHT);
+            uiHandler.sendMessageDelayed(msg, 100);
+        }
+
+        void updateCellSizeInHandler(int position, int cellHeight) {
+            if (cellHeight <= 0) {
                 binding.areItem.post(() -> {
                     if (binding.areItem.getLayout() != null) {
                         cellInfo.cellHeight = binding.areItem.getLayout().getHeight();
                         tableViewModel.updateCellSize(position, cellInfo.cellHeight);
+                        layoutParams.height = cellInfo.rowHeight;
+                        binding.areItem.setLayoutParams(layoutParams);
                     }
                 });
+            } else {
+                tableViewModel.updateCellSize(position, cellHeight);
+                layoutParams.height = cellInfo.rowHeight;
+                binding.areItem.setLayoutParams(layoutParams);
             }
-            layoutParams.height = cellInfo.rowHeight;
-            binding.areItem.setLayoutParams(layoutParams);
         }
 
     }

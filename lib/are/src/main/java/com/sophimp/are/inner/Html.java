@@ -42,10 +42,7 @@ import android.text.style.TypefaceSpan;
 import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
 
-import androidx.annotation.Nullable;
-
 import com.sophimp.are.listener.IOssServer;
-import com.sophimp.are.listener.ImageLoadedListener;
 import com.sophimp.are.spans.FontBackgroundColorSpan;
 import com.sophimp.are.spans.FontForegroundColorSpan;
 import com.sophimp.are.spans.HrSpan;
@@ -64,7 +61,6 @@ import org.ccil.cowan.tagsoup.Parser;
 import org.xml.sax.XMLReader;
 
 import java.text.DecimalFormat;
-import java.util.Observer;
 
 /**
  * This class processes HTML strings into displayable styled text.
@@ -672,13 +668,13 @@ public class Html {
 //                    float sizeEm = ((RelativeSizeSpan) style[j]).getSizeChange();
 //                    out.append(String.format(" font-size:%.2fem;", sizeEm));
 //                }
-                if (style[j] instanceof FontForegroundColorSpan && elementStyleBuilder.indexOf("color:") == -1) {
+                if (style[j] instanceof FontForegroundColorSpan) {
                     String color = ((FontForegroundColorSpan) style[j]).getDynamicFeature();
 //                    out.append(String.format("<span style=\"color:#%06X;\">", 0xFFFFFF & color));
                     elementStyleBuilder.append(String.format(" color:%s;", color));
                     shouldAppendStyle = true;
                 }
-                if (style[j] instanceof FontBackgroundColorSpan && elementStyleBuilder.indexOf("background-color:") == -1) {
+                if (style[j] instanceof FontBackgroundColorSpan) {
                     String color = ((FontBackgroundColorSpan) style[j]).getDynamicFeature();
                     if (!TextUtils.isEmpty(color) && !"0".equals(color)) {
 //                        out.append(String.format("<span style=\"background-color:#%06X;\">", 0xFFFFFF & color));

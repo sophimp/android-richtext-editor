@@ -53,4 +53,11 @@ public class TableCellInfo {
     public TableCellInfo(Layout.Alignment alignment) {
         this.alignment = alignment;
     }
+
+    @Override
+    public String toString() {
+        return "TableCellInfo{" +
+                "richText='" + richText + '\'' +
+                '}';
+    }
 }

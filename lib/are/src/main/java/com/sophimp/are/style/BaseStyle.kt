@@ -97,7 +97,9 @@ abstract class BaseStyle<T : ISpan>(private var curEditText: RichEditText) : ISt
 //            job.await()
             }
         }
-        mEditText.markChanged()
+        mEditText.post {
+            mEditText.markChanged()
+        }
         logAllSpans(mEditText.editableText, "${targetClass().simpleName} item click", 0, mEditText.editableText.length)
     }
 

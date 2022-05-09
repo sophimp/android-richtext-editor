@@ -226,36 +226,44 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
      */
     fun markChanged() {
         isChange = true
-        if (styleChangedListener != null) {
-            styleChangedListener!!.onStyleChanged(this)
-        }
+        styleChangedListener?.onStyleChanged(this)
     }
 
     /**
-     * 用来判断是点周事件还是删除事件
+     * 上一次处理样式的段尾
      */
-    var afterSelectionStart = 0
+    var lastHandleEnd = 0
     var changedText: String = ""
 
     /**
-     * 用来判断是否已经执行过style
+     * 用来判断是否已经执行完style
      */
     var hasAppliedStyle = true
 
     /**
+     * 异步处理样式时，是否有阻塞
+     */
+    var hasBlock = false
+
+    /**
      * handle style changed
      */
-    private fun textChangedAndHandleStyle(textEvent : IStyle.TextEvent) { // 一旦内容发生变化后，结束后肯定是光标状态, start == end
+    private fun textChangedAndHandleStyle(textEvent: IStyle.TextEvent) { // 一旦内容发生变化后，结束后肯定是光标状态, start == end
 
         var epStart = Util.getParagraphStart(
             this@RichEditText,
-            min(beforeSelectionStart, afterSelectionStart)
+            min(beforeSelectionStart, selectionStart)
         )
         var epEnd = Util.getParagraphEnd(editableText, selectionEnd)
 //                if (BuildConfig.DEBUG)
 //                    Util.log(("before change selection: $beforeSelectionStart - $beforeSelectionEnd after change selection: $afterSelectionStart   \n textEvent: $textEvent start: $startPos end: $endPos changeText: $changedText"))
+
+        lastHandleEnd = epEnd
+        val beforeSelectStart = beforeSelectionStart
+        val afterSelectEnd = selectionEnd
         MainScope().launch {
-            stopMonitor()
+            hasAppliedStyle = false
+//            LogUtils.d("sgx start handle style")
             val job = async {
                 if (textEvent == IStyle.TextEvent.INPUT_NEW_LINE) {
                     epStart = selectionStart
@@ -272,8 +280,8 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                                 editableText,
                                 textEvent,
                                 changedText,
-                                beforeSelectionStart,
-                                afterSelectionStart,
+                                beforeSelectStart,
+                                afterSelectEnd,
                                 epStart,
                                 epEnd
                             )
@@ -283,7 +291,10 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
             }
             job.await()
             refresh(0)
-            startMonitor()
+//            LogUtils.d("sgx end handle style")
+            hasAppliedStyle = true
+
+            styleChangedListener?.onStyleChanged(this@RichEditText)
         }
     }
 
@@ -301,11 +312,22 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                 if (!canMonitor) {
                     return
                 }
+//                LogUtils.d("sgx textChanged hasAppliedStyle: $hasAppliedStyle")
                 if (hasAppliedStyle) {
-                    beforeSelectionStart = selectionStart
-                    beforeSelectionEnd = selectionEnd
+//                    LogUtils.d("sgx apply style cur selection - beforeChangedEnd: $selectionStart - $lastHandleEnd")
+                    if (!hasBlock) {
+                        beforeSelectionStart = selectionStart
+                        beforeSelectionEnd = selectionEnd
+                    }
+                    hasBlock = false
+//                    LogUtils.d("sgx apply style cur beforeStart: $beforeSelectionStart - $beforeSelectionEnd")
                     changedText = ""
-                    hasAppliedStyle = false
+                } else {
+//                    LogUtils.d("sgx hasBlock selectStart-lastSelectEnd: $selectionStart - $lastHandleEnd")
+                    // 英文输入过快，异步处理未完成，会导致样式断裂
+                    beforeSelectionStart = lastHandleEnd
+                    beforeSelectionEnd = lastHandleEnd
+                    hasBlock = true
                 }
 //                if (BuildConfig.DEBUG) {
 //                    Util.log(("beforeTextChanged:: s = $s, start = $start, count = $count, after = $after"))
@@ -328,19 +350,17 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
             }
 
             override fun afterTextChanged(s: Editable) {
-                if (!canMonitor) {
+                if (!canMonitor || !hasAppliedStyle) {
                     return
                 }
-                afterSelectionStart = selectionStart
-                hasAppliedStyle = true;
                 var textEvent: IStyle.TextEvent = IStyle.TextEvent.IDLE
                 if (beforeSelectionStart == beforeSelectionEnd) {
                     // 处于光标状态
-                    if (beforeSelectionStart < afterSelectionStart) {
+                    if (beforeSelectionStart < selectionStart) {
                         // 输入或复制操作
                         changedText = editableText.subSequence(
                             beforeSelectionStart,
-                            Math.min(afterSelectionStart, length())
+                            Math.min(selectionStart, length())
                         ).toString()
                         val findNewLine: Int = changedText.indexOf("\n")
                         textEvent = if (findNewLine > 0 && findNewLine < changedText.length - 1) {
@@ -353,20 +373,20 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                             // 没找到
                             IStyle.TextEvent.INPUT_SINGLE_PARAGRAPH
                         }
-                    } else if (beforeSelectionStart > afterSelectionStart) {
+                    } else if (beforeSelectionStart > selectionStart) {
                         // 删除操作
                         textEvent = IStyle.TextEvent.DELETE
                     } //else {/*copy操作, 不会触发，由Menu处理*/}
                 } else {
                     // 处于选择状态
-                    if (beforeSelectionStart == afterSelectionStart) {
+                    if (beforeSelectionStart == selectionStart) {
                         // 删除或剪切操作
                         textEvent = IStyle.TextEvent.DELETE
-                    } else if (afterSelectionStart > beforeSelectionStart) {
+                    } else if (selectionStart > beforeSelectionStart) {
                         // 输入或复制操作
                         changedText = editableText.subSequence(
                             beforeSelectionStart,
-                            min(afterSelectionStart + 1, length())
+                            min(selectionStart + 1, length())
                         ).toString()
                         val findNewLine: Int = changedText.indexOf("\n")
                         textEvent = if (findNewLine > 0 && findNewLine <= changedText.length - 1) {
@@ -379,14 +399,14 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                         }
                     }
                 }
-                uiHandler.removeMessages(MSG_HANDLE_STYLE)
                 var msg = Message.obtain()
                 msg.what = MSG_HANDLE_STYLE
                 msg.obj = textEvent
-                if (length() < 5000 && textEvent != IStyle.TextEvent.DELETE) {
-                    uiHandler.sendMessage(msg)
+                if (textEvent == IStyle.TextEvent.DELETE || length() > 5000) {
+                    uiHandler.removeMessages(MSG_HANDLE_STYLE)
+                    uiHandler.sendMessageDelayed(msg, 80)
                 } else {
-                    uiHandler.sendMessageDelayed(msg, 50)
+                    uiHandler.sendMessage(msg)
                 }
 //                isFromHtmlRefresh = false
 //                uiHandler.postDelayed(refreshRunnable, 500)
@@ -450,7 +470,8 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
     fun postDelayUIRun(runnable: Runnable, delay: Long) {
         uiHandler.postDelayed(runnable, delay)
     }
-    fun fromHtml(html: String?, callback: (()->Unit)?) {
+
+    fun fromHtml(html: String?, callback: (() -> Unit)?) {
         html?.let {
             CoroutineScope(Dispatchers.IO).launch {
                 spannedFromHtml = Html.fromHtml(
@@ -468,6 +489,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
             }
         }
     }
+
     fun fromHtml(html: String?) {
         fromHtml(html, null)
     }

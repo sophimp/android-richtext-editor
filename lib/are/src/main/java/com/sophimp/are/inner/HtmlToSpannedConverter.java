@@ -2,7 +2,6 @@ package com.sophimp.are.inner;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.Layout;
@@ -14,8 +13,6 @@ import android.text.style.AlignmentSpan;
 import android.text.style.LeadingMarginSpan;
 import android.text.style.ParagraphStyle;
 import android.text.style.RelativeSizeSpan;
-import android.text.style.StrikethroughSpan;
-import android.text.style.StyleSpan;
 import android.text.style.SubscriptSpan;
 import android.text.style.SuperscriptSpan;
 import android.text.style.TypefaceSpan;
@@ -652,10 +649,10 @@ class HtmlToSpannedConverter implements ContentHandler {
         text.append(Constants.ZERO_WIDTH_SPACE_STR);
         if (peekEle instanceof OL) {
 //            start(text, new Numeric());
-            text.setSpan(new Numeric(), len, text.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            text.setSpan(new Numeric(), len, text.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         } else {
 //            start(text, new Bullet());
-            text.setSpan(new Bullet(), len, text.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            text.setSpan(new Bullet(), len, text.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
     }
 
@@ -718,6 +715,11 @@ class HtmlToSpannedConverter implements ContentHandler {
         text.removeSpan(mark);
         int len = text.length();
         if (where != len) {
+            // 去掉多余的占位符
+            if (text.length() > 1 && text.charAt(where) == Constants.ZERO_WIDTH_SPACE_INT) {
+                ((Editable) text).delete(where, where + 1);
+                len = len - 1;
+            }
             for (Object span : spans) {
                 text.setSpan(span, where, len, flag);
             }
@@ -899,7 +901,7 @@ class HtmlToSpannedConverter implements ContentHandler {
         }
 
         int len = text.length();
-        ImageStyle.Companion.addImageSpanToEditable(Html.sContext, text, len, iwidth, iheight, serverUrl, localPath, dataType);
+        ImageStyle.Companion.addImageSpanToEditable(Html.sContext, text, len, iwidth, iheight, serverUrl, localPath, dataType, uploadTime);
 
         if (dataType == null || dataType.equalsIgnoreCase(AttachFileType.IMG.getAttachmentValue())) {
             // 非贴纸才再换行符
@@ -938,7 +940,7 @@ class HtmlToSpannedConverter implements ContentHandler {
             Util.log("preview video url: " + previewUrl);
             MediaStyleHelper.Companion.addFashionVideoSpanToEditable(Html.sContext, text, text.length(), sw, height, url, localPath, previewUrl);
         } else {
-            MediaStyleHelper.Companion.addDetailVideoSpanToEditable(Html.sContext, text, text.length(), url, localPath, name, TextUtils.isEmpty(size) ? "0" : size, TextUtils.isEmpty(duration) ? "0" : duration);
+            MediaStyleHelper.Companion.addDetailVideoSpanToEditable(Html.sContext, text, text.length(), url, localPath, name, TextUtils.isEmpty(size) ? "0" : size, TextUtils.isEmpty(duration) ? "0" : duration, uploadTime);
         }
     }
 
@@ -962,7 +964,7 @@ class HtmlToSpannedConverter implements ContentHandler {
         String uploadTime = attributes.getValue("", "data-uploadtime");
         String duration = attributes.getValue("", "data-duration");
 
-        MediaStyleHelper.Companion.addDetailAudioSpanToEditable(Html.sContext, text, text.length(), url, localPath, name, size, duration);
+        MediaStyleHelper.Companion.addDetailAudioSpanToEditable(Html.sContext, text, text.length(), url, localPath, name, size, duration, uploadTime);
     }
 
     private static void startAttachment(Editable text, Attributes attributes) {
@@ -987,7 +989,7 @@ class HtmlToSpannedConverter implements ContentHandler {
 
         AttachFileType attachmentType = AttachFileType.getAttachmentTypeByValue(type);
 
-        MediaStyleHelper.Companion.addDetailAttachmentSpanToEditable(Html.sContext, text, text.length(), url, localPath, name, size, attachmentType.getAttachmentValue());
+        MediaStyleHelper.Companion.addDetailAttachmentSpanToEditable(Html.sContext, text, text.length(), url, localPath, name, size, attachmentType.getAttachmentValue(), uploadTime);
     }
 
 

@@ -4,8 +4,6 @@ import android.text.Editable
 import android.text.Spanned
 import com.sophimp.are.RichEditText
 import com.sophimp.are.spans.ISpan
-import com.sophimp.are.utils.Util
-import com.sophimp.are.utils.Util.getParagraphEnd
 import java.util.*
 import kotlin.math.max
 import kotlin.math.min
@@ -148,7 +146,6 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
             }
             // 合并相同style
             mergeSameStyle(start, end)
-            mEditText.markChanged()
         }
     }
 

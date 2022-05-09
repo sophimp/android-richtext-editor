@@ -66,7 +66,8 @@ class MediaStyleHelper {
             editText: RichEditText,
             localPath: String,
             name: String,
-            size: String
+            size: String,
+            uploadTime: String?
         ) {
             addDetailVideoSpanToEditable(
                 editText.context,
@@ -76,7 +77,8 @@ class MediaStyleHelper {
                 localPath,
                 name,
                 size,
-                "0"
+                "0",
+                uploadTime
             )
         }
 
@@ -91,7 +93,8 @@ class MediaStyleHelper {
             localPath: String,
             name: String,
             size: String,
-            duration: String
+            duration: String,
+            uploadTime: String?
         ) {
             defaultDrawable?.setBounds(
                 0,
@@ -102,7 +105,7 @@ class MediaStyleHelper {
 
             val bitmapDrawable = generateCommonMediaDrawable(name,
                 Util.getTimeDurationDesc(duration.toLong()) + "  " + Util.getFileSizeDesc(size.toLong()),
-                R.mipmap.icon_file_video)
+                R.drawable.memo_icon_file_videodef)
             bitmapDrawable.let {
                 val defaultSpan = VideoSpan(
                     bitmapDrawable,
@@ -110,7 +113,8 @@ class MediaStyleHelper {
                     url,
                     name,
                     size.toInt(),
-                    duration.toInt()
+                    duration.toInt(),
+                    uploadTime
                 )
                 editable.insert(start, Constants.ZERO_WIDTH_SPACE_STR)
                 editable.setSpan(defaultSpan, start, start + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -122,7 +126,8 @@ class MediaStyleHelper {
             localPath: String,
             name: String,
             size: String,
-            duration: String
+            duration: String,
+            uploadTime: String?
         ) {
             addDetailAudioSpanToEditable(
                 editText.context,
@@ -132,7 +137,8 @@ class MediaStyleHelper {
                 localPath,
                 name,
                 size,
-                duration
+                duration,
+                uploadTime
             )
         }
 
@@ -147,7 +153,8 @@ class MediaStyleHelper {
             localPath: String,
             name: String,
             size: String,
-            duration: String
+            duration: String,
+            uploadTime: String?
         ) {
             defaultDrawable?.setBounds(
                 0,
@@ -164,7 +171,8 @@ class MediaStyleHelper {
                     url,
                     name,
                     size.toInt(),
-                    duration
+                    duration,
+                    uploadTime
                 )
                 editable.insert(start, Constants.ZERO_WIDTH_SPACE_STR)
                 editable.setSpan(defaultSpan, start, start + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -176,7 +184,8 @@ class MediaStyleHelper {
             localPath: String,
             name: String,
             size: String,
-            attachValue: String
+            attachValue: String,
+            uploadTime: String?
         ) {
             addDetailAttachmentSpanToEditable(
                 editText.context,
@@ -186,7 +195,8 @@ class MediaStyleHelper {
                 localPath,
                 name,
                 size,
-                attachValue
+                attachValue,
+                uploadTime
             )
         }
 
@@ -201,7 +211,8 @@ class MediaStyleHelper {
             localPath: String,
             name: String,
             size: String,
-            attachValue: String
+            attachValue: String,
+            uploadTime: String?
         ) {
             defaultDrawable?.setBounds(
                 0,
@@ -217,7 +228,8 @@ class MediaStyleHelper {
                     url,
                     name,
                     size.toInt(),
-                    attachValue
+                    attachValue,
+                    uploadTime
                 )
                 editable.insert(start, Constants.ZERO_WIDTH_SPACE_STR)
                 editable.setSpan(defaultSpan, start, start + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -225,7 +237,7 @@ class MediaStyleHelper {
         }
 
         private fun generateCommonMediaDrawable(title: String, subTitle: String,@DrawableRes imgRes : Int): BitmapDrawable {
-            val view = LayoutInflater.from(Html.sContext).inflate(R.layout.layout_view_rich_media_preview, null)
+            val view = LayoutInflater.from(Html.sContext).inflate(R.layout.view_edit_annex, null)
             view.findViewById<ImageView>(R.id.edit_annex_icon_iv)
                 .setImageResource(imgRes)
             view.findViewById<TextView>(R.id.edit_annex_title_tv).text = title

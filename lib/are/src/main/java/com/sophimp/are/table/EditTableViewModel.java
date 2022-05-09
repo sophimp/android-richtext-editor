@@ -10,7 +10,6 @@ import com.sophimp.are.utils.UndoRedoHelper;
 import com.sophimp.are.utils.Util;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -54,14 +53,14 @@ public class EditTableViewModel extends ViewModel implements IEditTableView {
     public void init(Context ctx) {
         // 计算出cell的最大长度与最小长度, 去掉两边边距16*2 + 列菜单的长度 20
         tableShowWidth = Util.getScreenWidth(ctx);// - Util.dip2px(ctx, 50);
-        defHeight = Util.dip2px(ctx, 20);
+        defHeight = Util.dip2px(ctx, 40);
         cellWidth = (int) (tableShowWidth * 0.4f + 0.5f);
 //        cellMinWidth = (int) (tableShowWidth * 0.25f + 0.5f);
 //        cellMaxWidth = (int) (tableShowWidth * 0.85f + 0.5f);
         if (dataSource == null) {
-            dataSource = new LinkedList<>();
+            dataSource = new ArrayList<>();
             for (int i = 0; i < row; i++) {
-                dataSource.add(new LinkedList<>());
+                dataSource.add(new ArrayList<>());
                 for (int j = 0; j < col; j++) {
                     TableCellInfo cellInfo = new TableCellInfo(cellWidth, defHeight);
 //                    cellInfo.richText = i * col + j + "";
@@ -167,7 +166,7 @@ public class EditTableViewModel extends ViewModel implements IEditTableView {
             // 默认添加在最后一行
             rowIndex = dataSource.size();
         }
-        List<TableCellInfo> newRow = new LinkedList<>();
+        List<TableCellInfo> newRow = new ArrayList<>();
         for (int i = 0; i < col; i++) {
             TableCellInfo cellInfo = new TableCellInfo(cellWidth, defHeight);
             cellInfo.cellHeight = defHeight;
@@ -247,9 +246,9 @@ public class EditTableViewModel extends ViewModel implements IEditTableView {
             for (int i = 0; i < col; i++) {
                 rowCellInfos.get(i).rowHeight = height;
             }
-            refreshRow.postValue(new int[]{RefreshEvent.REFRESH_ROW, targetRow, targetCol});
+//            refreshRow.postValue(new int[]{RefreshEvent.REFRESH_ROW, targetRow, targetCol});
         } else {
-            refreshRow.postValue(new int[]{RefreshEvent.REFRESH_COL, -1, targetCol});
+//            refreshRow.postValue(new int[]{RefreshEvent.REFRESH_COL, -1, targetCol});
         }
     }
 
@@ -277,8 +276,10 @@ public class EditTableViewModel extends ViewModel implements IEditTableView {
 
     @Override
     public void updateDatas(List<List<TableCellInfo>> parseTableCell) {
+        LogUtils.d("sgx parse datas:" + Arrays.toString(parseTableCell.toArray()));
         dataSource.clear();
         dataSource.addAll(parseTableCell);
+        LogUtils.d("sgx addall parse datas:" + Arrays.toString(dataSource.toArray()));
         if (parseTableCell.size() == 0 || parseTableCell.get(0).size() == 0) return;
         row = parseTableCell.size();
         col = parseTableCell.get(0).size();
