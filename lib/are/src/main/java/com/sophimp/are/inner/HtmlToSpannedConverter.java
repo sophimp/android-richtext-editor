@@ -716,7 +716,7 @@ class HtmlToSpannedConverter implements ContentHandler {
         int len = text.length();
         if (where != len) {
             // 去掉多余的占位符
-            if (text.length() > 1 && text.charAt(where) == Constants.ZERO_WIDTH_SPACE_INT) {
+            if (text.length() > 1 && (text.charAt(where) == Constants.ZERO_WIDTH_SPACE_INT && where > 0 && text.charAt(where - 1) == Constants.ZERO_WIDTH_SPACE_INT)) {
                 ((Editable) text).delete(where, where + 1);
                 len = len - 1;
             }
