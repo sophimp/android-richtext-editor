@@ -276,10 +276,10 @@ public class EditTableViewModel extends ViewModel implements IEditTableView {
 
     @Override
     public void updateDatas(List<List<TableCellInfo>> parseTableCell) {
-        LogUtils.d("sgx parse datas:" + Arrays.toString(parseTableCell.toArray()));
+//        LogUtils.d("sgx parse datas:" + Arrays.toString(parseTableCell.toArray()));
         dataSource.clear();
         dataSource.addAll(parseTableCell);
-        LogUtils.d("sgx addall parse datas:" + Arrays.toString(dataSource.toArray()));
+//        LogUtils.d("sgx addall parse datas:" + Arrays.toString(dataSource.toArray()));
         if (parseTableCell.size() == 0 || parseTableCell.get(0).size() == 0) return;
         row = parseTableCell.size();
         col = parseTableCell.get(0).size();

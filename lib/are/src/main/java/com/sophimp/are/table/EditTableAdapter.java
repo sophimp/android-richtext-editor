@@ -1,5 +1,8 @@
 package com.sophimp.are.table;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.text.Editable;
 import android.text.Layout;
 import android.text.Spanned;
@@ -154,7 +157,7 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
                         // 更新当前cell高度
                         updateCellSize(getLayoutPosition(), binding.areItem.getLayout().getHeight());
                         // 更新富文本
-                        LogUtils.d("sgx textChanged richText:" + binding.areItem.toHtml());
+//                        LogUtils.d("sgx textChanged richText:" + binding.areItem.toHtml());
                         cellInfo.richText = binding.areItem.toHtml();
                     }
                 }
@@ -174,7 +177,7 @@ public class EditTableAdapter extends RecyclerView.Adapter<EditTableAdapter.Tabl
                         }, 60);
                         // 更新富文本
                         cellInfo.richText = binding.areItem.toHtml();
-                        LogUtils.d("sgx styleChanged richText:" + binding.areItem.toHtml());
+//                        LogUtils.d("sgx styleChanged richText:" + binding.areItem.toHtml());
                     }
                 }
             });

@@ -105,7 +105,7 @@ class MediaStyleHelper {
 
             val bitmapDrawable = generateCommonMediaDrawable(name,
                 Util.getTimeDurationDesc(duration.toLong()) + "  " + Util.getFileSizeDesc(size.toLong()),
-                R.drawable.memo_icon_file_videodef)
+                R.mipmap.icon_file_video)
             bitmapDrawable.let {
                 val defaultSpan = VideoSpan(
                     bitmapDrawable,
@@ -237,7 +237,7 @@ class MediaStyleHelper {
         }
 
         private fun generateCommonMediaDrawable(title: String, subTitle: String,@DrawableRes imgRes : Int): BitmapDrawable {
-            val view = LayoutInflater.from(Html.sContext).inflate(R.layout.view_edit_annex, null)
+            val view = LayoutInflater.from(Html.sContext).inflate(R.layout.layout_view_rich_media_preview, null)
             view.findViewById<ImageView>(R.id.edit_annex_icon_iv)
                 .setImageResource(imgRes)
             view.findViewById<TextView>(R.id.edit_annex_title_tv).text = title
