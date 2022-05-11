@@ -67,6 +67,7 @@ class MediaStyleHelper {
             localPath: String,
             name: String,
             size: String,
+            duration: String,
             uploadTime: String?
         ) {
             addDetailVideoSpanToEditable(
@@ -77,7 +78,7 @@ class MediaStyleHelper {
                 localPath,
                 name,
                 size,
-                "0",
+                duration,
                 uploadTime
             )
         }
