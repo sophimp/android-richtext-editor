@@ -9,7 +9,6 @@ import android.text.style.ImageSpan
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
-import android.widget.EditText
 import androidx.appcompat.widget.AppCompatEditText
 import com.sophimp.are.inner.Html
 import com.sophimp.are.listener.ImageLoadedListener
@@ -448,7 +447,12 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
     }
 
     fun refreshRange(start: Int, end: Int) {
-        sendWatchersMethod?.invoke(editableText, start, end, end - start)
+        try {
+            sendWatchersMethod?.invoke(editableText, start, end, end - start)
+        } catch (e: Exception) {
+
+        }
+
     }
 
     private fun refresh(start: Int) {
@@ -559,19 +563,19 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
             isCursorVisible = flag
             isFocusableInTouchMode = flag
             isFocusable = flag
-            val cls = EditText::class.java
-            try {
-                val method =
-                    cls.getMethod("setShowSoftInputOnFocus", Boolean::class.javaPrimitiveType)
-                method.isAccessible = true
-                method.invoke(this, flag)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-
-//            if (flag) {
-//                requestFocus()
+//            val cls = EditText::class.java
+//            try {
+//                val method =
+//                    cls.getDeclaredMethod("setShowSoftInputOnFocus", Boolean::class.javaPrimitiveType)
+//                method.isAccessible = true
+//                method.invoke(this, flag)
+//            } catch (e: Exception) {
+//                e.printStackTrace()
 //            }
+
+            if (flag) {
+                requestFocus()
+            }
         }
 
     /**

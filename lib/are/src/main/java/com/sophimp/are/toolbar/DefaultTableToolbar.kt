@@ -97,7 +97,7 @@ class DefaultTableToolbar(context: Context, attrs: AttributeSet?) :
                     override fun onMediaChoose(mediaInfos: List<MediaInfo>) {
                         (item.mStyle as ImageStyle).apply {
                             for (info in mediaInfos) {
-                                addImageSpan(info.data!!, "")
+                                addLocalImages(mutableListOf(info.data!!), null)
                             }
                         }
                     }

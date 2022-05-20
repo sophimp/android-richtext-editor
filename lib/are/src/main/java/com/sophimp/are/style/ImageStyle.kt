@@ -39,6 +39,7 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
 
     companion object {
         val defaultDrawable = ContextCompat.getDrawable(Html.sContext, R.mipmap.default_image)
+        val cachePaths = mutableListOf<String>()
         var sWidth = 0
         var sHeight = 0
 
@@ -73,7 +74,7 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
             localPath: String,
             dataType: String?,
             uploadTime: String?
-        ) : ImageSpan2{
+        ): ImageSpan2 {
             defaultDrawable?.intrinsicWidth?.let {
                 defaultDrawable.setBounds(
                     0,
@@ -149,27 +150,76 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
     }
 
     /**
-     * insert ImageSpan
+     * 依次添加多张图片
+     */
+    fun addLocalImages(localPaths: List<String>, finish: (() -> Unit)?) {
+        cachePaths.clear()
+        cachePaths.addAll(localPaths)
+        if (cachePaths.isNotEmpty()) {
+            addImageSpan(cachePaths.removeAt(0), finish)
+        }
+    }
+
+    /**
+     * insert local path ImageSpan
      * if image width > screen width, will scale to screen width by ratio of origin "width : height"
      */
-    fun addImageSpan(localPath: String, url: String) {
+    private fun addImageSpan(localPath: String, finish: (() -> Unit)?) {
         val start = max(min(mEditText.selectionStart, mEditText.length()), 0)
-//        mEditText.editableText.replace(start, mEditText.selectionEnd, "\uFFFc\n")
         uiHandler.post {
-            val defaultSpan = addImageSpanToEditable(
+            val resTarget = object : GlideResTarget(
                 context,
-                mEditText.editableText,
-                mEditText.selectionEnd,
-                defaultDrawable!!.intrinsicWidth,
-                defaultDrawable.intrinsicHeight,
-                url,
-                localPath,
-                AttachFileType.IMG.attachmentValue,
-                null
-            )
-            // 需要手动加载图片
-            loadImageSpanWithGlide(context, defaultSpan, mEditText.imageLoadedListener)
-            mEditText.editableText.insert(mEditText.selectionEnd, Constants.CHAR_NEW_LINE)
+                defaultDrawable?.intrinsicWidth ?: 60,
+                defaultDrawable?.intrinsicHeight ?: 60,
+                localPath
+            ) {
+                override fun handleLoadedBitmap(
+                    compressBitmap: Bitmap,
+                    w: Int,
+                    h: Int,
+                    path: String?
+                ) {
+                    var width = compressBitmap.width
+                    var height = compressBitmap.height
+                    if (width > sWidth) {
+                        height = (sWidth / width) * compressBitmap.height
+                        width = sWidth
+                    }
+//                    LogUtils.d("sgx compressBitmap width: ${compressBitmap.width} height: ${compressBitmap.height}")
+                    val drawable = BitmapDrawable(mEditText.resources, compressBitmap)
+                    drawable.setBounds(0, 0, compressBitmap.width, compressBitmap.height)
+                    val loadedImageSpan = ImageSpan2(
+                        drawable,
+                        localPath,
+                        "",
+                        "",
+                        AttachFileType.IMG.attachmentValue,
+                        0,
+                        width,
+                        height,
+                        ""
+                    )
+                    val editable = mEditText.editableText
+                    editable.insert(start, Constants.ZERO_WIDTH_SPACE_STR)
+                    editable.insert(start + 1, Constants.CHAR_NEW_LINE)
+                    editable.setSpan(
+                        loadedImageSpan,
+                        start,
+                        start + 1,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    if (cachePaths.isNotEmpty()) {
+                        uiHandler.postDelayed({
+                            addImageSpan(cachePaths.removeAt(0), finish)
+                        }, 60)
+                    } else {
+                        mEditText.refreshRange(0, mEditText.length())
+                        finish?.invoke()
+                    }
+                }
+            }
+            // local path
+            glideRequest.asBitmap().load(File(localPath)).encodeQuality(10).into(resTarget)
             mEditText.markChanged()
         }
     }
@@ -263,7 +313,11 @@ class ImageStyle(editText: RichEditText) : BaseFreeStyle<ImageSpan2>(editText) {
     /**
      * 加载带预览图的VideoSpan
      */
-    fun loadVideoSpanPreviewFrame(context: Context, videoSpan: VideoSpan, imageLoadedListener: ImageLoadedListener?) {
+    fun loadVideoSpanPreviewFrame(
+        context: Context,
+        videoSpan: VideoSpan,
+        imageLoadedListener: ImageLoadedListener?
+    ) {
         val resTarget = object : GlideResTarget(
             context,
             videoSpan.previewWidth,
