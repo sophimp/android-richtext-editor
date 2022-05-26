@@ -27,15 +27,15 @@ abstract class DynamicCharacterStyle<E : IDynamicSpan>(editText: RichEditText) :
         return span1 != null && span2 != null && (span1 as IDynamicSpan).dynamicFeature == (span2 as IDynamicSpan).dynamicFeature
     }
 
-    abstract fun onFeatureChanged(feature: String)
+    abstract fun onFeatureChanged(feature: String, start: Int, end: Int)
 
     override fun onSelectionChanged(selectionEnd: Int) {
         val start = max(0, selectionEnd - 1)
         val targetSpans = mEditText.editableText.getSpans(start, selectionEnd, targetClass())
         if (targetSpans.isNotEmpty()) {
-            onFeatureChanged(targetSpans[0].dynamicFeature)
+            onFeatureChanged(targetSpans[0].dynamicFeature, selectionEnd, selectionEnd)
         } else {
-            onFeatureChanged("")
+            onFeatureChanged("", selectionEnd, selectionEnd)
         }
     }
 }

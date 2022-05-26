@@ -27,14 +27,14 @@ class FontSizeStyle(editText: RichEditText) :
         }
     }
 
-    override fun onFeatureChanged(feature: String) {
+    override fun onFeatureChanged(feature: String, start: Int, end: Int) {
         var validSize = Constants.DEFAULT_FONT_SIZE
         if (!TextUtils.isEmpty(feature)) {
             validSize = feature.toInt()
         }
         checkState = validSize != Constants.DEFAULT_FONT_SIZE
         mSize = validSize
-        handleAbsButtonClick(mEditText.selectionStart, mEditText.selectionEnd)
+        handleAbsButtonClick(start, end)
     }
 
     override fun targetClass(): Class<FontSizeSpan> {

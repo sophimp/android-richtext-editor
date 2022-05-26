@@ -27,7 +27,7 @@ class FontColorStyle(editText: RichEditText) : DynamicCharacterStyle<FontForegro
         return FontForegroundColorSpan::class.java
     }
 
-    override fun onFeatureChanged(feature: String) {
+    override fun onFeatureChanged(feature: String, start: Int, end: Int) {
         var validFeature = if (TextUtils.isEmpty(feature)) {
             Constants.DEFAULT_FONT_COLOR
         } else {
@@ -35,7 +35,7 @@ class FontColorStyle(editText: RichEditText) : DynamicCharacterStyle<FontForegro
         }
         checkState = validFeature != Constants.DEFAULT_FONT_COLOR
         mFeature = validFeature
-        handleAbsButtonClick(mEditText.selectionStart, mEditText.selectionEnd)
+        handleAbsButtonClick(start, end)
     }
 
 }

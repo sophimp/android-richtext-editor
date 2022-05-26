@@ -24,14 +24,14 @@ class FontBackgroundStyle(editText: RichEditText) :
         }
     }
 
-    override fun onFeatureChanged(feature: String) {
+    override fun onFeatureChanged(feature: String, start: Int, end: Int) {
         var validFeature = feature
         if (TextUtils.isEmpty(feature)) {
             validFeature = Constants.DEFAULT_FONT_BG_COLOR
         }
         checkState = validFeature != Constants.DEFAULT_FONT_BG_COLOR
         mFeature = validFeature
-        handleAbsButtonClick(mEditText.selectionStart, mEditText.selectionEnd)
+        handleAbsButtonClick(start, end)
     }
 
     override fun targetClass(): Class<FontBackgroundColorSpan> {

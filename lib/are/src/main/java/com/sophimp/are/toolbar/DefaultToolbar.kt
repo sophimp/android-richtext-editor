@@ -64,7 +64,9 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
                 curPopItem?.iconView?.background = null
                 curPopItem?.iconView?.setMarkVisible(if (feature == Constants.DEFAULT_FONT_COLOR) View.GONE else View.VISIBLE)
                 curPopItem?.iconView?.setMarkBackgroundColor(Color.parseColor(feature))
-                (curPopItem?.mStyle as DynamicCharacterStyle<*>).onFeatureChanged(feature)
+                (curPopItem?.mStyle as DynamicCharacterStyle<*>).onFeatureChanged(feature,
+                    curPopItem!!.mStyle.mEditText.selectionStart,
+                    curPopItem!!.mStyle.mEditText.selectionEnd)
                 colorWindow.dismiss()
             }
         }
@@ -75,7 +77,9 @@ class DefaultToolbar(context: Context, attrs: AttributeSet?) :
                 curPopItem?.iconView?.background = null
                 curPopItem?.iconView?.setMarkVisible(if (feature == Constants.DEFAULT_FONT_COLOR) View.GONE else View.VISIBLE)
                 curPopItem?.iconView?.setMarkText("$feature")
-                (curPopItem?.mStyle as DynamicCharacterStyle<*>).onFeatureChanged(feature)
+                (curPopItem?.mStyle as DynamicCharacterStyle<*>).onFeatureChanged(feature,
+                    curPopItem!!.mStyle.mEditText.selectionStart,
+                    curPopItem!!.mStyle.mEditText.selectionEnd)
                 fontWindow.dismiss()
             }
         }
