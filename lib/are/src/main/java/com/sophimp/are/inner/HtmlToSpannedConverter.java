@@ -997,6 +997,7 @@ class HtmlToSpannedConverter implements ContentHandler {
         int len = text.length();
         text.append(Constants.ZERO_WIDTH_SPACE_STR);
         text.setSpan(new HrSpan(Html.sContext), len, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        text.append("\n");
     }
 
     private static void startEmoji(Editable text, Attributes attributes) {
