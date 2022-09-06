@@ -161,27 +161,27 @@ abstract class BaseCharacterStyle<E : ISpan>(editText: RichEditText) :
 //        val lastPStart: Int = Util.getParagraphStart(mEditText, beforeSelectionStart)
 //        var lastPEnd: Int = Util.getParagraphEnd(editable, beforeSelectionStart)
 //        if (lastPEnd <= lastPStart) return
-//        val preParagraphSpans = editable.getSpans(lastPEnd - 1, lastPEnd, targetClass())
-//        if (preParagraphSpans.isEmpty()) return
+        val newLineSpans = editable.getSpans(epStart, epEnd, targetClass())
+        if (newLineSpans.isEmpty()) return
 //        Util.log("pre line: " + lastPStart + " - " + lastPEnd + " cur line: " + mEditText.selectionStart + " - " + mEditText.selectionEnd)
-//        val preSpanStart = editable.getSpanStart(preParagraphSpans[0])
-//        // 先移除上一行的span
-//        removeSpans(editable, preParagraphSpans)
-//        // 移除当前行的Spans
-//        removeSpans(
-//            editable,
-//            editable.getSpans(mEditText.selectionStart, mEditText.selectionEnd, targetClass())
-//        )
-//        // 设计当前行span
-//        val newSpan = newSpan(preParagraphSpans[preParagraphSpans.size - 1])
-//        newSpan?.let {
-//            if (epStart <= epEnd) {
-//                setSpan(newSpan, epStart, epEnd)
-//            }
-//        }
-//        if (preSpanStart < lastPEnd) {
-//            setSpan(preParagraphSpans[0], preSpanStart, lastPEnd)
-//        }
+        val newlineSpanStart = editable.getSpanStart(newLineSpans[newLineSpans.size - 1])
+        val newlineSpanEnd = editable.getSpanEnd(newLineSpans[newLineSpans.size - 1])
+        if (newlineSpanStart < epStart) {
+            // 需要拆分
+            // 先移当前的span
+            removeSpans(editable, newLineSpans)
+            // 上一行
+            if (newlineSpanStart <= beforeSelectionStart) {
+                setSpan(newLineSpans[newLineSpans.size - 1], newlineSpanStart, beforeSelectionStart)
+            }
+            // 当前行
+            val newSpan = newSpan(newLineSpans[newLineSpans.size - 1])
+            newSpan?.let {
+                if (epStart <= newlineSpanEnd) {
+                    setSpan(newSpan, epStart, newlineSpanEnd)
+                }
+            }
+        }
     }
 
     protected open fun mergeSameStyle(start: Int, end: Int) {
