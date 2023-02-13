@@ -69,9 +69,6 @@ class MainActivity : AppCompatActivity() {
                     launch {
                         addCharacterStyle()
                     }
-                    launch {
-                        addParagraphStyle()
-                    }
                 }
                 job.await()
                 var memoInfo: MemoInfo = MemoInfo("", "")
@@ -79,7 +76,8 @@ class MainActivity : AppCompatActivity() {
                     memoInfo = MemoInfo(Html.toHtml(spannableStringBuilder.subSequence(0, Math.min(1000, spannableStringBuilder.length)) as Spanned?,
                         Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE),
                         Html.toHtml(spannableStringBuilder, Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE))
-                    MemoDatabase.instance.getMemoDao().addMemo(memoInfo)
+                    val dbId = MemoDatabase.instance.getMemoDao().addMemo(memoInfo)
+                    memoInfo.id = dbId
                 }
                 saveJob.join()
                 memoAdapter.data.add(memoInfo)

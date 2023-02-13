@@ -11,7 +11,7 @@ import androidx.room.*
 interface MemoDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun addMemo(vararg memoInfo: MemoInfo)
+    fun addMemo(memoInfo: MemoInfo): Long
 
     @Delete
     fun deleteMemo(memoInfo: MemoInfo)
