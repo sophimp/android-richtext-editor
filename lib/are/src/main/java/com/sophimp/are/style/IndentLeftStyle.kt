@@ -20,7 +20,9 @@ class IndentLeftStyle(editText: RichEditText) : BaseParagraphStyle<IndentSpan>(e
         if (spans.isNotEmpty()) {
             removeSpans(mEditText.editableText, spans)
             (spans[0] as IndentSpan).decreaseLevel()
-            setSpan(spans[0], start, end)
+            if ((spans[0] as IndentSpan).mLevel > 0) {
+                setSpan(spans[0], start, end)
+            }
 
 //            CoroutineScope(Dispatchers.IO).launch {
 //                Util.renumberAllListItemSpans(mEditText.editableText)
