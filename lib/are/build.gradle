@@ -3,12 +3,9 @@ plugins {
     id 'com.android.library'
     id 'kotlin-android'
 }
-apply plugin: 'maven'
-apply plugin: 'signing'
-
 android {
-    compileSdkVersion 30
-    buildToolsVersion "30.0.3"
+    compileSdkVersion 32
+    buildToolsVersion "31.0.0"
 
     defaultConfig {
         minSdkVersion 21
@@ -41,41 +38,12 @@ android {
 //        exclude 'libs/tagsoup-1.2.1.jar'
 //    }
 }
-afterEvaluate { project ->
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                repository(url: "http://mvn.shiguangxu.com/repository/android") {
-                    authentication(userName: "hcll", password: "pass1234")
-                }
-
-                pom.version = "0.0.3"
-                pom.artifactId = "android-are"
-                pom.groupId = "com.sophimp.are"
-            }
-        }
-    }
-
-    signing {
-        required { gradle.taskGraph.hasTask("uploadArchives") }
-        sign configurations.archives
-    }
-
-    task androidSourcesJar(type: Jar) {
-        classifier = 'sources'
-        from android.sourceSets.main.java.sourceFiles
-    }
-
-    artifacts {
-        archives androidSourcesJar
-    }
-}
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.4.0"
-    implementation 'androidx.core:core-ktx:1.2.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.7.10"
+    implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.recyclerview:recyclerview:1.2.0'
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.0'

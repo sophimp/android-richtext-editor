@@ -141,6 +141,7 @@ abstract class BaseStyle<T : ISpan>(private var curEditText: RichEditText) : ISt
                 epStart,
                 epEnd
             )
+
             IStyle.TextEvent.INPUT_MULTI_PARAGRAPH -> handleMultiParagraphInput(
                 editable,
                 changedText,
@@ -150,6 +151,8 @@ abstract class BaseStyle<T : ISpan>(private var curEditText: RichEditText) : ISt
                 epEnd
 
             )
+
+            else -> {}
         }
         logAllSpans(editable, "base apply style: ${this.javaClass.simpleName}", 0, editable.length)
     }
