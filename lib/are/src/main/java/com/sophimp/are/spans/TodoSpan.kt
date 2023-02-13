@@ -30,15 +30,16 @@ class TodoSpan : IClickableSpan, IListSpan {
 
     }
 
-    override fun getLeadingMargin(first: Boolean): Int {
-        return IListSpan.LEADING_MARGIN
-    }
+//    override fun getLeadingMargin(first: Boolean): Int {
+//        return IListSpan.LEADING_MARGIN
+//    }
 
     override fun drawLeadingMargin(
         c: Canvas, p: Paint, x: Int, dir: Int, top: Int,
         baseline: Int, bottom: Int, text: CharSequence, start: Int, end: Int,
         first: Boolean, layout: Layout
     ) {
+        super.drawLeadingMargin(c, p, x, dir, top, baseline, bottom, text, start, end, first, layout)
         if (Html.sContext == null) return
         if (drawable == null) {
             drawable = if (isCheck) {
@@ -95,7 +96,7 @@ class TodoSpan : IClickableSpan, IListSpan {
                 }
             }
             val ix =
-                x + margin + IListSpan.LEADING_MARGIN - drawableSize - IListSpan.STANDARD_GAP_WIDTH
+                x + margin + IListSpan.LEADING_MARGIN - drawableSize
             drawable!!.setBounds(ix, itop, ix + dh, itop + dh)
             drawableRectf.left = ix.toFloat()
             drawableRectf.top = itop.toFloat()

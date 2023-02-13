@@ -1,3 +1,2 @@
 include ':lib:are'
 include ':app'
-rootProject.name = "android-richtext-editor"

@@ -21,10 +21,6 @@ class IndentSpan constructor(level: Int = 0) : LeadingMarginSpan, ISpan {
      * @param level
      */
     var mLevel: Int = level
-        set(level) {
-            field = level
-            mLeadingMargin = LEADING_MARGIN * mLevel
-        }
 
     companion object {
         /**
@@ -35,6 +31,9 @@ class IndentSpan constructor(level: Int = 0) : LeadingMarginSpan, ISpan {
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
+        if (mLeadingMargin == 0) {
+            mLeadingMargin = LEADING_MARGIN * mLevel
+        }
         return mLeadingMargin
     }
 
