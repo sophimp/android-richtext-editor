@@ -1,6 +1,8 @@
 package com.sophimp.are
 
 import android.content.Context
+import android.graphics.Canvas
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
@@ -9,7 +11,9 @@ import android.text.style.ImageSpan
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
+import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatEditText
+import androidx.core.graphics.withTranslation
 import com.sophimp.are.inner.Html
 import com.sophimp.are.listener.ImageLoadedListener
 import com.sophimp.are.listener.OnSelectionChangeListener
@@ -20,6 +24,7 @@ import com.sophimp.are.style.IStyle
 import com.sophimp.are.style.ImageStyle
 import com.sophimp.are.toolbar.DefaultToolbar
 import com.sophimp.are.toolbar.items.IToolbarItem
+import com.sophimp.are.utils.TextRoundedBgHelper
 import com.sophimp.are.utils.Util
 import kotlinx.coroutines.*
 import java.lang.reflect.Method
@@ -30,6 +35,7 @@ import kotlin.math.min
  * @author: sfx
  * @since: 2021/7/20
  */
+@RequiresApi(Build.VERSION_CODES.Q)
 class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(context, attr) {
     var sendWatchersMethod: Method? = null
 
@@ -103,7 +109,13 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
             return list
         }
 
+    private val textRoundedBgHelper: TextRoundedBgHelper
+
     init {
+        textRoundedBgHelper = TextRoundedBgHelper(
+            horizontalPadding = 1,
+            verticalPadding = 1,
+        )
         try {
             sendWatchersMethod = SpannableStringBuilder::class.java.getDeclaredMethod(
                 "sendToSpanWatchers",
@@ -159,6 +171,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                     clickSpans[0] is UrlSpan -> {
                         clickStrategy?.onClickUrl(context, editableText, clickSpans[0] as UrlSpan)
                     }
+
                     clickSpans[0] is ImageSpan2 -> {
                         clickStrategy?.onClickImage(
                             context,
@@ -166,6 +179,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                             clickSpans[0] as ImageSpan2
                         )
                     }
+
                     clickSpans[0] is TableSpan -> {
                         clickStrategy?.onClickTable(
                             context,
@@ -173,6 +187,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                             clickSpans[0] as TableSpan
                         )
                     }
+
                     clickSpans[0] is AudioSpan -> {
                         clickStrategy?.onClickAudio(
                             context,
@@ -180,6 +195,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                             clickSpans[0] as AudioSpan
                         )
                     }
+
                     clickSpans[0] is VideoSpan -> {
                         clickStrategy?.onClickVideo(
                             context,
@@ -187,6 +203,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                             clickSpans[0] as VideoSpan
                         )
                     }
+
                     clickSpans[0] is TodoSpan -> {
                         if (e.x <= (clickSpans[0] as TodoSpan).drawableRectf.right) {
                             (clickSpans[0] as TodoSpan).onClick(
@@ -204,6 +221,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                             }
                         }
                     }
+
                     clickSpans[0] is AttachmentSpan -> {
                         clickStrategy?.onClickAttachment(
                             context, editableText,
@@ -268,6 +286,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                     epStart = selectionStart
                     epEnd = selectionEnd
                 }
+//                LogUtils.d("sgx handling style")
                 for (style: IStyle in styleList) {
                     var shouldApplyStyle = true;
                     if (style is BaseCharacterStyle<*> && textEvent == IStyle.TextEvent.DELETE) {
@@ -661,7 +680,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         if (editableText == null) return
         val spans = editableText.getSpans(0, length(), AttachmentSpan::class.java)
         for (span in spans) {
-            if (span.attachValue == attachmentValue) {
+            if (span.spanId == attachmentValue) {
                 val start = editableText!!.getSpanStart(span)
                 val end = editableText!!.getSpanEnd(span)
                 editableText!!.replace(start, end, "")
@@ -689,5 +708,15 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
                 it.onSelectionChanged(selectionStart, selectionEnd)
             }
         }
+    }
+
+    override fun onDraw(canvas: Canvas?) {
+        // need to draw bg first so that text can be on top during super.onDraw()
+        if (text is Spanned && layout != null) {
+            canvas?.withTranslation(totalPaddingLeft.toFloat(), totalPaddingTop.toFloat()) {
+                textRoundedBgHelper.draw(canvas, text as Spanned, layout)
+            }
+        }
+        super.onDraw(canvas)
     }
 }

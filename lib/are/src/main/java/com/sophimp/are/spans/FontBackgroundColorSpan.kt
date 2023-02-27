@@ -7,7 +7,7 @@ import android.text.style.BackgroundColorSpan
  * @author: sfx
  * @since: 2021/7/20
  */
-class FontBackgroundColorSpan(var colorStr: String) : BackgroundColorSpan(Color.parseColor(colorStr)), IDynamicSpan {
+class FontBackgroundColorSpan(var colorStr: String) : BackgroundColorSpan(Color.TRANSPARENT), IDynamicSpan {
     private var mColor = Color.parseColor(colorStr)
     override val dynamicFeature: String
         get() = colorStr
