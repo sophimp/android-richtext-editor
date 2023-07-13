@@ -57,6 +57,11 @@ object Util {
         Html.ossServer = server
     }
 
+    /**
+     * 是否正在排序
+     */
+    var isSorting = false
+
     val textAlignPattern = Pattern.compile("(?:\\s+|\\A)text-align\\s*:\\s*(\\S*)\\b")
     var values = intArrayOf(1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1)
     var symbols = arrayOf("m", "cm", "d", "cd", "c", "xc", "l", "xl", "x", "ix", "v", "iv", "i")
@@ -283,7 +288,9 @@ object Util {
             } else {
                 editable.getSpans(0, editable.length, ListNumberSpan::class.java)
             }
+        if (isSorting) return
         listNumberSpans?.let {
+            isSorting = true
             if (getSpanMethodWithNoSort == null) {
                 // 坑点， 这里取出来的span 并不是按先后顺序，源码里默认是按照插入顺序排过序了
                 Arrays.sort(listNumberSpans) { o1: ListNumberSpan?, o2: ListNumberSpan? ->
@@ -318,6 +325,7 @@ object Util {
                     }
                 }
             }
+            isSorting = false
         }
     }
 
@@ -734,6 +742,31 @@ object Util {
         } else path.substring(index + 1)
     }
 
+    @JvmStatic
+    fun view2Bitmap_2(view: View?): Bitmap? {
+        if (view == null) return null
+        val dm = view.context.resources.displayMetrics
+        val screenWidth = dm.widthPixels - (dm.density * 49)
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(
+                screenWidth.roundToInt(),
+                View.MeasureSpec.EXACTLY
+            ),  //  view.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+            View.MeasureSpec.makeMeasureSpec(
+                0,
+                View.MeasureSpec.UNSPECIFIED
+            )
+        )
+        view.layout(0, 0, view.measuredWidth, view.measuredHeight)
+        val bitmap: Bitmap = Bitmap.createBitmap(
+            view.measuredWidth,
+            view.measuredHeight,
+            Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(bitmap)
+        view.draw(canvas)
+        return bitmap
+    }
 
     @JvmStatic
     fun view2Bitmap(view: View?): Bitmap? {

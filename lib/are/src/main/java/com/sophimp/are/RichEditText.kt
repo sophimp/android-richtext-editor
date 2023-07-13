@@ -2,23 +2,35 @@ package com.sophimp.are
 
 import android.content.Context
 import android.graphics.Canvas
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
-import android.text.*
+import android.text.Editable
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.TextUtils
+import android.text.TextWatcher
 import android.text.style.ImageSpan
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
-import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.graphics.withTranslation
 import com.sophimp.are.inner.Html
 import com.sophimp.are.listener.ImageLoadedListener
+import com.sophimp.are.listener.OnSearchOperateListener
 import com.sophimp.are.listener.OnSelectionChangeListener
 import com.sophimp.are.models.StyleChangedListener
-import com.sophimp.are.spans.*
+import com.sophimp.are.spans.AttachmentSpan
+import com.sophimp.are.spans.AudioSpan
+import com.sophimp.are.spans.IClickableSpan
+import com.sophimp.are.spans.IUploadSpan
+import com.sophimp.are.spans.ImageSpan2
+import com.sophimp.are.spans.SearchHighlightSpan
+import com.sophimp.are.spans.TableSpan
+import com.sophimp.are.spans.TodoSpan
+import com.sophimp.are.spans.UrlSpan
+import com.sophimp.are.spans.VideoSpan
 import com.sophimp.are.style.BaseCharacterStyle
 import com.sophimp.are.style.IStyle
 import com.sophimp.are.style.ImageStyle
@@ -26,7 +38,16 @@ import com.sophimp.are.toolbar.DefaultToolbar
 import com.sophimp.are.toolbar.items.IToolbarItem
 import com.sophimp.are.utils.TextRoundedBgHelper
 import com.sophimp.are.utils.Util
-import kotlinx.coroutines.*
+import com.sophimp.are.utils.closeSearch
+import com.sophimp.are.utils.searchNext
+import com.sophimp.are.utils.searchPrev
+import com.sophimp.are.utils.updateSearchKeys
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import kotlin.math.min
 
@@ -35,8 +56,8 @@ import kotlin.math.min
  * @author: sfx
  * @since: 2021/7/20
  */
-@RequiresApi(Build.VERSION_CODES.Q)
-class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(context, attr) {
+class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(context, attr),
+    OnSearchOperateListener {
     var sendWatchersMethod: Method? = null
 
     val MSG_HANDLE_STYLE = 0x101
@@ -59,7 +80,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         return@Handler true
     }
 
-    private var styleList: MutableList<IStyle> = arrayListOf()
+    var styleList: MutableList<IStyle> = arrayListOf()
 
     val imageStyle: ImageStyle? = null
         get() {
@@ -112,6 +133,8 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
     private val textRoundedBgHelper: TextRoundedBgHelper
 
     init {
+        Constants.DEFAULT_FONT_SIZE =
+            (textSize / getContext().resources.displayMetrics.scaledDensity).toInt()
         textRoundedBgHelper = TextRoundedBgHelper(
             horizontalPadding = 1,
             verticalPadding = 1,
@@ -139,14 +162,18 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         }
     }
 
+    fun notifySelectionChanged(start: Int, end: Int) {
+        selectionChangesListeners.forEach {
+            it.onSelectionChanged(start, end)
+        }
+    }
+
     private val gestureDetector =
         GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-            override fun onSingleTapUp(e: MotionEvent?): Boolean {
+            override fun onSingleTapUp(e: MotionEvent): Boolean {
                 val offset = Util.getTextOffset(this@RichEditText, e!!)
                 if (offset >= 0 && offset != selectionEnd) {
-                    selectionChangesListeners.forEach {
-                        it.onSelectionChanged(offset, offset)
-                    }
+                    notifySelectionChanged(offset, offset)
                 }
                 if (offset < 0) {
                     if (!editMode) {
@@ -233,9 +260,14 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
             }
         })
 
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
+    override fun onTouchEvent(event: MotionEvent): Boolean {
         gestureDetector.onTouchEvent(event)
-        return super.onTouchEvent(event)
+        return try {
+            super.onTouchEvent(event)
+        } catch (e: Exception) {
+            false
+        }
+
     }
 
     /**
@@ -278,38 +310,25 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         lastHandleEnd = epEnd
         val beforeSelectStart = beforeSelectionStart
         val afterSelectEnd = selectionEnd
-        MainScope().launch {
+        CoroutineScope(Dispatchers.Main).launch {
             hasAppliedStyle = false
 //            LogUtils.d("sgx start handle style")
-            val job = async {
-                if (textEvent == IStyle.TextEvent.INPUT_NEW_LINE) {
-                    epStart = selectionStart
-                    epEnd = selectionEnd
-                }
-//                LogUtils.d("sgx handling style")
-                for (style: IStyle in styleList) {
-                    var shouldApplyStyle = true;
-                    if (style is BaseCharacterStyle<*> && textEvent == IStyle.TextEvent.DELETE) {
-//                        shouldApplyStyle = false
-                    }
-                    if (shouldApplyStyle) {
-                        launch {
-                            style.applyStyle(
-                                editableText,
-                                textEvent,
-                                changedText,
-                                beforeSelectStart,
-                                afterSelectEnd,
-                                epStart,
-                                epEnd
-                            )
-                        }
-                    }
-                }
+            if (textEvent == IStyle.TextEvent.INPUT_NEW_LINE) {
+                epStart = selectionStart
+                epEnd = selectionEnd
             }
-            job.await()
+            for (style: IStyle in styleList) {
+                style.applyStyle(
+                    editableText,
+                    textEvent,
+                    changedText,
+                    beforeSelectStart,
+                    afterSelectEnd,
+                    epStart,
+                    epEnd
+                )
+            }
             refresh(0)
-//            LogUtils.d("sgx end handle style")
             hasAppliedStyle = true
 
             styleChangedListener?.onStyleChanged(this@RichEditText)
@@ -465,29 +484,42 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         startMonitor()
     }
 
-    fun refreshRange(start: Int, end: Int) {
-        try {
-            sendWatchersMethod?.invoke(editableText, start, end, end - start)
-        } catch (e: Exception) {
-
+    fun refreshRange(start: Int, end: Int, needRefreshByInsert: Boolean = false) {
+        if (needRefreshByInsert) {
+            stopMonitor()
+            editableText.insert(end, "\u3000")
+            editableText.delete(end, min(length(), end + 1))
+            startMonitor()
         }
-
+        post {
+            if (start < end) {
+                try {
+                    sendWatchersMethod?.invoke(editableText, start, end, end - start)
+                } catch (e: IllegalAccessException) {
+                    e.printStackTrace()
+                } catch (e: IllegalArgumentException) {
+                    e.printStackTrace()
+                } catch (e: InvocationTargetException) {
+                    e.printStackTrace()
+                }
+            }
+        }
     }
 
     private fun refresh(start: Int) {
         refreshRange(start, length())
-        requestLayout()
+//        requestLayout()
     }
 
     fun refreshByInsert(start: Int) {
-        postDelayed({
-            stopMonitor()
-            editableText.insert(0, "-")
-            editableText.delete(0, 1)
-            editableText.insert(start, " ")
-            editableText.delete(start, start + 1)
-            startMonitor()
-        }, 50)
+//        postDelayed({
+        stopMonitor()
+//            editableText.insert(0, "-")
+//            editableText.delete(0, 1)
+        editableText.insert(start, " ")
+        editableText.delete(start, start + 1)
+        startMonitor()
+//        }, 50)
     }
 
     fun postDelayUIRun(runnable: Runnable, delay: Long) {
@@ -537,7 +569,7 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
 
     fun toHtml(): String {
         stopMonitor()
-        Html.sContext = context
+        Html.sContext = context.applicationContext
         val html = StringBuffer()
 //        val editTextHtml = Html.toHtml(editableText, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL)
         val editTextHtml = Html.toHtml(editableText, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL)
@@ -689,9 +721,11 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         isChange = true
     }
 
-    fun registerOnSelectionChangedListener(listener: OnSelectionChangeListener) {
-        if (!selectionChangesListeners.contains(listener)) {
-            selectionChangesListeners.add(listener)
+    fun registerOnSelectionChangedListener(listener: OnSelectionChangeListener?) {
+        listener?.let {
+            if (!selectionChangesListeners.contains(listener)) {
+                selectionChangesListeners.add(listener)
+            }
         }
     }
 
@@ -710,13 +744,61 @@ class RichEditText(context: Context, attr: AttributeSet) : AppCompatEditText(con
         }
     }
 
+    //    private var mPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     override fun onDraw(canvas: Canvas?) {
         // need to draw bg first so that text can be on top during super.onDraw()
         if (text is Spanned && layout != null) {
             canvas?.withTranslation(totalPaddingLeft.toFloat(), totalPaddingTop.toFloat()) {
-                textRoundedBgHelper.draw(canvas, text as Spanned, layout)
+                textRoundedBgHelper.drawFontBg(canvas, text as Spanned, layout)
+                if (curHighlightSpans.isNotEmpty()) {
+                    textRoundedBgHelper.drawSearchHighlight(
+                        canvas,
+                        curHighlightSpans,
+                        text as Spanned,
+                        layout
+                    )
+                }
             }
         }
-        super.onDraw(canvas)
+        try {
+            super.onDraw(canvas)
+        } catch (e: IndexOutOfBoundsException) {
+            e.printStackTrace()
+        }
+    }
+
+    /**
+     * 当前高亮的
+     */
+    var curHighlightSpanIndex = -1
+
+    /**
+     * 搜索关关键字
+     */
+    var searchKeys = mutableListOf<String>()
+
+    /**
+     * 搜索高这缓存
+     */
+    val cacheSearchHighlightSpans = mutableListOf<SearchHighlightSpan>()
+
+    val curHighlightSpans = mutableListOf<SearchHighlightSpan>()
+
+    override fun onPreClick(): Int {
+        searchPrev()
+        return curHighlightSpanIndex
+    }
+
+    override fun onNextClick(): Int {
+        searchNext()
+        return curHighlightSpanIndex
+    }
+
+    override fun onSearch(keys: List<String>): Int {
+        return updateSearchKeys(keys)
+    }
+
+    override fun onCloseClick() {
+        closeSearch()
     }
 }

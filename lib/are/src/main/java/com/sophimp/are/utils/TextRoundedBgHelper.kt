@@ -22,6 +22,7 @@ import android.graphics.drawable.ColorDrawable
 import android.text.Layout
 import android.text.Spanned
 import com.sophimp.are.spans.FontBackgroundColorSpan
+import com.sophimp.are.spans.SearchHighlightSpan
 
 /**
  * Helper class to draw multi-line rounded background to certain parts of a text. The start/end
@@ -80,12 +81,33 @@ class TextRoundedBgHelper(
      * @param text
      * @param layout Layout that contains the text
      */
-    fun draw(canvas: Canvas, text: Spanned, layout: Layout) {
+    fun drawFontBg(canvas: Canvas, text: Spanned, layout: Layout) {
         // ideally the calculations here should be cached since they are not cheap. However, proper
         // invalidation of the cache is required whenever anything related to text has changed.
         val spans = text.getSpans(0, text.length, FontBackgroundColorSpan::class.java)
         spans.forEach { span ->
-//            if (span.value.equals("rounded")) {
+            val spanStart = text.getSpanStart(span)
+            val spanEnd = text.getSpanEnd(span)
+            val startLine = layout.getLineForOffset(spanStart)
+            val endLine = layout.getLineForOffset(spanEnd)
+            if (spanStart > text.length) return
+
+            // start can be on the left or on the right depending on the language direction.
+            val startOffset = (layout.getPrimaryHorizontal(spanStart)
+                    + -1 * layout.getParagraphDirection(startLine) * horizontalPadding).toInt()
+            // end can be on the left or on the right depending on the language direction.
+            val endOffset = (layout.getPrimaryHorizontal(spanEnd)
+                    + layout.getParagraphDirection(endLine) * horizontalPadding).toInt()
+
+//            bgDrawable.color = Color.parseColor(span.dynamicFeature)
+            bgDrawable.color = span.mColor
+            val renderer = if (startLine == endLine) singleLineRenderer else multiLineRenderer
+            renderer.draw(canvas, layout, startLine, endLine, startOffset, endOffset)
+        }
+    }
+
+    fun drawSearchHighlight(canvas: Canvas, bgSpans: List<SearchHighlightSpan>, text: Spanned, layout: Layout) {
+        bgSpans.forEach { span ->
             val spanStart = text.getSpanStart(span)
             val spanEnd = text.getSpanEnd(span)
             val startLine = layout.getLineForOffset(spanStart)
@@ -98,10 +120,10 @@ class TextRoundedBgHelper(
             val endOffset = (layout.getPrimaryHorizontal(spanEnd)
                     + layout.getParagraphDirection(endLine) * horizontalPadding).toInt()
 
-            bgDrawable.color = Color.parseColor(span.colorStr)
+//            bgDrawable.color = Color.parseColor(span.dynamicFeature)
+            bgDrawable.color = span.mColor
             val renderer = if (startLine == endLine) singleLineRenderer else multiLineRenderer
             renderer.draw(canvas, layout, startLine, endLine, startOffset, endOffset)
         }
-//        }
     }
 }

@@ -5,7 +5,8 @@ object Constants {
     /**
      * default font size
      */
-    const val DEFAULT_FONT_SIZE: Int = 16
+    @JvmField
+    var DEFAULT_FONT_SIZE: Int = 16
 
     /**
      * default font color
