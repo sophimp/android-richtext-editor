@@ -29,7 +29,6 @@ class IndentRightStyle(editText: RichEditText) : BaseParagraphStyle<IndentSpan>(
 //        CoroutineScope(Dispatchers.IO).launch {
 //            Util.renumberAllListItemSpans(mEditText.editableText)
 //        }
-        mEditText.setSelection(mEditText.selectionStart, mEditText.selectionEnd)
     }
 
     override fun newSpan(inheritSpan: ISpan?): ISpan? {

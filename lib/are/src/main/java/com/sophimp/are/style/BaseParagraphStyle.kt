@@ -9,7 +9,7 @@ import com.sophimp.are.spans.ISpan
 import com.sophimp.are.spans.IndentSpan
 import com.sophimp.are.spans.LineSpaceSpan
 import com.sophimp.are.utils.Util
-import java.util.*
+import java.util.Arrays
 import kotlin.math.max
 import kotlin.math.min
 
@@ -28,6 +28,8 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
         Arrays.sort(targets) { o1: T, o2: T ->
             mEditText.editableText.getSpanStart(o1) - mEditText.editableText.getSpanStart(o2)
         }
+        val beforeSelectionStart = mEditText.selectionStart
+        val beforeSelectionEnd = mEditText.selectionEnd
         updateSpan(targets, curPStart, curPEnd)
         if (targetClass() == LineSpaceSpan::class.java || targetClass() == IndentSpan::class.java) {
             mEditText.refreshByInsert(curPStart)
@@ -35,6 +37,9 @@ abstract class BaseParagraphStyle<T : ISpan>(editText: RichEditText) : BaseStyle
 //        else {
 //            mEditText.refresh(curPStart)
 //        }
+        mEditText.post {
+            mEditText.setSelection(0.coerceAtLeast(beforeSelectionStart), mEditText.length().coerceAtMost(beforeSelectionEnd))
+        }
         return 0
     }
     open fun <T : ISpan> updateSpan(spans: Array<T>, start: Int, end: Int) {

@@ -27,7 +27,7 @@ class IndentLeftStyle(editText: RichEditText) : BaseParagraphStyle<IndentSpan>(e
 //            CoroutineScope(Dispatchers.IO).launch {
 //                Util.renumberAllListItemSpans(mEditText.editableText)
 //            }
-            mEditText.setSelection(mEditText.selectionStart, mEditText.selectionEnd)
+//            mEditText.setSelection(mEditText.selectionStart, mEditText.selectionEnd)
         }
     }
 
