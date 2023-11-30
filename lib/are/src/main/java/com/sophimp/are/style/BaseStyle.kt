@@ -11,7 +11,7 @@ import com.sophimp.are.utils.Util
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Arrays
 import kotlin.math.max
 
 /**
@@ -46,6 +46,8 @@ abstract class BaseStyle<T : ISpan>(private var curEditText: RichEditText) : ISt
     override fun toolItemIconClick() {
         checkState = !checkState
         val editable = mEditText.editableText
+        val beforeSelectionStart = mEditText.selectionStart
+        val beforeSelectionEnd = mEditText.selectionEnd
         val spStart = Util.getParagraphStart(mEditText, mEditText.selectionStart)
         var spEnd = Util.getParagraphEnd(editable, mEditText.selectionEnd)
         var index = max(0, spStart)
@@ -98,6 +100,7 @@ abstract class BaseStyle<T : ISpan>(private var curEditText: RichEditText) : ISt
             }
         }
         mEditText.post {
+            mEditText.setSelection(0.coerceAtLeast(beforeSelectionStart), mEditText.length().coerceAtMost(beforeSelectionEnd))
             mEditText.markChanged()
         }
         logAllSpans(mEditText.editableText, "${targetClass().simpleName} item click", 0, mEditText.editableText.length)
